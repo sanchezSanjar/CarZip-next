@@ -138,3 +138,8 @@ select.field { appearance: auto; }
 .map-link.naver .mark { background: #03C75A; color: #fff; }
 .map-link.kakao .mark { background: #FEE500; color: #3C1E1E; }
 .map-links.compact .map-link { padding: 0 6px; }
+/* contact rows are links or buttons: same look, hand cursor */
+button.contact { width: 100%; font: inherit; color: inherit; text-align: left; background: #fff; cursor: pointer; }
+.cbar button.contact { width: auto; }
+a.contact, button.contact { cursor: pointer; }
+a.contact:hover, button.contact:hover { border-color: var(--road); }

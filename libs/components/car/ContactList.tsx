@@ -1,5 +1,6 @@
 import React from 'react';
 import { AgentPublic } from '../../types/member/member';
+import { sweetTopSuccessAlert } from '../../sweetAlert';
 
 /** the dealer's public contacts: buyers reach the dealer outside CarZip */
 const ContactList = ({ dealer, bar = false }: { dealer?: AgentPublic; bar?: boolean }) => {
@@ -21,12 +22,21 @@ const ContactList = ({ dealer, bar = false }: { dealer?: AgentPublic; bar?: bool
 				</a>
 			)}
 			{kakao && (
-				<div className="contact">
+				// KakaoTalk has no web link to a chat by ID, so the button copies the ID to paste in the app
+				<button
+					type="button"
+					className="contact"
+					title="Copy KakaoTalk ID"
+					onClick={async () => {
+						await navigator.clipboard.writeText(kakao);
+						await sweetTopSuccessAlert(`KakaoTalk ID "${kakao}" copied`, 1500);
+					}}
+				>
 					<span className="ic" style={{ background: '#FEE500' }}>
 						K
 					</span>
 					KakaoTalk{!bar && <span className="v">{kakao}</span>}
-				</div>
+				</button>
 			)}
 			{telegram && (
 				<a className="contact" href={`https://t.me/${telegram.replace('@', '')}`} target="_blank" rel="noreferrer" style={{ color: 'inherit' }}>
