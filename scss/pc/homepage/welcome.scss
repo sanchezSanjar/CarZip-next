@@ -66,7 +66,10 @@
 .article-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; color: var(--asphalt); display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s; }
 .article-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(30, 36, 43, .1); }
 .article-img { height: 180px; background: linear-gradient(135deg, var(--road), var(--asphalt)); display: grid; place-items: center; color: #fff; font-family: 'Archivo', 'Pretendard', sans-serif; font-weight: 800; font-size: 22px; }
-.article-img img { width: 100%; height: 100%; object-fit: cover; }
+/* the photo fills the 180px box and never spills over the text below */
+.article-img { overflow: hidden; }
+.article-img img { display: block; width: 100%; height: 100%; min-height: 0; object-fit: cover; transition: transform 0.4s ease; }
+.article-card:hover .article-img img { transform: scale(1.06); }
 .article-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .article-body .cat { align-self: flex-start; }
 .article-body h3 { font-size: 17px; font-weight: 800; line-height: 1.35; }
