@@ -38,6 +38,14 @@ const CarCard = ({ car, mine = false, likeCarHandler }: CarCardProps) => {
 							<span key={b}>{b}</span>
 						))}
 					</div>
+					{car.carImages.length > 1 && (
+						<span className="photo-count" aria-label={t('car.photoCount', { count: car.carImages.length })}>
+							<svg viewBox="0 0 24 24" aria-hidden>
+								<path d="M4 7h3l2-2h6l2 2h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1zm8 3a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z" />
+							</svg>
+							{car.carImages.length}
+						</span>
+					)}
 					{sold && <div className="soldover">{t('car.sold')}</div>}
 				</CarPhoto>
 			</Link>

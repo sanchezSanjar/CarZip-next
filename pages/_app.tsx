@@ -9,6 +9,7 @@ import { ApolloProvider } from '@apollo/client/react';
 import { useApollo } from '../apollo/client';
 import { appWithTranslation } from 'next-i18next/pages';
 import { htmlLang } from '../libs/languages';
+import { useScrollReveal } from '../libs/hooks/useScrollReveal';
 import '../scss/app.scss';
 import '../scss/pc/main.scss';
 import '../scss/theme.scss';
@@ -17,6 +18,7 @@ import '../scss/mobile/main.scss';
 const App = ({ Component, pageProps }: AppProps) => {
 	const [theme] = useState(createTheme(light));
 	const client = useApollo(pageProps.initialApolloState);
+	useScrollReveal();
 
 	// the page's language tag follows the language switcher (screen readers, fonts, Korean line breaks).
 	// Next.js writes our code "kr" there after every page change, so it is corrected right after.

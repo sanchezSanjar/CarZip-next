@@ -30,6 +30,8 @@ import { withTranslations } from '../../libs/i18n';
 import { useTranslation } from 'next-i18next/pages';
 import { useLocaleFormat } from '../../libs/hooks/useLocaleFormat';
 
+const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
 const CarDetail: NextPage = () => {
 	const router = useRouter();
 	const { t } = useTranslation('common');
@@ -123,10 +125,15 @@ const CarDetail: NextPage = () => {
 						<div className="l">
 							<b>{t('detail.mileage')}</b>{t('detail.reported')}
 						</div>
-						<div className="odo">
+						{/* each digit is a strip of 0-9 that rolls to its number when the page opens */}
+						<div className="odo" aria-label={`${fmt.number(car.carMileage)} km`}>
 							{odometer.map((d, i) => (
-								<span key={i} className={i < firstDigit ? 'dim' : ''}>
-									{d}
+								<span key={i} className={i < firstDigit ? 'dim' : ''} aria-hidden style={{ '--d': d, '--i': i } as React.CSSProperties}>
+									<i>
+										{DIGITS.map((n) => (
+											<b key={n}>{n}</b>
+										))}
+									</i>
 								</span>
 							))}
 							<em>km</em>

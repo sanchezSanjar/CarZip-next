@@ -150,7 +150,18 @@ const CarSearch = ({ search, sortIndex, go }: CarSearchProps) => {
 						</div>
 					)}
 
-					{!getCarsLoading && !getCarsError && !cars.length && filtered ? (
+					{getCarsLoading && !cars.length ? (
+						<div className="grid3" aria-busy="true">
+							{Array.from({ length: 6 }, (_, i) => (
+								<div key={i} className="card skeleton-card">
+									<div className="sk sk-photo" />
+									<div className="sk sk-line" style={{ width: '72%' }} />
+									<div className="sk sk-line" style={{ width: '45%' }} />
+									<div className="sk sk-price" />
+								</div>
+							))}
+						</div>
+					) : !getCarsLoading && !getCarsError && !cars.length && filtered ? (
 						<div className="empty">
 							<h3>{t('search.noMatch')}</h3>
 							<p>{t('search.noMatchText')}</p>

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { CarBrand } from '../../enums/car.enum';
 
 import { useTranslation } from 'next-i18next/pages';
+import CountUp from '../common/CountUp';
 
 const quickBrands = [CarBrand.HYUNDAI, CarBrand.KIA, CarBrand.GENESIS, CarBrand.BMW, CarBrand.MERCEDES, CarBrand.TESLA];
 
@@ -10,7 +11,7 @@ const quickBrands = [CarBrand.HYUNDAI, CarBrand.KIA, CarBrand.GENESIS, CarBrand.
  * Full-width welcome: drone footage of a car market (public/video/hero.mp4) with the logo and a quick search.
  * Until the video file exists, the browser simply shows the poster image.
  */
-const Hero = () => {
+const Hero = ({ stats }: { stats: { cars: number; dealers: number; cities: number } }) => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [text, setText] = useState('');
@@ -63,6 +64,28 @@ const Hero = () => {
 						</a>
 					))}
 				</div>
+				{stats.cars > 0 && (
+					<div className="hero-stats">
+						<div>
+							<b>
+								<CountUp value={stats.cars} />
+							</b>
+							{t('home.statCars')}
+						</div>
+						<div>
+							<b>
+								<CountUp value={stats.dealers} />
+							</b>
+							{t('home.statDealers')}
+						</div>
+						<div>
+							<b>
+								<CountUp value={stats.cities} />
+							</b>
+							{t('home.statCities')}
+						</div>
+					</div>
+				)}
 			</div>
 		</section>
 	);

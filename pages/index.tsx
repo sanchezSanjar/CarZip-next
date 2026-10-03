@@ -15,10 +15,15 @@ import { withTranslations } from '../libs/i18n';
 /** welcome page: first impression, then the way into the car search */
 const Home: NextPage = () => {
 	const { cars, count } = useCarStats();
+	const stats = {
+		cars: cars.length,
+		dealers: new Set(cars.map((c) => c.memberId)).size,
+		cities: Object.keys(count('carLocation')).length,
+	};
 
 	return (
 		<>
-			<Hero />
+			<Hero stats={stats} />
 			<QuickBrowse count={count} total={cars.length} />
 			<ValueCards />
 			<TopAgents />
