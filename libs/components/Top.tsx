@@ -60,6 +60,11 @@ const Top = () => {
 						<Link href="/mypage?category=notifications" style={{ fontSize: 14, color: 'var(--muted)' }}>
 							Notifications
 						</Link>
+						{user.memberType !== MemberType.ADMIN && (
+							<Link href="/mypage" className="btn dark sm">
+								My page
+							</Link>
+						)}
 						<div
 							className={`avatar ${user.memberType === MemberType.AGENT ? '' : 'user'}`}
 							role="button"
