@@ -9,6 +9,7 @@ import { Notice, Notices } from '../../../libs/types/notice/notice';
 import { getErrorMessage } from '../../../libs/auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../../libs/sweetAlert';
 import { enumLabel, formatNumber } from '../../../libs/utils';
+import { withTranslations } from '../../../libs/i18n';
 
 // what each status means on the public Help page
 const statusInfo: Record<NoticeStatus, { cls: string; label: string }> = {
@@ -190,5 +191,7 @@ const AdminCs: NextPage = () => {
 		</>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutAdmin(AdminCs);

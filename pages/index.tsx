@@ -10,6 +10,7 @@ import CommunityBoards from '../libs/components/homepage/CommunityBoards';
 import KoreaMap from '../libs/components/homepage/KoreaMap';
 import GuidesNotices from '../libs/components/homepage/GuidesNotices';
 import { useCarStats } from '../libs/hooks/useCarStats';
+import { withTranslations } from '../libs/i18n';
 
 /** welcome page: first impression, then the way into the car search */
 const Home: NextPage = () => {
@@ -28,5 +29,7 @@ const Home: NextPage = () => {
 		</>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutBasic(Home, 'CarZip | Used cars from verified dealers');

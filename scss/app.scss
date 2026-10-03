@@ -155,3 +155,10 @@ a.contact:hover, button.contact:hover { border-color: var(--road); }
 .location-card .loc-text .map-links { margin-top: 8px; }
 .map-link { white-space: nowrap; }
 .notice-row small { white-space: nowrap; }
+
+/* language switcher */
+.lang-btn { height: 36px; padding: 0 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff; font-weight: 700; font-size: 13px; color: var(--asphalt); cursor: pointer; }
+.lang-btn:hover { border-color: var(--road); }
+.drawer-langs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+.drawer-langs button { height: 36px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-weight: 700; cursor: pointer; }
+.drawer-langs button.on { background: var(--asphalt); color: #fff; border-color: var(--asphalt); }

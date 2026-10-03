@@ -16,10 +16,13 @@
     "@mui/material": "^9.4.0",
     "animate.css": "^4.1.1",
     "graphql": "^16.14.2",
+    "i18next": "^26.4.2",
     "jwt-decode": "^4.0.0",
     "next": "16.3.8",
+    "next-i18next": "^16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "react-i18next": "^17.0.15",
     "rxjs": "^7.8.2",
     "sweetalert2": "^11.26.25"
   },

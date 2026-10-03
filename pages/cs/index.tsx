@@ -9,6 +9,7 @@ import { useQuery } from '@apollo/client/react';
 import { GET_NOTICES } from '../../apollo/user/query';
 import { NoticeCategory } from '../../libs/enums/notice.enum';
 import { Notices } from '../../libs/types/notice/notice';
+import { withTranslations } from '../../libs/i18n';
 
 const tabs = [
 	{ key: 'faq', label: 'FAQ', category: NoticeCategory.FAQ },
@@ -72,5 +73,7 @@ const CS: NextPage = () => {
 		</div>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutBasic(CS, 'Help | CarZip');

@@ -17,6 +17,7 @@ import { CarSort } from '../../libs/enums/car.enum';
 import { Direction } from '../../libs/enums/common.enum';
 import { useAddressReady } from '../../libs/hooks/useAddressReady';
 import { queryToSearch, searchToQuery } from '../../libs/carSearchQuery';
+import { withTranslations } from '../../libs/i18n';
 
 const PAGE_SIZE = 9;
 
@@ -184,5 +185,7 @@ const CarSearch = ({ search, sortIndex, go }: CarSearchProps) => {
 		</>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutBasic(CarList, 'Buy a car | CarZip');

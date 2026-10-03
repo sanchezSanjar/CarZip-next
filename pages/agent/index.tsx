@@ -12,6 +12,7 @@ import { Members } from '../../libs/types/member/member';
 import { Direction } from '../../libs/enums/common.enum';
 import { dealerName } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
+import { withTranslations } from '../../libs/i18n';
 
 const LIMIT = 9;
 // the sorts the API accepts for dealers
@@ -149,5 +150,7 @@ const AgentList: NextPage = () => {
 		</div>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutBasic(AgentList, 'Dealers | CarZip');

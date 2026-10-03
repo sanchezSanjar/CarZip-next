@@ -14,6 +14,7 @@ import { getErrorMessage } from '../../../libs/auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../../libs/sweetAlert';
 import { dealerName, enumLabel, formatNumber, timeAgo } from '../../../libs/utils';
 import Avatar from '../../../libs/components/common/Avatar';
+import { withTranslations } from '../../../libs/i18n';
 
 const LIMIT = 10;
 
@@ -221,5 +222,7 @@ const AdminCommunity: NextPage = () => {
 		</>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutAdmin(AdminCommunity);

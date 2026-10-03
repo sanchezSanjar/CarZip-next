@@ -6,6 +6,7 @@ import Login from '../../libs/components/account/Login';
 import Signup from '../../libs/components/account/Signup';
 import ForgotPassword from '../../libs/components/account/ForgotPassword';
 import { useAddressReady } from '../../libs/hooks/useAddressReady';
+import { withTranslations } from '../../libs/i18n';
 
 /** /account/join?mode=login (default) | signup (&type=AGENT for dealers) | forgot */
 const Join: NextPage = () => {
@@ -24,5 +25,7 @@ const Join: NextPage = () => {
 		</div>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutBasic(Join, 'Log in | CarZip');

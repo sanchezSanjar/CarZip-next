@@ -25,6 +25,7 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { colorHex, dealerName, enumLabel, formatManwon, formatNumber, formatUsd, marketLabel, timeAgo } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
 import { useAddressReady } from '../../libs/hooks/useAddressReady';
+import { withTranslations } from '../../libs/i18n';
 
 const CarDetail: NextPage = () => {
 	const router = useRouter();
@@ -321,5 +322,7 @@ const CarDetail: NextPage = () => {
 		</>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutBasic(CarDetail, 'Car | CarZip');

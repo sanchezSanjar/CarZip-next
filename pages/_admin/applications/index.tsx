@@ -11,6 +11,7 @@ import { getErrorMessage } from '../../../libs/auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../../libs/sweetAlert';
 import { timeAgo } from '../../../libs/utils';
 import Avatar from '../../../libs/components/common/Avatar';
+import { withTranslations } from '../../../libs/i18n';
 
 /** time left of the 24-hour promise: green, amber, then red when late */
 const timer = (applied: Date, now: number) => {
@@ -166,5 +167,7 @@ const Applications: NextPage = () => {
 		</>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutAdmin(Applications);

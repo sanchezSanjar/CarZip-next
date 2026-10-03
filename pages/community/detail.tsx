@@ -19,6 +19,7 @@ import { Cars } from '../../libs/types/car/car';
 import { dealerName, enumLabel, formatNumber, timeAgo } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
 import { useAddressReady } from '../../libs/hooks/useAddressReady';
+import { withTranslations } from '../../libs/i18n';
 
 const ArticleDetail: NextPage = () => {
 	const router = useRouter();
@@ -156,5 +157,7 @@ const ArticleDetail: NextPage = () => {
 		</div>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutBasic(ArticleDetail, 'Article | CarZip');

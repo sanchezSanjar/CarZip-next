@@ -12,6 +12,7 @@ import { Direction } from '../../libs/enums/common.enum';
 import { BoardArticles } from '../../libs/types/board-article/board-article';
 import { dealerName, enumLabel, formatNumber, timeAgo } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
+import { withTranslations } from '../../libs/i18n';
 
 const LIMIT = 8;
 const sorts = [
@@ -162,5 +163,7 @@ const Community: NextPage = () => {
 		</div>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutBasic(Community, 'Community | CarZip');

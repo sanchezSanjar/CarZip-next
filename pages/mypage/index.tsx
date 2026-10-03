@@ -14,6 +14,7 @@ import MyBlocks from '../../libs/components/mypage/MyBlocks';
 import MyProfile from '../../libs/components/mypage/MyProfile';
 import MyNotifications from '../../libs/components/mypage/MyNotifications';
 import { useAddressReady } from '../../libs/hooks/useAddressReady';
+import { withTranslations } from '../../libs/i18n';
 
 /** /mypage?category=... : one section of the dealer's or buyer's own pages */
 const MyPage: NextPage = () => {
@@ -40,5 +41,7 @@ const MyPage: NextPage = () => {
 		</>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutMember(MyPage);

@@ -10,6 +10,8 @@ import { MemberType } from '../enums/member.enum';
 import { Silhouette } from './common/Avatar';
 import { useMyImage } from '../hooks/useMyImage';
 import useDeviceDetect from '../hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next/pages';
+import { languages } from '../languages';
 
 export const Logo = ({ size }: { size?: number }) => (
 	<Link href="/" className="logo" style={size ? { fontSize: size } : undefined}>
@@ -18,10 +20,10 @@ export const Logo = ({ size }: { size?: number }) => (
 );
 
 const links = [
-	{ href: '/car', label: 'Buy a car', match: (p: string) => p.startsWith('/car') },
-	{ href: '/agent', label: 'Dealers', match: (p: string) => p.startsWith('/agent') },
-	{ href: '/community', label: 'Community', match: (p: string) => p.startsWith('/community') },
-	{ href: '/cs', label: 'Help', match: (p: string) => p.startsWith('/cs') },
+	{ href: '/car', label: 'nav.buyCar', match: (p: string) => p.startsWith('/car') },
+	{ href: '/agent', label: 'nav.dealers', match: (p: string) => p.startsWith('/agent') },
+	{ href: '/community', label: 'nav.community', match: (p: string) => p.startsWith('/community') },
+	{ href: '/cs', label: 'nav.help', match: (p: string) => p.startsWith('/cs') },
 ];
 
 const Top = () => {
@@ -31,6 +33,10 @@ const Top = () => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [drawerOpen, setDrawerOpen] = useState(false);
 	const device = useDeviceDetect();
+	const { t } = useTranslation('common');
+	const [langEl, setLangEl] = useState<null | HTMLElement>(null);
+	const locale = router.locale ?? 'en';
+	const currentLang = languages.find((l) => l.code === locale) ?? languages[0];
 
 	/** APOLLO REQUESTS **/
 	// notifications don't arrive live yet: ask for the unread count every minute
@@ -43,11 +49,34 @@ const Top = () => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
+		const saved = localStorage.getItem('locale');
+		if (saved && saved !== router.locale && languages.some((l) => l.code === saved)) {
+			router.replace(router.asPath, router.asPath, { locale: saved }).then();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	useEffect(() => {
 		const jwt = getJwtToken();
 		if (jwt) updateUserInfo(jwt);
 	}, []);
 
 	/** HANDLERS **/
+	const chooseLanguage = (code: string) => {
+		setLangEl(null);
+		setDrawerOpen(false);
+		localStorage.setItem('locale', code);
+		router.push(router.asPath, router.asPath, { locale: code }).then();
+	};
+	const langMenu = (
+		<Menu anchorEl={langEl} open={!!langEl} onClose={() => setLangEl(null)}>
+			{languages.map((l) => (
+				<MenuItem key={l.code} selected={l.code === locale} onClick={() => chooseLanguage(l.code)}>
+					<b style={{ width: 30 }}>{l.short}</b> {t(l.label)}
+				</MenuItem>
+			))}
+		</Menu>
+	);
 	const logOutHandler = () => {
 		setAnchorEl(null);
 		logOut();
@@ -80,7 +109,7 @@ const Top = () => {
 							<span className="badge num">{unread > 99 ? '99+' : unread}</span>
 						</Link>
 					)}
-					<button className="menu-btn" aria-label="Open menu" onClick={() => setDrawerOpen(true)}>
+					<button className="menu-btn" aria-label={t('nav.openMenu')} onClick={() => setDrawerOpen(true)}>
 						<span />
 						<span />
 						<span />
@@ -93,34 +122,41 @@ const Top = () => {
 								{avatar}
 								<div>
 									<b>{user.memberNick}</b>
-									<span>{user.memberType === MemberType.AGENT ? 'Verified dealer' : user.memberType === MemberType.ADMIN ? 'Admin' : 'Buyer'}</span>
+									<span>{t(user.memberType === MemberType.AGENT ? 'nav.roleDealer' : user.memberType === MemberType.ADMIN ? 'nav.roleAdmin' : 'nav.roleBuyer')}</span>
 								</div>
 							</div>
 						) : (
 							<div className="auth-btns">
 								<button className="btn ghost" onClick={() => go('/account/join?mode=login')}>
-									Log in
+									{t('nav.logIn')}
 								</button>
 								<button className="btn primary" onClick={() => go('/account/join?mode=signup')}>
-									Sign up
+									{t('nav.signUp')}
 								</button>
 							</div>
 						)}
+						<div className="drawer-langs">
+							{languages.map((l) => (
+								<button key={l.code} className={l.code === locale ? 'on' : ''} onClick={() => chooseLanguage(l.code)}>
+									{l.short}
+								</button>
+							))}
+						</div>
 						{links.map((l) => (
 							<a key={l.href} className={l.match(router.pathname) ? 'on' : ''} onClick={() => go(l.href)}>
-								{l.label}
+								{t(l.label)}
 							</a>
 						))}
 						{user._id && (
 							<>
 								<hr />
 								{user.memberType === MemberType.ADMIN ? (
-									<a onClick={() => go('/_admin')}>Admin</a>
+									<a onClick={() => go('/_admin')}>{t('nav.admin')}</a>
 								) : (
-									<a onClick={() => go('/mypage')}>My page</a>
+									<a onClick={() => go('/mypage')}>{t('nav.myPage')}</a>
 								)}
 								<a onClick={() => go('/mypage?category=notifications')}>
-									Notifications {unread > 0 && <span className="badge num">{unread}</span>}
+									{t('nav.notifications')} {unread > 0 && <span className="badge num">{unread}</span>}
 								</a>
 								<a
 									onClick={() => {
@@ -128,7 +164,7 @@ const Top = () => {
 										logOutHandler();
 									}}
 								>
-									Log out
+									{t('nav.logOut')}
 								</a>
 							</>
 						)}
@@ -144,25 +180,29 @@ const Top = () => {
 			<div className="links">
 				{links.map((l) => (
 					<Link key={l.href} href={l.href} className={l.match(router.pathname) ? 'on' : ''} style={{ color: 'inherit' }}>
-						{l.label}
+						{t(l.label)}
 					</Link>
 				))}
 			</div>
 			<div className="right">
+				<button className="lang-btn" aria-label={t('nav.language')} onClick={(e) => setLangEl(e.currentTarget)}>
+					{currentLang.short} ▾
+				</button>
+				{langMenu}
 				{user._id ? (
 					<>
 						{user.memberType === MemberType.ADMIN && (
 							<Link href="/_admin" className="btn ghost sm">
-								Admin
+								{t('nav.admin')}
 							</Link>
 						)}
 						<Link href="/mypage?category=notifications" className="notif-link">
-							Notifications
+							{t('nav.notifications')}
 							{unread > 0 && <span className="badge num">{unread > 99 ? '99+' : unread}</span>}
 						</Link>
 						{user.memberType !== MemberType.ADMIN && (
 							<Link href="/mypage" className="btn dark sm">
-								My page
+								{t('nav.myPage')}
 							</Link>
 						)}
 						<div
@@ -186,18 +226,18 @@ const Top = () => {
 									router.push('/mypage').then();
 								}}
 							>
-								My page
+								{t('nav.myPage')}
 							</MenuItem>
-							<MenuItem onClick={logOutHandler}>Log out</MenuItem>
+							<MenuItem onClick={logOutHandler}>{t('nav.logOut')}</MenuItem>
 						</Menu>
 					</>
 				) : (
 					<>
 						<Link href="/account/join?mode=login" className="btn ghost">
-							Log in
+							{t('nav.logIn')}
 						</Link>
 						<Link href="/account/join?mode=signup" className="btn primary">
-							Sign up
+							{t('nav.signUp')}
 						</Link>
 					</>
 				)}

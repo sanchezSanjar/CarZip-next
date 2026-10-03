@@ -12,6 +12,7 @@ import { Car, CarsPage } from '../../../libs/types/car/car';
 import { getErrorMessage } from '../../../libs/auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetPromptAlert, sweetTopSuccessAlert } from '../../../libs/sweetAlert';
 import { dealerName, enumLabel, formatCarPrice, formatNumber, timeAgo } from '../../../libs/utils';
+import { withTranslations } from '../../../libs/i18n';
 
 const LIMIT = 10;
 
@@ -200,5 +201,7 @@ const AdminCars: NextPage = () => {
 		</>
 	);
 };
+
+export const getStaticProps = withTranslations;
 
 export default withLayoutAdmin(AdminCars);

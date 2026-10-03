@@ -2,45 +2,45 @@ import React from 'react';
 import Link from 'next/link';
 import { Box, Stack } from '@mui/material';
 import { CarLocation } from '../enums/car.enum';
-import { enumLabel } from '../utils';
 import { jejuX, jejuY, outline, px } from './homepage/KoreaMap';
 import MapLinks from './common/MapLinks';
+import { useTranslation } from 'next-i18next/pages';
 
 const columns = [
 	{
-		title: 'Popular searches',
+		title: 'footer.popular',
 		links: [
-			{ href: '/car?type=SUV', label: 'SUVs' },
-			{ href: '/car?fuel=ELECTRIC', label: 'Electric cars' },
-			{ href: '/car?fuel=HYBRID', label: 'Hybrids' },
-			{ href: '/car?testDrive=1', label: 'Cars you can test drive' },
+			{ href: '/car?type=SUV', label: 'footer.suvs' },
+			{ href: '/car?fuel=ELECTRIC', label: 'footer.electric' },
+			{ href: '/car?fuel=HYBRID', label: 'footer.hybrids' },
+			{ href: '/car?testDrive=1', label: 'footer.testDriveCars' },
 		],
 	},
 	{
-		title: 'Quick links',
+		title: 'footer.quickLinks',
 		links: [
-			{ href: '/agent', label: 'Dealers' },
-			{ href: '/community', label: 'Community' },
-			{ href: '/cs?tab=faq', label: 'FAQ' },
-			{ href: '/cs?tab=notices', label: 'Notices' },
-			{ href: '/cs?tab=terms', label: 'Terms of use' },
+			{ href: '/agent', label: 'nav.dealers' },
+			{ href: '/community', label: 'nav.community' },
+			{ href: '/cs?tab=faq', label: 'footer.faq' },
+			{ href: '/cs?tab=notices', label: 'footer.notices' },
+			{ href: '/cs?tab=terms', label: 'footer.terms' },
 		],
 	},
 	{
-		title: 'Discover',
+		title: 'footer.discover',
 		links: [CarLocation.SEOUL, CarLocation.BUSAN, CarLocation.INCHEON, CarLocation.DAEGU, CarLocation.JEJU].map(
 			(l) => ({
 				href: `/car?location=${l}`,
-				label: enumLabel(l),
+				label: `enum.${l}`,
 			}),
 		),
 	},
 	{
-		title: 'For dealers',
+		title: 'footer.forDealers',
 		links: [
-			{ href: '/account/join?mode=signup&type=AGENT', label: 'Become a dealer' },
-			{ href: '/account/join?mode=login', label: 'Dealer log in' },
-			{ href: '/mypage?category=addCar', label: 'List a car' },
+			{ href: '/account/join?mode=signup&type=AGENT', label: 'footer.becomeDealer' },
+			{ href: '/account/join?mode=login', label: 'footer.dealerLogin' },
+			{ href: '/mypage?category=addCar', label: 'footer.listCar' },
 		],
 	},
 ];
@@ -50,6 +50,7 @@ const [officeX, officeY] = px(127.04, 37.5);
 const OFFICE_ADDRESS = 'Teheran-ro, Gangnam-gu, Seoul';
 
 const Footer = () => {
+	const { t } = useTranslation('common');
 	return (
 		<Stack id="footer" className="footer-container">
 			<Stack className="main">
@@ -57,18 +58,15 @@ const Footer = () => {
 					<Box className="footer-box">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src="/img/logo/carzip-logo-white.svg" alt="CarZip" className="logo" />
-						<p className="about">
-							Used cars from verified dealers, all over Korea. Cars are listed and sold by independent dealers; CarZip
-							is a marketplace and not a party to any sale.
-						</p>
+						<p className="about">{t('footer.about')}</p>
 					</Box>
 					<Box className="footer-box">
-						<span>Customer care</span>
+						<span>{t('footer.customerCare')}</span>
 						<p>help@carzip.example.com</p>
-						<span>Weekdays 10:00 to 18:00 (KST)</span>
+						<span>{t('footer.hours')}</span>
 					</Box>
 					<Box className="footer-box">
-						<span>Office</span>
+						<span>{t('footer.office')}</span>
 						<p>{OFFICE_ADDRESS}</p>
 						<div className="office-map">
 							<svg className="map" viewBox="60 0 330 420" role="img" aria-label="CarZip office in Seoul">
@@ -85,24 +83,23 @@ const Footer = () => {
 					<Box className="bottom">
 						{columns.map((c) => (
 							<div key={c.title}>
-								<strong>{c.title}</strong>
+								<strong>{t(c.title)}</strong>
 								{c.links.map((l) => (
 									<Link key={l.label} href={l.href}>
-										{l.label}
+										{t(l.label)}
 									</Link>
 								))}
 							</div>
 						))}
 					</Box>
 					<Box className="export-note">
-						<b>Buying for export?</b> The dealer is fully responsible for the export: paperwork, deregistration,
-						customs, shipping and payment.
+						<b>{t('footer.exportTitle')}</b> {t('footer.exportText')}
 					</Box>
 				</Stack>
 			</Stack>
 			<Stack className="second">
-				<span>© {new Date().getFullYear()} CarZip. All rights reserved.</span>
-				<span>Demo project: all dealers, cars and people on this site are fictional, and the car photos are AI-generated.</span>
+				<span>© {new Date().getFullYear()} CarZip. {t('footer.rights')}</span>
+				<span>{t('footer.demo')}</span>
 			</Stack>
 		</Stack>
 	);
