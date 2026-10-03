@@ -7,7 +7,9 @@ import { Menu, MenuItem } from '@mui/material';
 import { userVar } from '../../apollo/store';
 import { getJwtToken, logOut, updateUserInfo } from '../auth';
 import { MemberType } from '../enums/member.enum';
-import { initial } from '../utils';
+import {  } from '../utils';
+import { Silhouette } from './common/Avatar';
+import { useMyImage } from '../hooks/useMyImage';
 
 export const Logo = ({ size }: { size?: number }) => (
 	<Link href="/" className="logo" style={size ? { fontSize: size } : undefined}>
@@ -25,6 +27,7 @@ const links = [
 const Top = () => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
+	const myImage = useMyImage();
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
 	/** APOLLO REQUESTS **/
@@ -82,7 +85,12 @@ const Top = () => {
 							style={{ cursor: 'pointer' }}
 							onClick={(e) => setAnchorEl(e.currentTarget)}
 						>
-							{initial(user.memberNick)}
+							{myImage ? (
+								// eslint-disable-next-line @next/next/no-img-element
+								<img src={myImage} alt="" />
+							) : (
+								<Silhouette />
+							)}
 						</div>
 						<Menu anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
 							<MenuItem disabled>{user.memberNick}</MenuItem>

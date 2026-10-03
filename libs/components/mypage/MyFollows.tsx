@@ -8,8 +8,9 @@ import { MemberType } from '../../enums/member.enum';
 import { Followers, Followings } from '../../types/follow/follow';
 import { getErrorMessage } from '../../auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
-import { dealerName, initial, timeAgo } from '../../utils';
+import { dealerName, timeAgo } from '../../utils';
 import Pager from '../common/Pager';
+import Avatar from '../common/Avatar';
 
 const LIMIT = 10;
 
@@ -121,7 +122,7 @@ const MyFollows = () => {
 										<tr key={f._id}>
 											<td>
 												<div className="person">
-													<div className={`avatar ${dealer ? '' : 'user'}`}>{initial(dealerName(p))}</div>
+													<Avatar image={p?.memberImage} dealer={dealer} />
 													<div>
 														<b>{dealerName(p)}</b>
 														{dealer && <small>{p?.memberNick}</small>}
@@ -158,7 +159,7 @@ const MyFollows = () => {
 										<tr key={f._id}>
 											<td>
 												<div className="person">
-													<div className="avatar">{initial(dealerName(p))}</div>
+													<Avatar image={p?.memberImage} dealer />
 													<div>
 														<b>{dealerName(p)}</b>
 														<small>{p?.memberNick}</small>

@@ -16,7 +16,8 @@ import { sweetLoginConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } fr
 import { CommentGroup } from '../../libs/enums/comment.enum';
 import { BoardArticle, BoardArticles } from '../../libs/types/board-article/board-article';
 import { Cars } from '../../libs/types/car/car';
-import { dealerName, enumLabel, formatNumber, initial, timeAgo } from '../../libs/utils';
+import { dealerName, enumLabel, formatNumber, timeAgo } from '../../libs/utils';
+import Avatar from '../../libs/components/common/Avatar';
 
 const ArticleDetail: NextPage = () => {
 	const router = useRouter();
@@ -91,14 +92,7 @@ const ArticleDetail: NextPage = () => {
 				</div>
 				<h1>{article.articleTitle}</h1>
 				<div className="authorbar">
-					{article.memberData?.memberImage ? (
-						// eslint-disable-next-line @next/next/no-img-element
-						<img className="avatar" src={article.memberData.memberImage} alt="" style={{ width: 42, height: 42, objectFit: 'cover' }} />
-					) : (
-						<div className="avatar" style={{ width: 42, height: 42, fontSize: 17 }}>
-							{initial(dealerName(article.memberData))}
-						</div>
-					)}
+					<Avatar image={article.memberData?.memberImage} dealer={isDealer} style={{ width: 42, height: 42 }} />
 					<div>
 						{isDealer ? (
 							<Link href={`/agent/detail?id=${authorId}`} style={{ color: 'inherit' }}>

@@ -5,8 +5,9 @@ import { UNBLOCK_MEMBER } from '../../../apollo/user/mutation';
 import { Blocks } from '../../types/block/block';
 import { getErrorMessage } from '../../auth';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
-import { dealerName, initial, timeAgo } from '../../utils';
+import { dealerName, timeAgo } from '../../utils';
 import Pager from '../common/Pager';
+import Avatar from '../common/Avatar';
 
 const LIMIT = 10;
 
@@ -64,7 +65,7 @@ const MyBlocks = () => {
 										<tr key={b._id}>
 											<td>
 												<div className="person">
-													<div className={`avatar ${dealer ? '' : 'user'}`}>{initial(dealerName(b.blockedData))}</div>
+													<Avatar image={b.blockedData?.memberImage} dealer={dealer} />
 													<div>
 														<b>{dealerName(b.blockedData)}</b>
 														<small>{dealer ? 'Dealer' : 'Buyer'}</small>

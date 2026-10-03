@@ -10,7 +10,8 @@ import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
 import { MemberType } from '../../libs/enums/member.enum';
 import { Direction } from '../../libs/enums/common.enum';
 import { BoardArticles } from '../../libs/types/board-article/board-article';
-import { dealerName, enumLabel, formatNumber, initial, timeAgo } from '../../libs/utils';
+import { dealerName, enumLabel, formatNumber, timeAgo } from '../../libs/utils';
+import Avatar from '../../libs/components/common/Avatar';
 
 const LIMIT = 8;
 const sorts = [
@@ -101,7 +102,7 @@ const Community: NextPage = () => {
 									</Link>
 									<p>{a.articleContent}</p>
 									<div className="by">
-										<div className={`avatar ${a.memberData?.agentCompany ? '' : 'user'}`}>{initial(dealerName(a.memberData))}</div>
+										<Avatar image={a.memberData?.memberImage} dealer={!!a.memberData?.agentCompany} />
 										{dealerName(a.memberData)} {a.memberData?.agentCompany && <span className="role">Dealer</span>}
 										<span>{timeAgo(a.createdAt)}</span>
 									</div>

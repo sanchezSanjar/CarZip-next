@@ -8,7 +8,9 @@ import { CommentGroup } from '../../enums/comment.enum';
 import { Comments } from '../../types/comment/comment';
 import { getErrorMessage } from '../../auth';
 import { sweetLoginConfirmAlert, sweetMixinErrorAlert } from '../../sweetAlert';
-import { dealerName, initial, timeAgo } from '../../utils';
+import { dealerName, timeAgo } from '../../utils';
+import Avatar from './Avatar';
+import { useMyImage } from '../../hooks/useMyImage';
 
 const PAGE = 10;
 
@@ -23,6 +25,7 @@ interface CommentSectionProps {
 const CommentSection = ({ group, refId, ownerId, placeholder = 'Write a comment' }: CommentSectionProps) => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
+	const myImage = useMyImage();
 	const [limit, setLimit] = useState(PAGE);
 	const [text, setText] = useState('');
 	const [editingId, setEditingId] = useState<string | null>(null);
@@ -77,7 +80,7 @@ const CommentSection = ({ group, refId, ownerId, placeholder = 'Write a comment'
 				Comments <span className="num">{total}</span>
 			</h2>
 			<form className="comment-box" onSubmit={post}>
-				<div className="avatar user">{initial(user.memberNick || 'G')}</div>
+				<Avatar image={myImage} dealer={user.memberType === 'AGENT'} />
 				<textarea
 					className="ta"
 					style={{ border: 0, outline: 'none', resize: 'none', fontFamily: 'inherit' }}
@@ -97,7 +100,7 @@ const CommentSection = ({ group, refId, ownerId, placeholder = 'Write a comment'
 				const dealer = !!c.memberData?.agentCompany;
 				return (
 					<div key={c._id} className="comment">
-						<div className={`avatar ${dealer ? '' : 'user'}`}>{initial(dealerName(c.memberData))}</div>
+						<Avatar image={c.memberData?.memberImage} dealer={dealer} />
 						<div style={{ flex: 1 }}>
 							<div className="who">
 								{dealerName(c.memberData)} {isOwner ? <span className="role">{dealer ? 'Dealer' : 'Author'}</span> : dealer && <span className="role">Dealer</span>}{' '}

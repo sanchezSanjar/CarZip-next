@@ -8,8 +8,9 @@ import { Direction } from '../../enums/common.enum';
 import { Member, Members } from '../../types/member/member';
 import { getErrorMessage } from '../../auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
-import { dealerName, initial, timeAgo } from '../../utils';
+import { dealerName, timeAgo } from '../../utils';
 import Pager from '../common/Pager';
+import Avatar from '../common/Avatar';
 
 const LIMIT = 10;
 
@@ -152,7 +153,7 @@ const MemberList = ({ memberType }: { memberType: MemberType.AGENT | MemberType.
 							<tr key={m._id}>
 								<td>
 									<div className="person">
-										<div className={`avatar ${isAgent ? '' : 'user'}`}>{initial(name(m))}</div>
+										<Avatar image={m.memberImage} dealer={isAgent} />
 										<div>
 											{isAgent && m.memberStatus === MemberStatus.ACTIVE ? (
 												<Link href={`/agent/detail?id=${m._id}`} style={{ color: 'inherit' }}>

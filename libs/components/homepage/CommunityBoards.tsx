@@ -4,7 +4,8 @@ import { useQuery } from '@apollo/client/react';
 import { GET_BOARD_ARTICLES } from '../../../apollo/user/query';
 import { BoardArticles } from '../../types/board-article/board-article';
 import { Direction } from '../../enums/common.enum';
-import { dealerName, enumLabel, formatNumber, initial, timeAgo } from '../../utils';
+import { dealerName, enumLabel, formatNumber, timeAgo } from '../../utils';
+import Avatar from '../common/Avatar';
 
 /** the three newest articles from dealers */
 const CommunityBoards = () => {
@@ -43,7 +44,7 @@ const CommunityBoards = () => {
 							<h3>{a.articleTitle}</h3>
 							<p>{a.articleContent}</p>
 							<div className="by">
-								<div className="avatar">{initial(dealerName(a.memberData))}</div>
+								<Avatar image={a.memberData?.memberImage} dealer={!!a.memberData?.agentCompany} />
 								{dealerName(a.memberData)}
 								<span className="muted" style={{ marginLeft: 'auto' }}>
 									{timeAgo(a.createdAt)} · {formatNumber(a.articleViews)} views

@@ -12,7 +12,8 @@ import { BoardArticle, BoardArticles } from '../../../libs/types/board-article/b
 import { Comments } from '../../../libs/types/comment/comment';
 import { getErrorMessage } from '../../../libs/auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../../libs/sweetAlert';
-import { dealerName, enumLabel, formatNumber, initial, timeAgo } from '../../../libs/utils';
+import { dealerName, enumLabel, formatNumber, timeAgo } from '../../../libs/utils';
+import Avatar from '../../../libs/components/common/Avatar';
 
 const LIMIT = 10;
 
@@ -47,7 +48,7 @@ const ArticleComments = ({ article }: { article: BoardArticle }) => {
 			</div>
 			{comments.map((c) => (
 				<div key={c._id} className="comment">
-					<div className="avatar user">{initial(dealerName(c.memberData))}</div>
+					<Avatar image={c.memberData?.memberImage} dealer={!!c.memberData?.agentCompany} />
 					<div style={{ flex: 1 }}>
 						<div className="who">
 							{dealerName(c.memberData)} <small>{timeAgo(c.createdAt)}</small>

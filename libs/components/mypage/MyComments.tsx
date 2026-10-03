@@ -10,8 +10,10 @@ import { BoardArticles } from '../../types/board-article/board-article';
 import { Comments } from '../../types/comment/comment';
 import { getErrorMessage } from '../../auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
-import { dealerName, initial, timeAgo } from '../../utils';
+import { dealerName, timeAgo } from '../../utils';
 import CarPhoto from '../common/CarPhoto';
+import Avatar from '../common/Avatar';
+import { useMyImage } from '../../hooks/useMyImage';
 
 interface Target {
 	id: string;
@@ -28,6 +30,7 @@ interface Target {
  */
 const MyComments = () => {
 	const user = useReactiveVar(userVar);
+	const myImage = useMyImage();
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const [reply, setReply] = useState('');
 	const [sending, setSending] = useState(false);
@@ -128,7 +131,7 @@ const MyComments = () => {
 								const dealer = !!c.memberData?.agentCompany;
 								return (
 									<div key={c._id} className="comment">
-										<div className={`avatar ${dealer ? '' : 'user'}`}>{initial(dealerName(c.memberData))}</div>
+										<Avatar image={c.memberData?.memberImage} dealer={dealer} />
 										<div style={{ flex: 1 }}>
 											<div className="who">
 												{dealerName(c.memberData)} {mine ? <span className="role">You</span> : dealer && <span className="role">Dealer</span>}{' '}
@@ -146,7 +149,7 @@ const MyComments = () => {
 							})}
 							{!loading && !comments.length && <p className="muted" style={{ padding: '10px 0' }}>No comments here yet.</p>}
 							<form className="comment-box" style={{ marginTop: 16 }} onSubmit={sendReply}>
-								<div className="avatar">{initial(user.memberNick)}</div>
+								<Avatar image={myImage} dealer />
 								<textarea
 									className="ta"
 									style={{ border: 0, outline: 'none', resize: 'none', fontFamily: 'inherit' }}

@@ -5,8 +5,9 @@ import { GET_AGENTS } from '../../../apollo/user/query';
 import { Member, Members } from '../../types/member/member';
 import { AgentsInquiry } from '../../types/member/member.input';
 import { Direction } from '../../enums/common.enum';
-import { dealerName, initial } from '../../utils';
+import { dealerName } from '../../utils';
 import Verified from '../common/Verified';
+import Avatar from '../common/Avatar';
 
 const PER_PAGE = 4;
 const ROTATE_MS = 5000;
@@ -16,12 +17,7 @@ const initialInput: AgentsInquiry = { page: 1, limit: 12, sort: 'memberRank', di
 const AgentTile = ({ agent, rank }: { agent: Member; rank: number }) => (
 	<Link href={`/agent/detail?id=${agent._id}`} className="agent-tile">
 		<span className="rankno">#{rank}</span>
-		{agent.memberImage ? (
-			// eslint-disable-next-line @next/next/no-img-element
-			<img className="agent-logo" src={agent.memberImage} alt="" />
-		) : (
-			<div className="agent-logo sq">{initial(dealerName(agent))}</div>
-		)}
+		<Avatar image={agent.memberImage} dealer className="agent-logo" />
 		<b>{dealerName(agent)}</b>
 		<span className="muted">{agent.memberAddress || 'Korea'}</span>
 		<Verified />

@@ -2,9 +2,10 @@ import React from 'react';
 import Link from 'next/link';
 import { Car } from '../../types/car/car';
 import { CarMarket, CarStatus } from '../../enums/car.enum';
-import { dealerName, enumLabel, formatManwon, formatNumber, formatUsd, initial } from '../../utils';
+import { dealerName, enumLabel, formatManwon, formatNumber, formatUsd } from '../../utils';
 import CarPhoto from './CarPhoto';
 import Heart from './Heart';
+import Avatar from './Avatar';
 
 interface CarCardProps {
 	car: Car;
@@ -76,7 +77,7 @@ const CarCard = ({ car, mine = false, likeCarHandler }: CarCardProps) => {
 				</div>
 			</div>
 			<div className="foot">
-				<div className="avatar">{initial(dealerName(car.agentData))}</div>
+				<Avatar image={car.agentData?.memberImage} dealer />
 				<b>{dealerName(car.agentData)}</b>
 				<span className="loc">{enumLabel(car.carLocation)}</span>
 			</div>

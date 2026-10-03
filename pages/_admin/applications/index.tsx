@@ -9,7 +9,8 @@ import { Direction } from '../../../libs/enums/common.enum';
 import { Members } from '../../../libs/types/member/member';
 import { getErrorMessage } from '../../../libs/auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../../libs/sweetAlert';
-import { initial, timeAgo } from '../../../libs/utils';
+import { timeAgo } from '../../../libs/utils';
+import Avatar from '../../../libs/components/common/Avatar';
 
 /** time left of the 24-hour promise: green, amber, then red when late */
 const timer = (applied: Date, now: number) => {
@@ -94,7 +95,7 @@ const Applications: NextPage = () => {
 										>
 											<td>
 												<div className="person">
-													<div className="avatar">{initial(a.agentCompany ?? a.memberNick)}</div>
+													<Avatar image={a.memberImage} dealer />
 													<div>
 														<b>{a.agentCompany}</b>
 														<small>{a.memberNick}</small>

@@ -21,7 +21,8 @@ import { useLikeCar } from '../../libs/hooks/useLikeCar';
 import { sweetTopSuccessAlert } from '../../libs/sweetAlert';
 import { CarMarket, CarOption, CarStatus } from '../../libs/enums/car.enum';
 import { MemberType } from '../../libs/enums/member.enum';
-import { colorHex, dealerName, enumLabel, formatManwon, formatNumber, formatUsd, initial, marketLabel, timeAgo } from '../../libs/utils';
+import { colorHex, dealerName, enumLabel, formatManwon, formatNumber, formatUsd, marketLabel, timeAgo } from '../../libs/utils';
+import Avatar from '../../libs/components/common/Avatar';
 
 const CarDetail: NextPage = () => {
 	const router = useRouter();
@@ -257,7 +258,7 @@ const CarDetail: NextPage = () => {
 					</div>
 					<div className="panel">
 						<div className="agent-head">
-							<div className="avatar">{initial(dealerName(car.agentData))}</div>
+							<Avatar image={car.agentData?.memberImage} dealer />
 							<div>
 								<Link href={`/agent/detail?id=${car.agentData?._id}`} style={{ color: 'inherit' }}>
 									<h3>{dealerName(car.agentData)}</h3>

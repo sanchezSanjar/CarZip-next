@@ -10,9 +10,10 @@ import { MemberUpdate } from '../../types/member/member.update';
 import { getErrorMessage, updateStorage, updateUserInfo } from '../../auth';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
 import { uploadImages } from '../../upload';
-import { dealerName, initial } from '../../utils';
+import { dealerName } from '../../utils';
 import Verified from '../common/Verified';
 import ChangePassword from './ChangePassword';
+import { Silhouette } from '../common/Avatar';
 
 const contactFields = [
 	{ key: 'contactPhone', icon: '☎', bg: 'var(--asphalt)', color: '#fff', placeholder: 'Shop phone' },
@@ -123,7 +124,7 @@ const ProfileForm = ({ member }: { member: Member }) => {
 							// eslint-disable-next-line @next/next/no-img-element
 							<img src={form.memberImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 28 }} />
 						) : (
-							initial(dealerName(member))
+							<Silhouette />
 						)}
 						<label className="cam" style={{ cursor: uploading ? 'wait' : 'pointer' }} title="Change photo">
 							📷

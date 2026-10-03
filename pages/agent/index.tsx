@@ -9,7 +9,8 @@ import FollowButton from '../../libs/components/common/FollowButton';
 import { GET_AGENTS } from '../../apollo/user/query';
 import { Members } from '../../libs/types/member/member';
 import { Direction } from '../../libs/enums/common.enum';
-import { dealerName, initial } from '../../libs/utils';
+import { dealerName } from '../../libs/utils';
+import Avatar from '../../libs/components/common/Avatar';
 
 const LIMIT = 9;
 // the sorts the API accepts for dealers
@@ -83,12 +84,7 @@ const AgentList: NextPage = () => {
 				{agents.map((agent, i) => (
 					<div key={agent._id} className="dcard">
 						<div className="top">
-							{agent.memberImage ? (
-								// eslint-disable-next-line @next/next/no-img-element
-								<img className="sq" src={agent.memberImage} alt="" style={{ objectFit: 'cover' }} />
-							) : (
-								<div className="sq">{initial(dealerName(agent))}</div>
-							)}
+							<Avatar image={agent.memberImage} dealer className="sq" />
 							<div>
 								<h3>{dealerName(agent)}</h3>
 								<div className="muted" style={{ fontSize: 13 }}>

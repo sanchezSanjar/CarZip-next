@@ -9,9 +9,10 @@ import { TestDriveStatus } from '../../enums/test-drive.enum';
 import { TestDrives as TestDrivesPage } from '../../types/test-drive/test-drive';
 import { getErrorMessage } from '../../auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert } from '../../sweetAlert';
-import { dealerName, formatDateTime, initial, timeAgo } from '../../utils';
+import { dealerName, formatDateTime, timeAgo } from '../../utils';
 import CarPhoto from '../common/CarPhoto';
 import Pager from '../common/Pager';
+import Avatar from '../common/Avatar';
 
 const LIMIT = 10;
 
@@ -133,7 +134,7 @@ const TestDrives = () => {
 								<tr key={r._id}>
 									<td>
 										<div className="person">
-											<div className={`avatar ${isAgent ? 'user' : ''}`}>{initial(person)}</div>
+											<Avatar image={isAgent ? r.buyerData?.memberImage : r.sellerData?.memberImage} dealer={!isAgent} />
 											<div>
 												<b>{person}</b>
 												<small>

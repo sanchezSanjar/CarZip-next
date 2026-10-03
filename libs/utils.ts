@@ -62,9 +62,6 @@ export const formatDateTime = (date?: Date | string | null): string => {
 	return `${d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}, ${d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`.replace(',', '');
 };
 
-/** first letter for the letter avatars */
-export const initial = (name?: string | null): string => (name?.trim()[0] ?? '?').toUpperCase();
-
 /** the dealer's company name, or their nick when there is none */
 export const dealerName = (member?: { agentCompany?: string | null; memberNick: string } | null): string =>
 	member?.agentCompany || member?.memberNick || '';

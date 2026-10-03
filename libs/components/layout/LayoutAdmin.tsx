@@ -5,15 +5,18 @@ import { useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
 import { getJwtToken, updateUserInfo } from '../../auth';
 import { MemberType } from '../../enums/member.enum';
-import { initial } from '../../utils';
+import {  } from '../../utils';
 import { Logo } from '../Top';
 import AdminMenuList from '../admin/AdminMenuList';
+import Avatar from '../common/Avatar';
+import { useMyImage } from '../../hooks/useMyImage';
 
 /** admin pages: only ADMIN members may stay here */
 const withLayoutAdmin = <P extends object>(Component: React.ComponentType<P>) => {
 	const LayoutAdmin = (props: P) => {
 		const router = useRouter();
 		const user = useReactiveVar(userVar);
+	const myImage = useMyImage();
 
 		/** LIFECYCLES **/
 		useEffect(() => {
@@ -36,7 +39,7 @@ const withLayoutAdmin = <P extends object>(Component: React.ComponentType<P>) =>
 					<div className="sidenav">
 						<Logo />
 						<div className="who">
-							<div className="avatar">{initial(user.memberNick || 'A')}</div>
+							<Avatar image={myImage} />
 							<div>
 								<b>{user.memberNick || 'Admin'}</b>
 								<span>CarZip team</span>

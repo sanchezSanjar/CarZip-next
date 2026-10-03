@@ -6,8 +6,10 @@ import { useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
 import { getJwtToken, updateUserInfo } from '../../auth';
 import { MemberType } from '../../enums/member.enum';
-import { initial } from '../../utils';
+import {  } from '../../utils';
 import { Logo } from '../Top';
+import Avatar from '../common/Avatar';
+import { useMyImage } from '../../hooks/useMyImage';
 
 export const agentMenu = [
 	{ category: 'testDrives', label: 'Test drives' },
@@ -35,6 +37,7 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 	const LayoutMember = (props: P) => {
 		const router = useRouter();
 		const user = useReactiveVar(userVar);
+	const myImage = useMyImage();
 		const isAgent = user.memberType === MemberType.AGENT;
 		const menu = isAgent ? agentMenu : userMenu;
 		const category = (router.query.category as string) ?? 'testDrives';
@@ -56,7 +59,7 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 					<div className="sidenav">
 						<Logo />
 						<div className="who">
-							<div className="avatar">{initial(user.memberNick)}</div>
+							<Avatar image={myImage} dealer={isAgent} />
 							<div>
 								<b>{user.memberNick}</b>
 								<span>{isAgent ? 'Verified dealer' : 'Buyer'}</span>

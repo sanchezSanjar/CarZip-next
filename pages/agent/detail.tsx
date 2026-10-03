@@ -21,7 +21,8 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { Cars } from '../../libs/types/car/car';
 import { BoardArticles } from '../../libs/types/board-article/board-article';
 import { Member } from '../../libs/types/member/member';
-import { dealerName, enumLabel, formatNumber, initial, timeAgo } from '../../libs/utils';
+import { dealerName, enumLabel, formatNumber, timeAgo } from '../../libs/utils';
+import Avatar from '../../libs/components/common/Avatar';
 
 const CARS_PAGE = 8;
 
@@ -109,12 +110,7 @@ const AgentDetail: NextPage = () => {
 		<>
 			<div className="agent-hero">
 				<div className="top">
-					{agent.memberImage ? (
-						// eslint-disable-next-line @next/next/no-img-element
-						<img className="logo-sq" src={agent.memberImage} alt="" style={{ objectFit: 'cover' }} />
-					) : (
-						<div className="logo-sq">{initial(dealerName(agent))}</div>
-					)}
+					<Avatar image={agent.memberImage} dealer className="logo-sq" />
 					<div>
 						<h1>
 							{dealerName(agent)}

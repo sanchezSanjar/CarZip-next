@@ -120,3 +120,8 @@ select.field { appearance: auto; }
 #pc-wrap #main { flex: 1; }
 .notif-link { font-size: 14px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
 .notif-link .badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--signal); color: var(--asphalt); font-size: 12px; font-weight: 800; display: inline-grid; place-items: center; }
+
+/* avatars: a photo, or a person silhouette when there is none */
+.avatar { overflow: hidden; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.avatar .silhouette { width: 70%; height: 70%; fill: currentColor; opacity: .75; margin-top: 18%; }
