@@ -115,9 +115,10 @@ tr:last-child td { border-bottom: 0; }
 .btn { cursor: pointer; text-decoration: none; }
 .btn:disabled, .btn.disabled { opacity: .5; cursor: not-allowed; }
 .chip, .btile, .type, .tog, .seg span, .swl, .helpnav a, .tabs span { cursor: pointer; user-select: none; }
-.photo.real { place-items: stretch; }
+/* real photos are shown whole (never cropped); grey fills the space their shape leaves */
+.photo.real { place-items: stretch; background: #E4E7EA; }
 .photo.real::after { display: none; }
-.photo.real img { width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 1; transition: transform 0.4s ease; }
+.photo.real img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 1; transition: transform 0.4s ease; }
 /* car photos zoom in a little on hover (the frame stays put, the photo grows inside it) */
 .car-card:hover .photo.real img, .gallery .photo.real:hover img { transform: scale(1.07); }
 .photo svg.car { transition: transform 0.4s ease; }

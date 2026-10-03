@@ -187,7 +187,7 @@ const AddNewCar = ({ car }: { car?: Car }) => {
 						<div key={p.url} className="upslot">
 							{i === 0 && <span className="cover">{t('add.cover')}</span>}
 							{/* eslint-disable-next-line @next/next/no-img-element */}
-							<img src={p.thumbnailUrl || p.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10 }} />
+							<img src={p.thumbnailUrl || p.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#E4E7EA', borderRadius: 10 }} />
 							<div className="slot-acts">
 								{i > 0 && (
 									<button type="button" onClick={() => makeCover(i)}>

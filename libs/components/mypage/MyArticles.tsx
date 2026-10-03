@@ -134,7 +134,7 @@ const MyArticles = () => {
 					<div style={{ display: 'flex', gap: 12, alignItems: 'center', margin: '12px 0' }}>
 						{image && (
 							// eslint-disable-next-line @next/next/no-img-element
-							<img src={image} alt="" style={{ width: 120, height: 68, objectFit: 'cover', borderRadius: 8 }} />
+							<img src={image} alt="" style={{ width: 120, height: 68, objectFit: 'contain', background: '#E4E7EA', borderRadius: 8 }} />
 						)}
 						<label className="btn ghost sm" style={{ cursor: uploading ? 'wait' : 'pointer' }}>
 							{uploading ? t('my.uploading') : image ? t('my.changePhoto') : t('art.addPhoto')}
