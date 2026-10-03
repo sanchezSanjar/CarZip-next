@@ -90,3 +90,17 @@
 .city-row .bar { height: 8px; border-radius: 4px; background: var(--line-2); overflow: hidden; }
 .city-row .bar i { display: block; height: 100%; background: var(--road); border-radius: 4px; }
 .city-row .num { text-align: right; color: var(--muted); font-weight: 700; }
+
+/* guides and notices */
+.guides-wrap { display: grid; grid-template-columns: 1fr 380px; gap: 28px; align-items: start; }
+.guide-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.guide-card { display: flex; flex-direction: column; gap: 4px; padding: 20px 22px; background: #fff; border: 1px solid var(--line); border-radius: 14px; color: var(--asphalt); transition: border-color .15s, transform .15s; }
+.guide-card:hover { border-color: var(--signal); transform: translateY(-2px); }
+.guide-card b { font-size: 16px; margin-top: 8px; }
+.guide-card > span:last-child { color: var(--muted); font-size: 14px; }
+.guide-ic { font-size: 22px; }
+.notice-side { padding-top: 6px; }
+.notice-side .sidecard { margin-bottom: 14px; }
+.contact-card { background: var(--asphalt); border-color: var(--asphalt); color: #fff; }
+.contact-card p { color: #B9C1C8; font-size: 14px; margin-bottom: 10px; }
+.contact-card a { color: var(--signal); font-weight: 700; }
