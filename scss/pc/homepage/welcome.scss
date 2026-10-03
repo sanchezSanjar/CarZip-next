@@ -104,13 +104,3 @@
 .contact-card { background: var(--asphalt); border-color: var(--asphalt); color: #fff; }
 .contact-card p { color: #B9C1C8; font-size: 14px; margin-bottom: 10px; }
 .contact-card a { color: var(--signal); font-weight: 700; }
-
-/* footer (every public page) */
-.sitefoot { display: block; padding: 48px 48px 26px; margin-top: 64px; }
-.foot-top { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 36px; max-width: 1344px; margin: 0 auto; }
-.foot-brand p { margin-top: 14px; font-size: 13.5px; line-height: 1.65; max-width: 46ch; }
-.foot-col { display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
-.foot-col b { color: #fff; margin-bottom: 4px; }
-.foot-col a { color: #B9C1C8; }
-.foot-col a:hover { color: var(--signal); }
-.foot-bottom { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; max-width: 1344px; margin: 36px auto 0; padding-top: 20px; border-top: 1px solid #3A434D; font-size: 13px; color: #8E98A1; }

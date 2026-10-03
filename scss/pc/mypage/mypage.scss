@@ -109,8 +109,6 @@
 .menu { position: absolute; right: 0; top: 46px; width: 240px; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 14px 34px rgba(30,36,43,.16); padding: 6px; z-index: 10; color: var(--asphalt); }
 .menu div { padding: 9px 12px; border-radius: 8px; font-size: 14px; }
 .menu div.on { background: var(--road-tint); color: var(--road); font-weight: 700; }
-.sitefoot { background: var(--asphalt); color: #B9C1C8; padding: 28px 48px; display: grid; grid-template-columns: 180px 1fr auto; gap: 30px; align-items: center; font-size: 13.5px; }
-.sitefoot .logo { color: #fff; } .sitefoot b { color: #fff; }
 .usdline { display: flex; justify-content: space-between; align-items: baseline; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line-2); font-size: 14px; color: var(--muted); }
 .usdline b { font-family: 'Archivo'; font-stretch: 112%; font-size: 24px; color: var(--asphalt); font-weight: 800; }
 .exportnote { background: #FFF6E3; border: 1px solid #F3D79A; border-radius: 14px; padding: 16px 18px; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }

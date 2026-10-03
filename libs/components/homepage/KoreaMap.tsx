@@ -4,10 +4,10 @@ import { CarLocation } from '../../enums/car.enum';
 import { enumLabel } from '../../utils';
 
 // longitude/latitude -> map coordinates (simple equirectangular projection, good enough at this size)
-const px = (lon: number, lat: number): [number, number] => [(lon - 125.2) * 80, (38.75 - lat) * 72];
+export const px = (lon: number, lat: number): [number, number] => [(lon - 125.2) * 80, (38.75 - lat) * 72];
 
 // simplified outline of South Korea's mainland, clockwise from the west end of the border
-const outline = [
+export const outline = [
 	[126.68, 37.92], [127.2, 38.3], [128.3, 38.6], [128.6, 38.3], [129.0, 37.7], [129.4, 37.0], [129.45, 36.3], [129.55, 35.9],
 	[129.4, 35.5], [129.2, 35.2], [129.0, 35.05], [128.6, 34.9], [128.2, 34.85], [127.8, 34.7], [127.4, 34.6], [126.9, 34.4],
 	[126.4, 34.35], [126.25, 34.6], [126.3, 35.0], [126.45, 35.5], [126.65, 35.9], [126.5, 36.3], [126.15, 36.8], [126.5, 37.0],
@@ -16,7 +16,7 @@ const outline = [
 	.map(([lon, lat], i) => `${i ? 'L' : 'M'}${px(lon, lat).map((n) => n.toFixed(1)).join(',')}`)
 	.join(' ')
 	.concat(' Z');
-const [jejuX, jejuY] = px(126.55, 33.38);
+export const [jejuX, jejuY] = px(126.55, 33.38);
 
 // cities close to each other put their label on opposite sides
 const labelLeft = new Set<CarLocation>([CarLocation.INCHEON, CarLocation.DAEGU, CarLocation.GWANGJU]);
