@@ -106,7 +106,7 @@ tr:last-child td { border-bottom: 0; }
 .nav .btn.primary:hover { background: #E3941A; }
 .lang-btn:hover { color: var(--road); }
 /* my photo in the top bar: bigger, with a ring on hover */
-.nav .right > .avatar { width: 40px; height: 40px; border-radius: 10px; transition: box-shadow 0.2s ease; }
+.nav .right > .avatar { width: 48px; height: 48px; border-radius: 12px; transition: box-shadow 0.2s ease; }
 .nav .right > .avatar.user { border-radius: 50%; }
 .nav .right > .avatar:hover { box-shadow: 0 0 0 3px var(--road-tint), 0 0 0 4px var(--road); }
 .nav .logo, .sidenav .logo { text-decoration: none; }
