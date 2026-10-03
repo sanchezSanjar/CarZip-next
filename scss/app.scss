@@ -125,3 +125,6 @@ select.field { appearance: auto; }
 .avatar { overflow: hidden; }
 .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .avatar .silhouette { width: 70%; height: 70%; fill: currentColor; opacity: .75; margin-top: 18%; }
+/* the side menu styles every link as a spread-out row; the logo is a link too, so keep it together */
+.sidenav a.logo { justify-content: flex-start; padding: 0; margin: 0 8px 30px; }
+.sidenav a.logo:hover { background: none; }
