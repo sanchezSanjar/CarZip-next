@@ -2,7 +2,7 @@
 .helpgrid { display: grid; grid-template-columns: 250px 1fr; gap: 32px; align-items: start; }
 .helpnav a { display: flex; justify-content: space-between; padding: 12px 14px; border-radius: 10px; color: var(--ink-2); font-weight: 600; }
 .helpnav a.on { background: #fff; border: 1px solid var(--line); color: var(--asphalt); }
-.helpnav a small { color: var(--muted); font-family: 'Archivo'; }
+.helpnav a small { color: var(--muted); font-family: 'Archivo', 'Pretendard', sans-serif; }
 .faq { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 4px 22px; }
 .faq-item { border-top: 1px solid var(--line-2); padding: 18px 0; }
 .faq-item:first-child { border-top: 0; }

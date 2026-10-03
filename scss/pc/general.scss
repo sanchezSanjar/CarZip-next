@@ -1,11 +1,11 @@
 // shared page parts
 .wrap { padding: 32px 48px 56px; }
-.page-title { font-family: 'Archivo'; font-stretch: 118%; font-weight: 800; font-size: 32px; letter-spacing: -0.015em; line-height: 1.15; }
+.page-title { font-family: 'Archivo', 'Pretendard', sans-serif; font-stretch: 118%; font-weight: 800; font-size: 32px; letter-spacing: -0.015em; line-height: 1.15; }
 .page-sub { color: var(--muted); margin-top: 6px; }
 .bar { display: flex; gap: 10px; align-items: center; margin: 22px 0 18px; }
 .bar .grow { flex: 1; }
 .pager { display: flex; gap: 6px; justify-content: center; margin-top: 26px; }
-.pager span { min-width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--line); background: #fff; display: grid; place-items: center; font-family: 'Archivo'; font-weight: 700; font-size: 14px; padding: 0 10px; }
+.pager span { min-width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--line); background: #fff; display: grid; place-items: center; font-family: 'Archivo', 'Pretendard', sans-serif; font-weight: 700; font-size: 14px; padding: 0 10px; }
 .pager span.on { background: var(--asphalt); color: #fff; border-color: var(--asphalt); }
 .tabs2 { display: flex; gap: 6px; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--road); display: inline-block; flex: none; }

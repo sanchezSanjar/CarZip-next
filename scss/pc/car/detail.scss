@@ -8,15 +8,15 @@
 .thumbs .photo { height: 84px; border-radius: 8px; }
 .thumbs .photo.on { outline: 2px solid var(--asphalt); outline-offset: 2px; }
 .dtitle { margin-top: 28px; }
-.dtitle h1 { font-family: 'Archivo'; font-stretch: 116%; font-weight: 800; font-size: 32px; letter-spacing: -0.015em; line-height: 1.2; }
+.dtitle h1 { font-family: 'Archivo', 'Pretendard', sans-serif; font-stretch: 116%; font-weight: 800; font-size: 32px; letter-spacing: -0.015em; line-height: 1.2; }
 .dtitle .meta { color: var(--muted); font-size: 14px; margin-top: 8px; display: flex; gap: 18px; }
 .odo-wrap { margin-top: 26px; background: var(--asphalt); border-radius: 14px; padding: 22px 26px; display: flex; align-items: center; gap: 28px; color: #fff; }
 .odo-wrap .l { font-size: 14px; color: #AAB2BA; }
 .odo-wrap .l b { display: block; color: #fff; font-size: 17px; font-weight: 700; margin-bottom: 2px; }
 .odo { display: flex; gap: 5px; align-items: center; }
-.odo span { width: 48px; height: 66px; border-radius: 7px; background: linear-gradient(#0F1317, #2A3139 48%, #0F1317 52%, #262D35); display: grid; place-items: center; font-family: 'Archivo'; font-stretch: 100%; font-weight: 700; font-size: 40px; color: #F2F2EE; box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
+.odo span { width: 48px; height: 66px; border-radius: 7px; background: linear-gradient(#0F1317, #2A3139 48%, #0F1317 52%, #262D35); display: grid; place-items: center; font-family: 'Archivo', 'Pretendard', sans-serif; font-stretch: 100%; font-weight: 700; font-size: 40px; color: #F2F2EE; box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
 .odo span.dim { color: #4E5761; }
-.odo em { font-style: normal; font-family: 'Archivo'; font-weight: 700; font-size: 20px; margin-left: 8px; color: var(--signal); }
+.odo em { font-style: normal; font-family: 'Archivo', 'Pretendard', sans-serif; font-weight: 700; font-size: 20px; margin-left: 8px; color: var(--signal); }
 .odo-wrap .avg { margin-left: auto; text-align: right; font-size: 13.5px; color: #AAB2BA; }
 .odo-wrap .avg b { color: #fff; font-size: 16px; display: block; }
 .specgrid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 14px; background: var(--white); margin-top: 18px; }
@@ -41,7 +41,7 @@
 .role { font-size: 11.5px; font-weight: 700; padding: 1px 7px; border-radius: 5px; background: var(--dealer-tint); color: var(--dealer); }
 .side { display: flex; flex-direction: column; gap: 16px; }
 .panel { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
-.bigprice { font-family: 'Archivo'; font-stretch: 118%; font-weight: 800; font-size: 44px; letter-spacing: -0.02em; line-height: 1; }
+.bigprice { font-family: 'Archivo', 'Pretendard', sans-serif; font-stretch: 118%; font-weight: 800; font-size: 44px; letter-spacing: -0.02em; line-height: 1; }
 .bigprice small { font-family: 'Pretendard'; font-size: 20px; font-weight: 700; margin-left: 4px; }
 .deals { display: grid; gap: 8px; margin-top: 18px; }
 .deal { display: flex; justify-content: space-between; font-size: 14.5px; padding: 10px 12px; border-radius: 9px; background: var(--paper); }
