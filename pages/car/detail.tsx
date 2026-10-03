@@ -8,6 +8,7 @@ import CarPhoto from '../../libs/components/common/CarPhoto';
 import Heart from '../../libs/components/common/Heart';
 import Verified from '../../libs/components/common/Verified';
 import ContactList from '../../libs/components/car/ContactList';
+import TestDriveBox from '../../libs/components/car/TestDriveBox';
 import CarCard from '../../libs/components/common/CarCard';
 import CommentSection from '../../libs/components/common/CommentSection';
 import FollowButton from '../../libs/components/common/FollowButton';
@@ -18,7 +19,7 @@ import { Member } from '../../libs/types/member/member';
 import { userVar } from '../../apollo/store';
 import { useLikeCar } from '../../libs/hooks/useLikeCar';
 import { sweetTopSuccessAlert } from '../../libs/sweetAlert';
-import { CarMarket, CarOption } from '../../libs/enums/car.enum';
+import { CarMarket, CarOption, CarStatus } from '../../libs/enums/car.enum';
 import { MemberType } from '../../libs/enums/member.enum';
 import { colorHex, dealerName, enumLabel, formatManwon, formatNumber, formatUsd, initial, marketLabel, timeAgo } from '../../libs/utils';
 
@@ -290,19 +291,8 @@ const CarDetail: NextPage = () => {
 							is set by the dealer, not converted by CarZip.
 						</div>
 					)}
-					{car.carTestDrive && user.memberType !== MemberType.AGENT && (
-						<div className="panel td">
-							<h3>Book a test drive</h3>
-							<div className="sub">The dealer confirms or declines. You get a notification either way.</div>
-							<div className="two">
-								<input className="field" type="date" />
-								<input className="field" type="time" defaultValue="10:30" />
-							</div>
-							<textarea className="field ta2" placeholder="Message to the dealer (optional)" maxLength={300} />
-							<button className="btn primary" style={{ width: '100%' }} disabled={!user._id}>
-								{user._id ? 'Request test drive' : 'Log in to book a test drive'}
-							</button>
-						</div>
+					{car.carTestDrive && car.carStatus === CarStatus.ACTIVE && (!user._id || user.memberType === MemberType.USER) && (
+						<TestDriveBox carId={car._id} />
 					)}
 				</aside>
 			</div>
