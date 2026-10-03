@@ -14,6 +14,7 @@ import { dealerName } from '../../utils';
 import CarPhoto from '../common/CarPhoto';
 import Avatar from '../common/Avatar';
 import { useMyImage } from '../../hooks/useMyImage';
+import MyWrittenComments from './MyWrittenComments';
 import { useTranslation } from 'next-i18next/pages';
 import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
@@ -38,6 +39,7 @@ const MyComments = () => {
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const [reply, setReply] = useState('');
 	const [sending, setSending] = useState(false);
+	const [view, setView] = useState<'received' | 'mine'>('received'); // comments on my things, or comments I wrote
 
 	/** APOLLO REQUESTS **/
 	const { data: carsData } = useQuery<{ getAgentCars: CarsPage }>(GET_AGENT_CARS, {
@@ -96,79 +98,92 @@ const MyComments = () => {
 			<div className="main-head">
 				<div>
 					<h1>{t('menu.comments')}</h1>
-					<p>{t('cm.sub')}</p>
+					<p>{view === 'mine' ? t('cm.mineSub') : t('cm.sub')}</p>
 				</div>
 			</div>
-			<div className="banner info" style={{ marginBottom: 18 }}>
-				<span className="i">i</span>
-				<div>
-					<b>{t('cm.troubleTitle')}</b>
-					{t('cm.troubleText')}
-				</div>
+			<div className="chips" style={{ marginBottom: 18 }}>
+				<span className={`chip ${view === 'received' ? 'on' : ''}`} onClick={() => setView('received')}>
+					{t('cm.tabReceived')}
+				</span>
+				<span className={`chip ${view === 'mine' ? 'on' : ''}`} onClick={() => setView('mine')}>
+					{t('cm.tabMine')}
+				</span>
 			</div>
-			{!targets.length ? (
-				<div className="empty">
-					<h3>{t('cm.nothing')}</h3>
-					<p>{t('cm.nothingText')}</p>
-				</div>
-			) : (
-				<div className="comments-wrap">
-					<div className="block" style={{ margin: 0 }}>
-						{targets.map((target) => (
-							<div key={target.id} className={`ctarget ${selected?.id === target.id ? 'on' : ''}`} role="button" onClick={() => setSelectedId(target.id)}>
-								{target.group === CommentGroup.CAR ? <CarPhoto image={target.image} className="thumb" /> : <span className="cat">{t('cm.article')}</span>}
-								<b>{target.title}</b>
-								<span className="num">{target.count}</span>
-							</div>
-						))}
+			{view === 'mine' && <MyWrittenComments />}
+			{view === 'received' && (
+				<>
+					<div className="banner info" style={{ marginBottom: 18 }}>
+						<span className="i">i</span>
+						<div>
+							<b>{t('cm.troubleTitle')}</b>
+							{t('cm.troubleText')}
+						</div>
 					</div>
-					{selected && (
-						<div className="block" style={{ margin: 0, padding: '6px 20px 20px' }}>
-							<div className="block-head" style={{ padding: '12px 0' }}>
-								<h2>{selected.title}</h2>
-								<Link href={selected.href} className="btn ghost sm">
-									{t('cm.open')}
-								</Link>
-							</div>
-							{comments.map((c) => {
-								const mine = c.memberId === user._id;
-								const dealer = !!c.memberData?.agentCompany;
-								return (
-									<div key={c._id} className="comment">
-										<Avatar image={c.memberData?.memberImage} dealer={dealer} />
-										<div style={{ flex: 1 }}>
-											<div className="who">
-												{dealerName(c.memberData)} {mine ? <span className="role">{t('cm.you')}</span> : dealer && <span className="role">{t('board.dealer')}</span>}{' '}
-												<small>{fmt.timeAgo(c.createdAt)}</small>
-											</div>
-											<p>{c.commentContent}</p>
-										</div>
-										{!mine && (
-											<button className="btn danger sm" style={{ alignSelf: 'center' }} onClick={() => block(c.memberId, dealerName(c.memberData))}>
-												{t('dealers.block')}
-											</button>
-										)}
+					{!targets.length ? (
+						<div className="empty">
+							<h3>{t('cm.nothing')}</h3>
+							<p>{t('cm.nothingText')}</p>
+						</div>
+					) : (
+						<div className="comments-wrap">
+							<div className="block" style={{ margin: 0 }}>
+								{targets.map((target) => (
+									<div key={target.id} className={`ctarget ${selected?.id === target.id ? 'on' : ''}`} role="button" onClick={() => setSelectedId(target.id)}>
+										{target.group === CommentGroup.CAR ? <CarPhoto image={target.image} className="thumb" /> : <span className="cat">{t('cm.article')}</span>}
+										<b>{target.title}</b>
+										<span className="num">{target.count}</span>
 									</div>
-								);
-							})}
-							{!loading && !comments.length && <p className="muted" style={{ padding: '10px 0' }}>{t('cm.noneHere')}</p>}
-							<form className="comment-box" style={{ marginTop: 16 }} onSubmit={sendReply}>
-								<Avatar image={myImage} dealer />
-								<textarea
-									className="ta"
-									style={{ border: 0, outline: 'none', resize: 'none', fontFamily: 'inherit' }}
-									placeholder={t('cm.replyPh')}
-									maxLength={500}
-									value={reply}
-									onChange={(e) => setReply(e.target.value)}
-								/>
-								<button className="btn dark sm" disabled={!reply.trim() || sending}>
-									{t('cm.reply')}
-								</button>
-							</form>
+								))}
+							</div>
+							{selected && (
+								<div className="block" style={{ margin: 0, padding: '6px 20px 20px' }}>
+									<div className="block-head" style={{ padding: '12px 0' }}>
+										<h2>{selected.title}</h2>
+										<Link href={selected.href} className="btn ghost sm">
+											{t('cm.open')}
+										</Link>
+									</div>
+									{comments.map((c) => {
+										const mine = c.memberId === user._id;
+										const dealer = !!c.memberData?.agentCompany;
+										return (
+											<div key={c._id} className="comment">
+												<Avatar image={c.memberData?.memberImage} dealer={dealer} />
+												<div style={{ flex: 1 }}>
+													<div className="who">
+														{dealerName(c.memberData)} {mine ? <span className="role">{t('cm.you')}</span> : dealer && <span className="role">{t('board.dealer')}</span>}{' '}
+														<small>{fmt.timeAgo(c.createdAt)}</small>
+													</div>
+													<p>{c.commentContent}</p>
+												</div>
+												{!mine && (
+													<button className="btn danger sm" style={{ alignSelf: 'center' }} onClick={() => block(c.memberId, dealerName(c.memberData))}>
+														{t('dealers.block')}
+													</button>
+												)}
+											</div>
+										);
+									})}
+									{!loading && !comments.length && <p className="muted" style={{ padding: '10px 0' }}>{t('cm.noneHere')}</p>}
+									<form className="comment-box" style={{ marginTop: 16 }} onSubmit={sendReply}>
+										<Avatar image={myImage} dealer />
+										<textarea
+											className="ta"
+											style={{ border: 0, outline: 'none', resize: 'none', fontFamily: 'inherit' }}
+											placeholder={t('cm.replyPh')}
+											maxLength={500}
+											value={reply}
+											onChange={(e) => setReply(e.target.value)}
+										/>
+										<button className="btn dark sm" disabled={!reply.trim() || sending}>
+											{t('cm.reply')}
+										</button>
+									</form>
+								</div>
+							)}
 						</div>
 					)}
-				</div>
+				</>
 			)}
 		</>
 	);

@@ -206,6 +206,11 @@
 	},
 	"cm": {
 		"article": "Maqola",
+		"dealerPage": "Diler sahifasi",
+		"gone": "Endi mavjud emas",
+		"mineNone": "Hali izoh yozmagansiz",
+		"mineNoneText": "Avtomobillar, maqolalar va diler sahifalariga qoldirgan izohlaringiz shu yerda ko'rinadi.",
+		"mineSub": "Avtomobillar, maqolalar va diler sahifalariga yozgan barcha izohlaringiz, eng yangisi birinchi.",
 		"noneHere": "Hozircha izohlar yo'q.",
 		"nothing": "Hozircha izoh uchun hech narsa yo'q",
 		"nothingText": "Avtomobil va maqolalaringizga izohlar shu yerda ko'rinadi.",
@@ -213,6 +218,8 @@
 		"reply": "Javob berish",
 		"replyPh": "Javob yozing",
 		"sub": "Avtomobil va maqolalaringizga izohlar. Izohni faqat CarZip adminlari o'chira oladi.",
+		"tabMine": "Men yozganlar",
+		"tabReceived": "Avtomobil va maqolalarimga",
 		"troubleText": "Bloklang, shunda u avtomobillaringizga izoh yoza, yoqtira va sinov haydoviga yozila olmaydi. CarZip'ning qolgan qismiga ta'sir qilmaydi.",
 		"troubleTitle": "Kimdir bezovta qilyaptimi?",
 		"you": "Siz"

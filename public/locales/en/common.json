@@ -206,6 +206,11 @@
 	},
 	"cm": {
 		"article": "Article",
+		"dealerPage": "Dealer page",
+		"gone": "No longer available",
+		"mineNone": "You haven't written any comments yet",
+		"mineNoneText": "Comments you leave on cars, articles and dealer pages show up here.",
+		"mineSub": "Every comment you wrote on cars, articles and dealer pages, newest first.",
 		"noneHere": "No comments here yet.",
 		"nothing": "Nothing to comment on yet",
 		"nothingText": "Comments on your cars and articles show up here.",
@@ -213,6 +218,8 @@
 		"reply": "Reply",
 		"replyPh": "Write a reply",
 		"sub": "Comments on your cars and articles. Only CarZip admins can remove a comment.",
+		"tabMine": "Written by me",
+		"tabReceived": "On my cars & articles",
 		"troubleText": "Block them to stop them commenting, liking or booking test drives on your cars. It doesn't affect the rest of CarZip.",
 		"troubleTitle": "Someone is causing trouble?",
 		"you": "You"

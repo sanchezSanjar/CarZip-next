@@ -131,3 +131,11 @@
 .ctarget:hover { background: var(--paper); }
 .ctarget.on { background: var(--road-tint); box-shadow: inset 3px 0 0 var(--road); }
 .ctarget.on .num { color: var(--road); }
+/* my own comments: what it is on, the text, when */
+.mycomment { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--line-2); }
+.mycomment:last-child { border-bottom: 0; }
+.mycomment .thumb, .mycomment .avatar { flex: none; }
+.mycomment .body { flex: 1; min-width: 0; }
+.mycomment .body small { display: block; color: var(--muted); font-size: 13px; }
+.mycomment .body p { margin: 4px 0; white-space: pre-line; overflow-wrap: anywhere; }
+.mycomment .btn { align-self: center; flex: none; }

@@ -506,6 +506,28 @@ export const GET_COMMENTS = gql`
 	}
 `;
 
+/** my own comments everywhere, each with the title and photo of what it is on */
+export const GET_MY_COMMENTS = gql`
+	query GetMyComments($input: MyCommentsInquiry!) {
+		getMyComments(input: $input) {
+			list {
+				_id
+				commentGroup
+				commentContent
+				commentRefId
+				createdAt
+				targetData {
+					title
+					image
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
 /**************************
  *         FOLLOW        *
  *************************/

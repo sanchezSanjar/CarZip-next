@@ -11,6 +11,8 @@ export interface Comment {
 	createdAt: Date;
 	updatedAt: Date;
 	memberData?: AgentPublic;
+	/** only in my own list: the car / article / dealer the comment is on (null if it is gone) */
+	targetData?: { title: string; image?: string | null } | null;
 }
 
 export interface Comments {
