@@ -24,7 +24,7 @@ const cleanSearch = (search: CarsSearch): CarsSearch =>
 		Object.entries(search).filter(([, v]) => v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0)),
 	) as CarsSearch;
 
-/** /car?text=Sorento&brand=KIA&location=BUSAN&type=SUV&fuel=HYBRID : links from the welcome page open the search already filtered */
+/** /car?text=Sorento&brand=KIA&location=BUSAN&type=SUV&fuel=HYBRID&testDrive=1 : links from the welcome page open the search already filtered */
 const searchFromQuery = (query: Record<string, string | string[] | undefined>): CarsSearch => {
 	const one = (key: string) => (typeof query[key] === 'string' ? (query[key] as string) : undefined);
 	const brand = one('brand');
@@ -33,6 +33,7 @@ const searchFromQuery = (query: Record<string, string | string[] | undefined>): 
 	const type = one('type');
 	const fuel = one('fuel');
 	return cleanSearch({
+		testDrive: one('testDrive') === '1' ? true : undefined,
 		typeList: type && Object.values(CarType).includes(type as CarType) ? [type as CarType] : undefined,
 		fuelList: fuel && Object.values(CarFuelType).includes(fuel as CarFuelType) ? [fuel as CarFuelType] : undefined,
 		text: text && text.length >= 2 ? text.slice(0, 50) : undefined,
