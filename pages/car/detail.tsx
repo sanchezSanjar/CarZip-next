@@ -9,7 +9,8 @@ import Heart from '../../libs/components/common/Heart';
 import Verified from '../../libs/components/common/Verified';
 import ContactList from '../../libs/components/car/ContactList';
 import CarCard from '../../libs/components/common/CarCard';
-import { sampleComments } from '../../libs/sampleData';
+import CommentSection from '../../libs/components/common/CommentSection';
+import { CommentGroup } from '../../libs/enums/comment.enum';
 import { GET_CAR, GET_CARS, GET_MEMBER } from '../../apollo/user/query';
 import { Car, Cars } from '../../libs/types/car/car';
 import { Member } from '../../libs/types/member/member';
@@ -25,7 +26,6 @@ const CarDetail: NextPage = () => {
 	const user = useReactiveVar(userVar);
 	const carId = typeof router.query.id === 'string' ? router.query.id : '';
 	const [photoIndex, setPhotoIndex] = useState(0);
-	const [comment, setComment] = useState('');
 	const likeCarHandler = useLikeCar();
 
 	/** APOLLO REQUESTS **/
@@ -193,36 +193,7 @@ const CarDetail: NextPage = () => {
 							<p className="desc">{car.carDesc}</p>
 						</div>
 					)}
-					<div className="section">
-						<h2>
-							Comments <span className="num">{car.carComments}</span>
-						</h2>
-						<div className="comment-box">
-							<div className="avatar user">{initial(user.memberNick || 'G')}</div>
-							<textarea
-								className="ta"
-								style={{ border: 0, outline: 'none', resize: 'none', fontFamily: 'inherit' }}
-								placeholder={user._id ? 'Ask the dealer something about this car' : 'Log in to write a comment'}
-								value={comment}
-								disabled={!user._id}
-								onChange={(e) => setComment(e.target.value)}
-							/>
-							<button className="btn dark sm" disabled={!user._id || !comment.trim()}>
-								Post comment
-							</button>
-						</div>
-						{sampleComments.map((c) => (
-							<div key={c._id} className="comment">
-								<div className={`avatar ${c.dealer ? '' : 'user'}`}>{initial(c.nick)}</div>
-								<div>
-									<div className="who">
-										{c.nick} {c.dealer && <span className="role">Dealer</span>} <small>{timeAgo(c.when)}</small>
-									</div>
-									<p>{c.text}</p>
-								</div>
-							</div>
-						))}
-					</div>
+					<CommentSection group={CommentGroup.CAR} refId={car._id} ownerId={car.memberId} placeholder="Ask the dealer something about this car" />
 				</div>
 				<aside className="side">
 					<div className="panel">
