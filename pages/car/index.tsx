@@ -15,6 +15,7 @@ import { Cars } from '../../libs/types/car/car';
 import { CarsInquiry, CarsSearch } from '../../libs/types/car/car.input';
 import { CarBrand, CarFuelType, CarLocation, CarSort, CarType } from '../../libs/enums/car.enum';
 import { Direction } from '../../libs/enums/common.enum';
+import { useAddressReady } from '../../libs/hooks/useAddressReady';
 
 const PAGE_SIZE = 9;
 
@@ -44,8 +45,9 @@ const searchFromQuery = (query: Record<string, string | string[] | undefined>): 
 
 const CarList: NextPage = () => {
 	const router = useRouter();
+	const addressReady = useAddressReady();
 	// the page is built before the address is known: wait, then start from its filters
-	if (!router.isReady) return null;
+	if (!addressReady) return null;
 	return <CarSearch key={router.asPath} initialSearch={searchFromQuery(router.query)} />;
 };
 
@@ -55,6 +57,7 @@ const CarSearch = ({ initialSearch }: { initialSearch: CarsSearch }) => {
 	const [loadingMore, setLoadingMore] = useState(false);
 	const [search, setSearch] = useState<CarsSearch>(initialSearch);
 	const [resetKey, setResetKey] = useState(0); // redraws the filter panels after "clear all"
+	const [filtersOpen, setFiltersOpen] = useState(false); // phones: the filter panel opens on demand
 	const likeCarHandler = useLikeCar();
 
 	// a cursor belongs to its sort: changing the sort starts again from the first page
@@ -108,10 +111,18 @@ const CarSearch = ({ initialSearch }: { initialSearch: CarsSearch }) => {
 		<>
 			<HeaderFilter key={`h${resetKey}`} search={search} setSearch={setSearch} />
 			<div className="browse">
-				<Filter key={`f${resetKey}`} search={search} setSearch={setSearch} />
+				<div className={`filter-wrap ${filtersOpen ? 'open' : ''}`}>
+					<Filter key={`f${resetKey}`} search={search} setSearch={setSearch} />
+					<button className="btn primary filter-done" onClick={() => setFiltersOpen(false)}>
+						Show cars
+					</button>
+				</div>
 				<main>
 					<div className="results-head">
 						<h2>{getCarsLoading && !cars.length ? 'Loading cars…' : `${cars.length} cars${nextCursor ? '+' : ''} for sale`}</h2>
+						<button className="btn ghost sm filter-toggle" onClick={() => setFiltersOpen(true)}>
+							Filters{Object.keys(input.search ?? {}).length ? ` (${Object.keys(input.search ?? {}).length})` : ''}
+						</button>
 						<div className="sort">
 							Sort by
 							<div className="field" role="button" style={{ cursor: 'pointer' }} onClick={(e) => setAnchorEl(e.currentTarget)}>

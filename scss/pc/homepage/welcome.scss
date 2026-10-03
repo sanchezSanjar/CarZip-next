@@ -101,6 +101,6 @@
 .guide-ic { font-size: 22px; }
 .notice-side { padding-top: 6px; }
 .notice-side .sidecard { margin-bottom: 14px; }
-.contact-card { background: var(--asphalt); border-color: var(--asphalt); color: #fff; }
-.contact-card p { color: #B9C1C8; font-size: 14px; margin-bottom: 10px; }
-.contact-card a { color: var(--signal); font-weight: 700; }
+.sidecard.contact-card { background: var(--asphalt); border-color: var(--asphalt); color: #fff; }
+.sidecard.contact-card p { color: #B9C1C8; font-size: 14px; margin-bottom: 10px; }
+.sidecard.contact-card a { color: var(--signal); font-weight: 700; }

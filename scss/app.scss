@@ -153,3 +153,5 @@ a.contact:hover, button.contact:hover { border-color: var(--road); }
 .location-card .loc-map .pulse { fill: var(--signal); opacity: .3; }
 .location-card .loc-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .location-card .loc-text .map-links { margin-top: 8px; }
+.map-link { white-space: nowrap; }
+.notice-row small { white-space: nowrap; }

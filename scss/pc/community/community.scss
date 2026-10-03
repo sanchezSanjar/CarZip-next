@@ -22,3 +22,4 @@
 .article .content .photo { height: 300px; margin: 22px 0; border-radius: 12px; }
 .article .content .photo svg.car { width: 55% !important; }
 .reactbar { display: flex; gap: 8px; margin: 28px 0 8px; }
+.article-layout { display: grid; grid-template-columns: 1fr 340px; gap: 40px; }

@@ -39,3 +39,5 @@
 .active-filters .chip { background: var(--road-tint); border-color: transparent; color: var(--road); font-weight: 600; }
 .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .more { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 30px; color: var(--muted); font-size: 13.5px; }
+// the filter toggle and "show cars" button only exist on phones
+.filter-toggle, .filter-done { display: none; }

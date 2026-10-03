@@ -16,3 +16,120 @@
 .mobile-drawer a.on { background: var(--road-tint); color: var(--road); }
 .mobile-drawer hr { border: 0; border-top: 1px solid var(--line); margin: 10px 0; }
 .mobile-drawer .badge, .mobile-nav .badge { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--signal); color: var(--asphalt); font-size: 12px; font-weight: 800; display: inline-grid; place-items: center; }
+
+@media (max-width: 768px) {
+	body { font-size: 14.5px; }
+	/* grid columns may shrink below their widest content, so nothing sticks out past the screen */
+	.detail > *, .browse > *, .board > *, .article-layout > *, .helpgrid > *, .agent-info-row > *, .korea > *, .guides-wrap > * { min-width: 0; }
+	.btn { height: 42px; padding: 0 16px; }
+
+	/* ---------- welcome page ---------- */
+	.hero { height: auto; min-height: 520px; padding: 48px 0 40px; }
+	.hero-logo { font-size: 22px; margin-bottom: 16px; }
+	.hero h1 { font-size: 32px; }
+	.hero p { font-size: 15px; }
+	.hero-search { grid-template-columns: 1fr; margin-top: 24px; }
+	.hero-search .field, .hero-search .btn { height: 48px; }
+	.hero-quick { gap: 10px; }
+	.home-section { padding: 36px 16px 4px; }
+	.home-head { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+	.home-head h2 { font-size: 24px; }
+	.home-head .seg { width: 100% !important; }
+	.home-head .seg span { padding: 6px 4px !important; }
+	.quick-grid { grid-template-columns: repeat(2, 1fr); }
+	.value-grid, .article-grid, .guides-wrap, .guide-grid { grid-template-columns: 1fr; }
+	.agent-page { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+	.agent-tile { padding: 18px 10px 14px; }
+	.agent-logo { width: 64px; height: 64px; }
+	.agent-tile > b { font-size: 15px; }
+	/* car rows swipe sideways on phones */
+	.grid4.home-cars { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; padding-bottom: 8px; }
+	.grid4.home-cars > .car-card { flex: 0 0 82%; scroll-snap-align: start; }
+	.korea { grid-template-columns: 1fr; padding: 20px 16px; gap: 16px; }
+	.korea-map { max-width: 260px; margin: 0 auto; }
+	.city-row { grid-template-columns: 90px 1fr 60px; gap: 10px; padding: 9px 8px; }
+
+	/* ---------- footer ---------- */
+	#footer.footer-container { padding: 40px 16px 20px; margin-top: 48px; }
+	#footer .main { flex-direction: column; gap: 36px; }
+	#footer .left { width: 100%; }
+	#footer .bottom { grid-template-columns: repeat(2, 1fr); gap: 28px 16px; }
+	#footer .second { flex-direction: column; margin-top: 32px; }
+
+	/* ---------- car search ---------- */
+	.searchbar { padding: 24px 16px; }
+	.searchbar h1 { font-size: 24px; }
+	.searchbar .row { grid-template-columns: 1fr; }
+	.searchbar .field, .searchbar .btn { height: 46px; }
+	.browse { grid-template-columns: 1fr; padding: 16px; gap: 16px; }
+	.filter-wrap { display: none; }
+	.filter-wrap.open { display: block; position: fixed; inset: 0; z-index: 60; overflow-y: auto; background: var(--paper); padding: 16px 16px 90px; }
+	.filter-wrap.open .filters { border-radius: 14px; }
+	.filter-done { display: none; }
+	.filter-wrap.open .filter-done { display: inline-flex; position: fixed; left: 16px; right: 16px; bottom: 16px; height: 50px; z-index: 61; }
+	.filter-toggle { display: inline-flex; }
+	.results-head { flex-wrap: wrap; gap: 10px; align-items: center; }
+	.results-head h2 { font-size: 18px; width: 100%; }
+	.sort { margin-left: auto; }
+	.sort .field { width: auto !important; }
+	.grid3 { grid-template-columns: 1fr; gap: 14px; }
+	.more .btn { width: 100% !important; }
+
+	/* ---------- car page ---------- */
+	.crumbs { padding: 14px 16px 0; }
+	.detail { grid-template-columns: 1fr; padding: 14px 16px 32px; gap: 20px; }
+	.gallery .photo { height: 240px; }
+	.thumbs { gap: 6px; }
+	.thumbs .photo { height: 56px; }
+	.dtitle h1 { font-size: 24px; }
+	.dtitle .meta { flex-wrap: wrap; gap: 6px 14px; }
+	.odo-wrap { flex-wrap: wrap; gap: 14px; padding: 18px; }
+	.odo span { width: 34px; height: 48px; font-size: 28px; }
+	.odo-wrap .avg { margin-left: 0; text-align: left; }
+	.specgrid { grid-template-columns: repeat(2, 1fr); }
+	.specgrid div { border-right: 1px solid var(--line-2) !important; border-bottom: 1px solid var(--line-2) !important; }
+	.specgrid div:nth-child(2n) { border-right: 0 !important; }
+	.opts { grid-template-columns: repeat(2, 1fr); }
+	.bigprice { font-size: 36px; }
+	.location-card .loc-map { width: 76px; }
+
+	/* ---------- dealers ---------- */
+	.wrap { padding: 24px 16px 40px; }
+	.page-title { font-size: 26px; }
+	.bar { flex-wrap: wrap; }
+	.bar .field, .bar form, .bar select { width: 100% !important; }
+	.bar .grow { display: none; }
+	.tabs2 { overflow-x: auto; flex-wrap: nowrap; max-width: 100%; padding-bottom: 4px; }
+	.tabs2 .chip { flex: none; }
+	.dgrid { grid-template-columns: 1fr; }
+	.agent-hero { padding: 24px 16px 0; }
+	.agent-hero .top { grid-template-columns: 64px 1fr; gap: 14px; align-items: start; }
+	.agent-hero .top > div:last-child { grid-column: 1 / -1; flex-wrap: wrap; }
+	.agent-hero .logo-sq { width: 64px; height: 64px; border-radius: 14px; }
+	.agent-hero h1 { font-size: 24px; }
+	.agent-hero .ko { display: block; margin: 4px 0 0; }
+	.agent-hero .facts { flex-wrap: wrap; gap: 6px 14px; font-size: 13.5px; }
+	.agent-hero .cbar { flex-wrap: wrap; }
+	.tabs { overflow-x: auto; gap: 22px; }
+	.tabs span { flex: none; }
+	.agent-info-row { grid-template-columns: 1fr; margin: 20px 16px 0; }
+	.offer { flex-direction: column; align-items: flex-start; }
+	.grid4 { grid-template-columns: 1fr; padding: 20px 16px 32px; }
+
+	/* ---------- community and help ---------- */
+	.board, .article-layout, .helpgrid { grid-template-columns: 1fr; }
+	.post { grid-template-columns: 1fr; gap: 8px; }
+	.post .st { text-align: left; display: flex; gap: 14px; }
+	.post .st br { display: none; }
+	.article h1 { font-size: 26px; }
+	.article .content { font-size: 16px; }
+	.helpnav { display: flex; overflow-x: auto; gap: 6px; }
+	.helpnav a { flex: none; }
+
+	/* ---------- log in, sign up ---------- */
+	.auth { grid-template-columns: 1fr !important; padding: 24px 16px 40px; }
+	.authcard, .formcard { padding: 22px 18px; }
+	.types, .fgrid, .fgrid3, .cgrid { grid-template-columns: 1fr; }
+	.otp { gap: 6px; }
+	.otp input { width: 44px; height: 54px; font-size: 24px; }
+}
