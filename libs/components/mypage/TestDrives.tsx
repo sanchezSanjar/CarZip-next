@@ -9,19 +9,21 @@ import { TestDriveStatus } from '../../enums/test-drive.enum';
 import { TestDrives as TestDrivesPage } from '../../types/test-drive/test-drive';
 import { getErrorMessage } from '../../auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert } from '../../sweetAlert';
-import { dealerName, formatDateTime, timeAgo } from '../../utils';
+import { dealerName } from '../../utils';
 import CarPhoto from '../common/CarPhoto';
 import Pager from '../common/Pager';
 import Avatar from '../common/Avatar';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
 const LIMIT = 10;
 
 const statusPill: Record<TestDriveStatus, { cls: string; label: string }> = {
-	[TestDriveStatus.REQUEST]: { cls: 'req', label: 'Waiting' },
-	[TestDriveStatus.CONFIRM]: { cls: 'active', label: 'Confirmed' },
-	[TestDriveStatus.REJECT]: { cls: 'rej', label: 'Declined' },
-	[TestDriveStatus.CANCEL]: { cls: 'sold', label: 'Cancelled' },
-	[TestDriveStatus.COMPLETE]: { cls: 'sold', label: 'Done' },
+	[TestDriveStatus.REQUEST]: { cls: 'req', label: 'tds.waiting' },
+	[TestDriveStatus.CONFIRM]: { cls: 'active', label: 'tds.confirmed' },
+	[TestDriveStatus.REJECT]: { cls: 'rej', label: 'tds.declined' },
+	[TestDriveStatus.CANCEL]: { cls: 'sold', label: 'tds.cancelled' },
+	[TestDriveStatus.COMPLETE]: { cls: 'sold', label: 'tds.done' },
 };
 const filters = [TestDriveStatus.REQUEST, TestDriveStatus.CONFIRM, TestDriveStatus.COMPLETE, TestDriveStatus.CANCEL, TestDriveStatus.REJECT];
 
@@ -30,6 +32,8 @@ const filters = [TestDriveStatus.REQUEST, TestDriveStatus.CONFIRM, TestDriveStat
  * Buyer: own requests: cancel. The buyer's phone shows to the dealer only after confirming.
  */
 const TestDrives = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const user = useReactiveVar(userVar);
 	const isAgent = user.memberType === MemberType.AGENT;
 	const [filter, setFilter] = useState<TestDriveStatus | ''>('');
@@ -58,7 +62,7 @@ const TestDrives = () => {
 
 	/** HANDLERS **/
 	const changeStatus = async (id: string, next: TestDriveStatus, question?: string) => {
-		if (question && !(await sweetConfirmAlert(question, 'Yes', next !== TestDriveStatus.CONFIRM && next !== TestDriveStatus.COMPLETE))) return;
+		if (question && !(await sweetConfirmAlert(question, t('my.yes'), next !== TestDriveStatus.CONFIRM && next !== TestDriveStatus.COMPLETE))) return;
 		try {
 			await updateTestDrive({ variables: { input: { _id: id, testDriveStatus: next } } });
 		} catch (err) {
@@ -70,25 +74,25 @@ const TestDrives = () => {
 		<>
 			<div className="main-head">
 				<div>
-					<h1>{isAgent ? 'Test drives' : 'My test drives'}</h1>
+					<h1>{isAgent ? t('menu.testDrives') : t('menu.myTestDrives')}</h1>
 					<p>
 						{isAgent
 							? waiting
-								? `${waiting} test drive request${waiting > 1 ? 's are' : ' is'} waiting for your answer.`
-								: 'No requests are waiting for your answer.'
-							: 'The dealer confirms or declines your request. You get a notification either way.'}
+								? t('tds.waitingCount', { count: waiting })
+								: t('tds.noneWaiting')
+							: t('tds.buyerSub')}
 					</p>
 				</div>
 				{!isAgent && (
 					<Link href="/car?testDrive=1" className="btn primary">
-						Find a car to test drive
+						{t('tds.find')}
 					</Link>
 				)}
 			</div>
 			<div className="block">
 				<div className="block-head">
 					<h2>
-						{isAgent ? 'Requests' : 'Your requests'}
+						{isAgent ? t('tds.requests') : t('tds.yourRequests')}
 						<span>{total}</span>
 					</h2>
 					<div className="chips">
@@ -99,7 +103,7 @@ const TestDrives = () => {
 								setPage(1);
 							}}
 						>
-							All
+							{t('board.all')}
 						</span>
 						{filters.map((s) => (
 							<span
@@ -110,7 +114,7 @@ const TestDrives = () => {
 									setPage(1);
 								}}
 							>
-								{statusPill[s].label}
+								{t(statusPill[s].label)}
 							</span>
 						))}
 					</div>
@@ -118,11 +122,11 @@ const TestDrives = () => {
 				<table>
 					<thead>
 						<tr>
-							<th>{isAgent ? 'Buyer' : 'Dealer'}</th>
-							<th>Car</th>
-							<th>Date</th>
-							<th>Message</th>
-							<th>Status</th>
+							<th>{isAgent ? t('menu.buyer') : t('board.dealer')}</th>
+							<th>{t('my.car')}</th>
+							<th>{t('tds.date')}</th>
+							<th>{t('tds.message')}</th>
+							<th>{t('my.status')}</th>
 							<th />
 						</tr>
 					</thead>
@@ -142,7 +146,7 @@ const TestDrives = () => {
 														? r.buyerData.memberPhone
 														: !isAgent && r.sellerData?.contactPhone
 															? r.sellerData.contactPhone
-															: `asked ${timeAgo(r.createdAt)}`}
+															: t('tds.asked', { time: fmt.timeAgo(r.createdAt) })}
 												</small>
 											</div>
 										</div>
@@ -159,12 +163,12 @@ const TestDrives = () => {
 										</div>
 									</td>
 									<td className="when">
-										<b>{formatDateTime(r.testDriveDate)}</b>
-										<small>{datePassed ? 'date passed' : `in ${Math.ceil((new Date(r.testDriveDate).getTime() - now) / 86400000)} days`}</small>
+										<b>{fmt.dateTime(r.testDriveDate)}</b>
+										<small>{datePassed ? t('tds.datePassed') : t('tds.inDays', { count: Math.ceil((new Date(r.testDriveDate).getTime() - now) / 86400000) })}</small>
 									</td>
 									<td className="msg">{r.testDriveMessage || '—'}</td>
 									<td>
-										<span className={`pill ${statusPill[r.testDriveStatus].cls}`}>{statusPill[r.testDriveStatus].label}</span>
+										<span className={`pill ${statusPill[r.testDriveStatus].cls}`}>{t(statusPill[r.testDriveStatus].label)}</span>
 									</td>
 									<td>
 										<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
@@ -172,27 +176,27 @@ const TestDrives = () => {
 												<>
 													{!datePassed && (
 														<button className="btn good sm" onClick={() => changeStatus(r._id, TestDriveStatus.CONFIRM)}>
-															Confirm
+															{t('tds.confirm')}
 														</button>
 													)}
-													<button className="btn danger sm" onClick={() => changeStatus(r._id, TestDriveStatus.REJECT, 'Decline this request? The buyer can ask for another date.')}>
-														Decline
+													<button className="btn danger sm" onClick={() => changeStatus(r._id, TestDriveStatus.REJECT, t('tds.declineQ'))}>
+														{t('tds.decline')}
 													</button>
 												</>
 											)}
 											{isAgent && r.testDriveStatus === TestDriveStatus.CONFIRM && datePassed && (
 												<button className="btn good sm" onClick={() => changeStatus(r._id, TestDriveStatus.COMPLETE)}>
-													Mark as done
+													{t('tds.markDone')}
 												</button>
 											)}
 											{!isAgent && r.testDriveStatus === TestDriveStatus.REQUEST && (
-												<button className="btn danger sm" onClick={() => changeStatus(r._id, TestDriveStatus.CANCEL, 'Cancel your test drive request?')}>
-													Cancel
+												<button className="btn danger sm" onClick={() => changeStatus(r._id, TestDriveStatus.CANCEL, t('tds.cancelQ'))}>
+													{t('my.cancel')}
 												</button>
 											)}
 											{r.testDriveStatus === TestDriveStatus.CONFIRM && (
-												<button className="btn danger sm" onClick={() => changeStatus(r._id, TestDriveStatus.CANCEL, 'Cancel this confirmed test drive? The other side is notified.')}>
-													Cancel
+												<button className="btn danger sm" onClick={() => changeStatus(r._id, TestDriveStatus.CANCEL, t('tds.cancelConfirmedQ'))}>
+													{t('my.cancel')}
 												</button>
 											)}
 										</div>
@@ -204,11 +208,11 @@ const TestDrives = () => {
 				</table>
 				{!loading && !rows.length && (
 					<div className="empty" style={{ margin: 18 }}>
-						<h3>No test drives here</h3>
+						<h3>{t('tds.none')}</h3>
 						<p>
 							{isAgent
-								? 'Requests from buyers show up here. Cars with test drives turned on get more of them.'
-								: 'Open a car that offers test drives and pick a date to send a request.'}
+								? t('tds.noneAgent')
+								: t('tds.noneBuyer')}
 						</p>
 					</div>
 				)}

@@ -6,21 +6,23 @@ import { GET_CAR } from '../../../apollo/user/query';
 import { CarStatus } from '../../enums/car.enum';
 import { Car } from '../../types/car/car';
 import AddNewCar from './AddNewCar';
+import { useTranslation } from 'next-i18next/pages';
 
 /** loads the dealer's car, then shows the list-a-car form filled with it. Sold cars are final */
 const EditCar = ({ carId }: { carId: string }) => {
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const { data, loading } = useQuery<{ getCar: Car }>(GET_CAR, { fetchPolicy: 'network-only', variables: { input: carId }, skip: !carId });
 	const car = data?.getCar;
 
-	if (loading) return <p className="muted">Loading the car…</p>;
+	if (loading) return <p className="muted">{t('ec.loading')}</p>;
 	if (!car || car.memberId !== user._id || car.carStatus === CarStatus.SOLD) {
 		return (
 			<div className="empty">
-				<h3>This car can&apos;t be edited</h3>
-				<p>Only your own cars that are for sale or on hold can be changed.</p>
+				<h3>{t('ec.cant')}</h3>
+				<p>{t('ec.cantText')}</p>
 				<Link href="/mypage?category=myCars" className="btn ghost">
-					Back to my cars
+					{t('ec.back')}
 				</Link>
 			</div>
 		);

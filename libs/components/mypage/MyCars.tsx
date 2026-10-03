@@ -7,24 +7,25 @@ import { CarStatus } from '../../enums/car.enum';
 import { CarsPage } from '../../types/car/car';
 import { getErrorMessage } from '../../auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
-import { formatCarPrice, formatNumber, timeAgo } from '../../utils';
 import CarPhoto from '../common/CarPhoto';
 import Pager from '../common/Pager';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
 const LIMIT = 10;
 const STALE_DAYS = 30; // the backend asks "still for sale?" after 30 days without an edit or confirmation
 
 const statusPill: Record<CarStatus, { cls: string; label: string }> = {
-	[CarStatus.ACTIVE]: { cls: 'active', label: 'For sale' },
-	[CarStatus.HOLD]: { cls: 'hold', label: 'On hold' },
-	[CarStatus.SOLD]: { cls: 'sold', label: 'Sold' },
-	[CarStatus.DELETE]: { cls: 'rej', label: 'Deleted' },
+	[CarStatus.ACTIVE]: { cls: 'active', label: 'dealers.tabCars' },
+	[CarStatus.HOLD]: { cls: 'hold', label: 'mc.onHold' },
+	[CarStatus.SOLD]: { cls: 'sold', label: 'car.sold' },
+	[CarStatus.DELETE]: { cls: 'rej', label: 'mc.deleted' },
 };
 const tabs: { status?: CarStatus; label: string }[] = [
-	{ label: 'All' },
-	{ status: CarStatus.ACTIVE, label: 'For sale' },
-	{ status: CarStatus.HOLD, label: 'On hold' },
-	{ status: CarStatus.SOLD, label: 'Sold' },
+	{ label: 'board.all' },
+	{ status: CarStatus.ACTIVE, label: 'dealers.tabCars' },
+	{ status: CarStatus.HOLD, label: 'mc.onHold' },
+	{ status: CarStatus.SOLD, label: 'car.sold' },
 ];
 
 /** how many cars a tab has: a one-row query that only reads the total */
@@ -38,6 +39,8 @@ const useTabCount = (status?: CarStatus) => {
 
 /** dealer: own cars in any status (deleted ones are gone), with the actions each status allows */
 const MyCars = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const [status, setStatus] = useState<CarStatus | undefined>();
 	const [page, setPage] = useState(1);
 	const [now] = useState(() => Date.now()); // read the clock once, not on every redraw
@@ -57,15 +60,15 @@ const MyCars = () => {
 	/** HANDLERS **/
 	const changeStatus = async (carId: string, title: string, next: CarStatus) => {
 		const questions: Partial<Record<CarStatus, [string, string]>> = {
-			[CarStatus.SOLD]: [`Mark "${title}" as sold? It leaves the search, open test drives are cancelled and the buyers are notified. This can't be undone.`, 'Mark as sold'],
-			[CarStatus.HOLD]: [`Pause "${title}"? It is hidden from search and open test drives are cancelled.`, 'Pause listing'],
-			[CarStatus.DELETE]: [`Delete "${title}"? Open test drives are cancelled. This can't be undone.`, 'Delete'],
+			[CarStatus.SOLD]: [t('mc.soldQ', { title }), t('mc.markSold')],
+			[CarStatus.HOLD]: [t('mc.holdQ', { title }), t('mc.pause')],
+			[CarStatus.DELETE]: [t('mc.deleteQ', { title }), t('my.delete')],
 		};
 		const q = questions[next];
 		if (q && !(await sweetConfirmAlert(q[0], q[1], next === CarStatus.DELETE))) return;
 		try {
 			await updateCar({ variables: { input: { _id: carId, carStatus: next } } });
-			await sweetTopSuccessAlert(next === CarStatus.ACTIVE ? 'Back on sale' : 'Saved', 1200);
+			await sweetTopSuccessAlert(next === CarStatus.ACTIVE ? t('mc.backOnSale') : t('my.saved'), 1200);
 		} catch (err) {
 			await sweetMixinErrorAlert(getErrorMessage(err));
 		}
@@ -75,38 +78,38 @@ const MyCars = () => {
 		try {
 			await confirmCarListing({ variables: { input: carId } });
 			await refetch();
-			await sweetTopSuccessAlert('Thanks, the listing is confirmed', 1200);
+			await sweetTopSuccessAlert(t('mc.confirmed'), 1200);
 		} catch (err) {
 			await sweetMixinErrorAlert(getErrorMessage(err));
 		}
 	};
 
 	const isStale = (lastTouched?: Date) => !!lastTouched && now - new Date(lastTouched).getTime() > STALE_DAYS * 86400000;
-	const deals = (c: (typeof cars)[number]) => ['Sale', c.carRent && 'rent', c.carBarter && 'barter'].filter(Boolean).join(', ');
+	const deals = (c: (typeof cars)[number]) => [t('mc.sale'), c.carRent && t('car.rent'), c.carBarter && t('car.barter')].filter(Boolean).join(', ');
 
 	return (
 		<>
 			<div className="main-head">
 				<div>
-					<h1>My cars</h1>
-					<p>Buyers only see cars that are for sale.</p>
+					<h1>{t('menu.myCars')}</h1>
+					<p>{t('mc.sub')}</p>
 				</div>
 				<Link href="/mypage?category=addCar" className="btn primary">
-					List a car
+					{t('my.listCar')}
 				</Link>
 			</div>
 			<div className="bar" style={{ marginTop: 0 }}>
 				<div className="tabs2">
-					{tabs.map((t, i) => (
+					{tabs.map((tab, i) => (
 						<span
-							key={t.label}
-							className={`chip ${status === t.status ? 'on' : ''}`}
+							key={tab.label}
+							className={`chip ${status === tab.status ? 'on' : ''}`}
 							onClick={() => {
-								setStatus(t.status);
+								setStatus(tab.status);
 								setPage(1);
 							}}
 						>
-							{t.label} <span className="num">{counts[i]}</span>
+							{t(tab.label)} <span className="num">{counts[i]}</span>
 						</span>
 					))}
 				</div>
@@ -115,12 +118,12 @@ const MyCars = () => {
 				<table>
 					<thead>
 						<tr>
-							<th>Car</th>
-							<th>Price</th>
-							<th>Deal</th>
-							<th>Status</th>
-							<th>Views</th>
-							<th>Likes</th>
+							<th>{t('my.car')}</th>
+							<th>{t('mc.price')}</th>
+							<th>{t('mc.deal')}</th>
+							<th>{t('my.status')}</th>
+							<th>{t('mc.views')}</th>
+							<th>{t('mc.likes')}</th>
 							<th />
 						</tr>
 					</thead>
@@ -136,49 +139,51 @@ const MyCars = () => {
 												<Link href={`/car/detail?id=${c._id}`} style={{ color: 'inherit' }}>
 													<b>{c.carTitle}</b>
 												</Link>
-												<small>{heldByAdmin ? `Held by admin: ${c.carHoldReason}` : `${c.carYear}, ${formatNumber(c.carMileage)} km · listed ${timeAgo(c.createdAt)}`}</small>
+												<small>{heldByAdmin
+												? t('mc.heldBy', { reason: c.carHoldReason })
+												: t('mc.meta', { year: c.carYear, km: fmt.number(c.carMileage), time: fmt.timeAgo(c.createdAt) })}</small>
 											</div>
 										</div>
 									</td>
 									<td className="num" style={{ fontWeight: 700 }}>
-										{formatCarPrice(c)}
+										{fmt.carPrice(c)}
 									</td>
 									<td>{deals(c)}</td>
 									<td>
-										<span className={`pill ${statusPill[c.carStatus].cls}`}>{heldByAdmin ? 'Held by admin' : statusPill[c.carStatus].label}</span>
+										<span className={`pill ${statusPill[c.carStatus].cls}`}>{heldByAdmin ? t('mc.heldByAdmin') : t(statusPill[c.carStatus].label)}</span>
 									</td>
-									<td className="num">{formatNumber(c.carViews)}</td>
+									<td className="num">{fmt.number(c.carViews)}</td>
 									<td className="num">{c.carLikes}</td>
 									<td>
 										<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
 											{c.carStatus === CarStatus.ACTIVE && isStale(c.carConfirmedAt ?? c.updatedAt) && (
 												<button className="btn good sm" onClick={() => stillForSale(c._id)}>
-													Still for sale
+													{t('mc.stillForSale')}
 												</button>
 											)}
 											{(c.carStatus === CarStatus.ACTIVE || c.carStatus === CarStatus.HOLD) && (
 												<Link href={`/mypage?category=editCar&carId=${c._id}`} className="btn ghost sm">
-													Edit
+													{t('my.edit')}
 												</Link>
 											)}
 											{c.carStatus === CarStatus.ACTIVE && (
 												<>
 													<button className="btn ghost sm" onClick={() => changeStatus(c._id, c.carTitle, CarStatus.SOLD)}>
-														Mark as sold
+														{t('mc.markSold')}
 													</button>
 													<button className="btn ghost sm" onClick={() => changeStatus(c._id, c.carTitle, CarStatus.HOLD)}>
-														Hold
+														{t('mc.hold')}
 													</button>
 												</>
 											)}
 											{c.carStatus === CarStatus.HOLD && !heldByAdmin && (
 												<button className="btn dark sm" onClick={() => changeStatus(c._id, c.carTitle, CarStatus.ACTIVE)}>
-													Put back on sale
+													{t('mc.putBack')}
 												</button>
 											)}
 											{c.carStatus !== CarStatus.SOLD && (
 												<button className="btn danger sm" onClick={() => changeStatus(c._id, c.carTitle, CarStatus.DELETE)}>
-													Delete
+													{t('my.delete')}
 												</button>
 											)}
 										</div>
@@ -190,10 +195,10 @@ const MyCars = () => {
 				</table>
 				{!loading && !cars.length && (
 					<div className="empty" style={{ margin: 18 }}>
-						<h3>{status ? 'No cars here' : 'You have no cars yet'}</h3>
-						<p>Cars you list show up in this table.</p>
+						<h3>{status ? t('mc.noneHere') : t('mc.noneYet')}</h3>
+						<p>{t('mc.noneText')}</p>
 						<Link href="/mypage?category=addCar" className="btn ghost">
-							List a car
+							{t('my.listCar')}
 						</Link>
 					</div>
 				)}

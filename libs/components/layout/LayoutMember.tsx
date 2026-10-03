@@ -9,31 +9,33 @@ import { MemberType } from '../../enums/member.enum';
 import { Logo } from '../Top';
 import Avatar from '../common/Avatar';
 import { useMyImage } from '../../hooks/useMyImage';
+import { useTranslation } from 'next-i18next/pages';
 
 export const agentMenu = [
-	{ category: 'testDrives', label: 'Test drives' },
-	{ category: 'myCars', label: 'My cars' },
-	{ category: 'myFavorites', label: 'My favourites' },
-	{ category: 'myArticles', label: 'Articles' },
-	{ category: 'follows', label: 'Followers & following' },
-	{ category: 'comments', label: 'Comments' },
-	{ category: 'blocked', label: 'Blocked people' },
-	{ category: 'myProfile', label: 'My profile' },
-	{ category: 'notifications', label: 'Notifications' },
+	{ category: 'testDrives', label: 'menu.testDrives' },
+	{ category: 'myCars', label: 'menu.myCars' },
+	{ category: 'myFavorites', label: 'menu.favorites' },
+	{ category: 'myArticles', label: 'menu.articles' },
+	{ category: 'follows', label: 'menu.follows' },
+	{ category: 'comments', label: 'menu.comments' },
+	{ category: 'blocked', label: 'menu.blocked' },
+	{ category: 'myProfile', label: 'menu.profile' },
+	{ category: 'notifications', label: 'menu.notifications' },
 ];
 
 export const userMenu = [
-	{ category: 'testDrives', label: 'My test drives' },
-	{ category: 'myFavorites', label: 'My favourites' },
-	{ category: 'recentlyVisited', label: 'Recently viewed' },
-	{ category: 'follows', label: 'Following' },
-	{ category: 'myProfile', label: 'My profile' },
-	{ category: 'notifications', label: 'Notifications' },
+	{ category: 'testDrives', label: 'menu.myTestDrives' },
+	{ category: 'myFavorites', label: 'menu.favorites' },
+	{ category: 'recentlyVisited', label: 'menu.recent' },
+	{ category: 'follows', label: 'menu.following' },
+	{ category: 'myProfile', label: 'menu.profile' },
+	{ category: 'notifications', label: 'menu.notifications' },
 ];
 
 /** dealer and buyer pages: dark side menu on the left */
 const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) => {
 	const LayoutMember = (props: P) => {
+		const { t } = useTranslation('common');
 		const router = useRouter();
 		const user = useReactiveVar(userVar);
 		const myImage = useMyImage();
@@ -53,7 +55,7 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 		return (
 			<>
 				<Head>
-					<title>My page | CarZip</title>
+					<title>{t('title.mypage')}</title>
 				</Head>
 				<div className="dash">
 					<div className="sidenav">
@@ -62,7 +64,7 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 							<Avatar image={myImage} dealer={isAgent} />
 							<div>
 								<b>{user.memberNick}</b>
-								<span>{isAgent ? 'Verified dealer' : 'Buyer'}</span>
+								<span>{isAgent ? t('car.verified') : t('menu.buyer')}</span>
 							</div>
 						</div>
 						<div className="menu-row">
@@ -72,10 +74,10 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 									href={`/mypage?category=${m.category}`}
 									className={category === m.category ? 'on' : ''}
 								>
-									{m.label}
+									{t(m.label)}
 								</Link>
 							))}
-							<Link href="/">Back to CarZip</Link>
+							<Link href="/">{t('menu.back')}</Link>
 						</div>
 					</div>
 					<div className="main">

@@ -8,11 +8,13 @@ import { CarStatus } from '../../enums/car.enum';
 import { useLikeCar } from '../../hooks/useLikeCar';
 import CarCard from '../common/CarCard';
 import Pager from '../common/Pager';
+import { useTranslation } from 'next-i18next/pages';
 
 const LIMIT = 9;
 
 /** cars I liked (favorites) or opened (recently viewed). Only cars for sale or sold are shown */
 const MyFavorites = ({ visited = false }: { visited?: boolean }) => {
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const [status, setStatus] = useState<CarStatus | ''>('');
 	const [page, setPage] = useState(1);
@@ -40,19 +42,19 @@ const MyFavorites = ({ visited = false }: { visited?: boolean }) => {
 		<>
 			<div className="main-head">
 				<div>
-					<h1>{visited ? 'Recently viewed' : 'My favourites'}</h1>
-					<p>{visited ? 'Cars you opened, latest first.' : 'Cars you liked. Tap the heart to remove one.'}</p>
+					<h1>{visited ? t('menu.recent') : t('menu.favorites')}</h1>
+					<p>{visited ? t('fav.recentSub') : t('fav.sub')}</p>
 				</div>
 			</div>
 			<div className="fav-top">
 				<div className="chips">
 					{[
-						{ s: '', l: 'All' },
-						{ s: CarStatus.ACTIVE, l: 'For sale' },
-						{ s: CarStatus.SOLD, l: 'Sold' },
-					].map((t) => (
-						<span key={t.l} className={`chip ${status === t.s ? 'on' : ''}`} onClick={() => setStatus(t.s as CarStatus | '')}>
-							{t.l} <span className="num">{t.s ? all.filter((c) => c.carStatus === t.s).length : total}</span>
+						{ s: '', l: 'board.all' },
+						{ s: CarStatus.ACTIVE, l: 'dealers.tabCars' },
+						{ s: CarStatus.SOLD, l: 'car.sold' },
+					].map((tab) => (
+						<span key={tab.l} className={`chip ${status === tab.s ? 'on' : ''}`} onClick={() => setStatus(tab.s as CarStatus | '')}>
+							{t(tab.l)} <span className="num">{tab.s ? all.filter((c) => c.carStatus === tab.s).length : total}</span>
 						</span>
 					))}
 				</div>
@@ -66,10 +68,10 @@ const MyFavorites = ({ visited = false }: { visited?: boolean }) => {
 			) : (
 				!loading && (
 					<div className="empty">
-						<h3>{visited ? 'Nothing viewed yet' : 'No favourites yet'}</h3>
-						<p>{visited ? 'Cars you open show up here.' : 'Tap the heart on any car to keep it here.'}</p>
+						<h3>{visited ? t('fav.noneSeen') : t('fav.noneFav')}</h3>
+						<p>{visited ? t('fav.noneSeenText') : t('fav.noneFavText')}</p>
 						<Link href="/car" className="btn ghost">
-							Browse cars
+							{t('detail.browseCars')}
 						</Link>
 					</div>
 				)

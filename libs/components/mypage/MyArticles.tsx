@@ -9,10 +9,13 @@ import { BoardArticle, BoardArticles } from '../../types/board-article/board-art
 import { getErrorMessage } from '../../auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
 import { uploadImages } from '../../upload';
-import { enumLabel, formatNumber } from '../../utils';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
 /** dealer (and admin): write, edit and delete own articles; they appear in Community and on the dealer page */
 const MyArticles = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const user = useReactiveVar(userVar);
 	const [editing, setEditing] = useState<BoardArticle | null>(null);
 	const [category, setCategory] = useState<BoardArticleCategory>(BoardArticleCategory.RECOMMEND);
@@ -74,10 +77,10 @@ const MyArticles = () => {
 			if (editing) {
 				// the category can't be changed after publishing
 				await updateArticle({ variables: { input: { _id: editing._id, articleTitle: title.trim(), articleContent: content.trim(), articleImage: image || undefined } } });
-				await sweetTopSuccessAlert('Article updated', 1200);
+				await sweetTopSuccessAlert(t('art.updated'), 1200);
 			} else {
 				await createArticle({ variables: { input: { articleCategory: category, articleTitle: title.trim(), articleContent: content.trim(), ...(image ? { articleImage: image } : {}) } } });
-				await sweetTopSuccessAlert('Article published', 1200);
+				await sweetTopSuccessAlert(t('art.published'), 1200);
 			}
 			reset();
 		} catch (err) {
@@ -88,7 +91,7 @@ const MyArticles = () => {
 	};
 
 	const remove = async (a: BoardArticle) => {
-		if (!(await sweetConfirmAlert(`Delete "${a.articleTitle}"? It disappears from Community.`, 'Delete', true))) return;
+		if (!(await sweetConfirmAlert(t('art.deleteQ', { title: a.articleTitle }), t('my.delete'), true))) return;
 		try {
 			await updateArticle({ variables: { input: { _id: a._id, articleStatus: BoardArticleStatus.DELETE } } });
 			if (editing?._id === a._id) reset();
@@ -101,21 +104,21 @@ const MyArticles = () => {
 		<>
 			<div className="main-head">
 				<div>
-					<h1>Articles</h1>
-					<p>Posts appear in Community and on your dealer page.</p>
+					<h1>{t('menu.articles')}</h1>
+					<p>{t('art.sub')}</p>
 				</div>
 				<Link href={`/agent/detail?id=${user._id}`} className="btn ghost">
-					View my dealer page
+					{t('my.viewDealerPage')}
 				</Link>
 			</div>
 			<div className="ed-grid">
 				<div className="editor">
-					<div className="label">{editing ? `Editing: ${enumLabel(category)}` : 'Category'}</div>
+					<div className="label">{editing ? t('art.editing', { category: t(`enum.${category}`) }) : t('art.category')}</div>
 					{!editing && (
 						<div className="chips">
 							{Object.values(BoardArticleCategory).map((c) => (
 								<span key={c} className={`chip ${category === c ? 'on' : ''}`} onClick={() => setCategory(c)}>
-									{enumLabel(c)}
+									{t(`enum.${c}`)}
 								</span>
 							))}
 						</div>
@@ -123,7 +126,7 @@ const MyArticles = () => {
 					<input
 						className="titlein"
 						style={{ border: 0, borderBottom: '1px solid var(--line-2)', outline: 'none', width: '100%', background: 'none' }}
-						placeholder="Title (3 to 100 characters)"
+						placeholder={t('art.titlePh')}
 						maxLength={100}
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
@@ -134,64 +137,65 @@ const MyArticles = () => {
 							<img src={image} alt="" style={{ width: 120, height: 68, objectFit: 'cover', borderRadius: 8 }} />
 						)}
 						<label className="btn ghost sm" style={{ cursor: uploading ? 'wait' : 'pointer' }}>
-							{uploading ? 'Uploading…' : image ? 'Change photo' : 'Add a photo'}
+							{uploading ? t('my.uploading') : image ? t('my.changePhoto') : t('art.addPhoto')}
 							<input type="file" accept="image/jpeg,image/png,image/webp" hidden disabled={uploading} onChange={addPhoto} />
 						</label>
 						{image && (
 							<button className="btn ghost sm" onClick={() => setImage('')}>
-								Remove photo
+								{t('my.removePhoto')}
 							</button>
 						)}
 					</div>
 					<textarea
 						className="body-text"
 						style={{ border: 0, outline: 'none', width: '100%', minHeight: 260, resize: 'vertical', fontFamily: 'inherit' }}
-						placeholder="Write your article. Line breaks are kept."
+						placeholder={t('art.bodyPh')}
 						maxLength={5000}
 						value={content}
 						onChange={(e) => setContent(e.target.value)}
 					/>
-					<div className="hint">{formatNumber(content.length)} of 5,000 characters</div>
+					<div className="hint">{t('my.charsOf', { count: content.length, max: fmt.number(5000) })}</div>
 					<div className="pub">
 						<button className="btn ghost" onClick={reset}>
-							{editing ? 'Cancel editing' : 'Clear'}
+							{editing ? t('art.cancelEditing') : t('art.clear')}
 						</button>
 						<button className="btn primary" disabled={!valid || saving || uploading} onClick={publish}>
-							{saving ? 'Saving…' : editing ? 'Save changes' : 'Publish article'}
+							{saving ? t('my.saving') : editing ? t('my.saveChanges') : t('art.publish')}
 						</button>
 					</div>
 				</div>
 				<div className="block mini-list" style={{ margin: 0 }}>
 					<div className="block-head">
 						<h2>
-							Your articles<span>{data?.getBoardArticles.metaCounter?.[0]?.total ?? 0}</span>
+							{t('art.yours')}
+							<span>{data?.getBoardArticles.metaCounter?.[0]?.total ?? 0}</span>
 						</h2>
 					</div>
 					{mine.map((a) => (
 						<div key={a._id} className="row" style={{ flexWrap: 'wrap' }}>
 							<div style={{ flex: 1, minWidth: 0 }}>
-								<span className="cat">{enumLabel(a.articleCategory)}</span>
+								<span className="cat">{t(`enum.${a.articleCategory}`)}</span>
 								<Link href={`/community/detail?id=${a._id}`} style={{ color: 'inherit' }}>
 									<b style={{ marginTop: 6 }}>{a.articleTitle}</b>
 								</Link>
 								<small>
-									{new Date(a.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} · {formatNumber(a.articleViews)} views ·{' '}
-									{a.articleLikes} likes · {a.articleComments} comments
+									{fmt.date(a.createdAt)} · {t('count.views', { count: a.articleViews })} · {t('count.likes', { count: a.articleLikes })} ·{' '}
+									{t('count.comments', { count: a.articleComments })}
 								</small>
 							</div>
 							<div className="rowacts">
 								<button className="btn ghost sm" onClick={() => startEdit(a)}>
-									Edit
+									{t('my.edit')}
 								</button>
 								<button className="btn danger sm" onClick={() => remove(a)}>
-									Delete
+									{t('my.delete')}
 								</button>
 							</div>
 						</div>
 					))}
 					{!mine.length && (
 						<p className="muted" style={{ padding: '0 18px 18px', fontSize: 14 }}>
-							You haven&apos;t written anything yet.
+							{t('art.none')}
 						</p>
 					)}
 				</div>

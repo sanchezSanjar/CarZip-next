@@ -10,10 +10,12 @@ import { BoardArticles } from '../../types/board-article/board-article';
 import { Comments } from '../../types/comment/comment';
 import { getErrorMessage } from '../../auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
-import { dealerName, timeAgo } from '../../utils';
+import { dealerName } from '../../utils';
 import CarPhoto from '../common/CarPhoto';
 import Avatar from '../common/Avatar';
 import { useMyImage } from '../../hooks/useMyImage';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
 interface Target {
 	id: string;
@@ -29,6 +31,8 @@ interface Target {
  * Only admins can delete comments; the dealer can block the writer.
  */
 const MyComments = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const user = useReactiveVar(userVar);
 	const myImage = useMyImage();
 	const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -50,7 +54,7 @@ const MyComments = () => {
 		...(carsData?.getAgentCars.list ?? []).map((c) => ({ id: c._id, group: CommentGroup.CAR, title: c.carTitle, count: c.carComments, image: c.carImages[0], href: `/car/detail?id=${c._id}` })),
 		...(articlesData?.getBoardArticles.list ?? []).map((a) => ({ id: a._id, group: CommentGroup.ARTICLE, title: a.articleTitle, count: a.articleComments, image: a.articleImage, href: `/community/detail?id=${a._id}` })),
 	].sort((a, b) => b.count - a.count);
-	const selected = targets.find((t) => t.id === selectedId) ?? targets.find((t) => t.count > 0) ?? targets[0];
+	const selected = targets.find((x) => x.id === selectedId) ?? targets.find((x) => x.count > 0) ?? targets[0];
 
 	const { data: commentsData, loading } = useQuery<{ getComments: Comments }>(GET_COMMENTS, {
 		fetchPolicy: 'cache-and-network',
@@ -78,10 +82,10 @@ const MyComments = () => {
 	};
 
 	const block = async (memberId: string, name: string) => {
-		if (!(await sweetConfirmAlert(`Block ${name}? They won't be able to comment on, like or request test drives for your cars. They are not notified.`, 'Block', true))) return;
+		if (!(await sweetConfirmAlert(t('dealers.blockQ', { name }), t('dealers.block'), true))) return;
 		try {
 			await blockMember({ variables: { input: memberId } });
-			await sweetTopSuccessAlert('Blocked', 1000);
+			await sweetTopSuccessAlert(t('my.blocked'), 1000);
 		} catch (err) {
 			await sweetMixinErrorAlert(getErrorMessage(err));
 		}
@@ -91,30 +95,30 @@ const MyComments = () => {
 		<>
 			<div className="main-head">
 				<div>
-					<h1>Comments</h1>
-					<p>Comments on your cars and articles. Only CarZip admins can remove a comment.</p>
+					<h1>{t('menu.comments')}</h1>
+					<p>{t('cm.sub')}</p>
 				</div>
 			</div>
 			<div className="banner info" style={{ marginBottom: 18 }}>
 				<span className="i">i</span>
 				<div>
-					<b>Someone is causing trouble?</b>Block them to stop them commenting, liking or booking test drives on your cars. It doesn&apos;t
-					affect the rest of CarZip.
+					<b>{t('cm.troubleTitle')}</b>
+					{t('cm.troubleText')}
 				</div>
 			</div>
 			{!targets.length ? (
 				<div className="empty">
-					<h3>Nothing to comment on yet</h3>
-					<p>Comments on your cars and articles show up here.</p>
+					<h3>{t('cm.nothing')}</h3>
+					<p>{t('cm.nothingText')}</p>
 				</div>
 			) : (
 				<div className="comments-wrap">
 					<div className="block" style={{ margin: 0 }}>
-						{targets.map((t) => (
-							<div key={t.id} className={`ctarget ${selected?.id === t.id ? 'on' : ''}`} role="button" onClick={() => setSelectedId(t.id)}>
-								{t.group === CommentGroup.CAR ? <CarPhoto image={t.image} className="thumb" /> : <span className="cat">Article</span>}
-								<b>{t.title}</b>
-								<span className="num">{t.count}</span>
+						{targets.map((target) => (
+							<div key={target.id} className={`ctarget ${selected?.id === target.id ? 'on' : ''}`} role="button" onClick={() => setSelectedId(target.id)}>
+								{target.group === CommentGroup.CAR ? <CarPhoto image={target.image} className="thumb" /> : <span className="cat">{t('cm.article')}</span>}
+								<b>{target.title}</b>
+								<span className="num">{target.count}</span>
 							</div>
 						))}
 					</div>
@@ -123,7 +127,7 @@ const MyComments = () => {
 							<div className="block-head" style={{ padding: '12px 0' }}>
 								<h2>{selected.title}</h2>
 								<Link href={selected.href} className="btn ghost sm">
-									Open
+									{t('cm.open')}
 								</Link>
 							</div>
 							{comments.map((c) => {
@@ -134,32 +138,32 @@ const MyComments = () => {
 										<Avatar image={c.memberData?.memberImage} dealer={dealer} />
 										<div style={{ flex: 1 }}>
 											<div className="who">
-												{dealerName(c.memberData)} {mine ? <span className="role">You</span> : dealer && <span className="role">Dealer</span>}{' '}
-												<small>{timeAgo(c.createdAt)}</small>
+												{dealerName(c.memberData)} {mine ? <span className="role">{t('cm.you')}</span> : dealer && <span className="role">{t('board.dealer')}</span>}{' '}
+												<small>{fmt.timeAgo(c.createdAt)}</small>
 											</div>
 											<p>{c.commentContent}</p>
 										</div>
 										{!mine && (
 											<button className="btn danger sm" style={{ alignSelf: 'center' }} onClick={() => block(c.memberId, dealerName(c.memberData))}>
-												Block
+												{t('dealers.block')}
 											</button>
 										)}
 									</div>
 								);
 							})}
-							{!loading && !comments.length && <p className="muted" style={{ padding: '10px 0' }}>No comments here yet.</p>}
+							{!loading && !comments.length && <p className="muted" style={{ padding: '10px 0' }}>{t('cm.noneHere')}</p>}
 							<form className="comment-box" style={{ marginTop: 16 }} onSubmit={sendReply}>
 								<Avatar image={myImage} dealer />
 								<textarea
 									className="ta"
 									style={{ border: 0, outline: 'none', resize: 'none', fontFamily: 'inherit' }}
-									placeholder="Write a reply"
+									placeholder={t('cm.replyPh')}
 									maxLength={500}
 									value={reply}
 									onChange={(e) => setReply(e.target.value)}
 								/>
 								<button className="btn dark sm" disabled={!reply.trim() || sending}>
-									Reply
+									{t('cm.reply')}
 								</button>
 							</form>
 						</div>

@@ -5,14 +5,18 @@ import { UNBLOCK_MEMBER } from '../../../apollo/user/mutation';
 import { Blocks } from '../../types/block/block';
 import { getErrorMessage } from '../../auth';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
-import { dealerName, timeAgo } from '../../utils';
+import { dealerName } from '../../utils';
 import Pager from '../common/Pager';
 import Avatar from '../common/Avatar';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
 const LIMIT = 10;
 
 /** dealer: people blocked from interacting with own cars, articles and profile. Nobody is notified */
 const MyBlocks = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const [page, setPage] = useState(1);
 
 	/** APOLLO REQUESTS **/
@@ -28,7 +32,7 @@ const MyBlocks = () => {
 	const unblock = async (memberId: string) => {
 		try {
 			await unblockMember({ variables: { input: memberId } });
-			await sweetTopSuccessAlert('Unblocked', 1000);
+			await sweetTopSuccessAlert(t('blk.unblocked'), 1000);
 		} catch (err) {
 			await sweetMixinErrorAlert(getErrorMessage(err));
 		}
@@ -38,23 +42,24 @@ const MyBlocks = () => {
 		<>
 			<div className="main-head">
 				<div>
-					<h1>Blocked people</h1>
-					<p>People you blocked can still see your cars and contacts, but can&apos;t interact with them.</p>
+					<h1>{t('menu.blocked')}</h1>
+					<p>{t('blk.sub')}</p>
 				</div>
 			</div>
 			<div className="twocol" style={{ gridTemplateColumns: '1fr 360px', alignItems: 'start' }}>
 				<div className="block" style={{ margin: 0 }}>
 					<div className="block-head">
 						<h2>
-							Blocked<span>{total}</span>
+							{t('blk.blocked')}
+							<span>{total}</span>
 						</h2>
 					</div>
 					{blocks.length ? (
 						<table>
 							<thead>
 								<tr>
-									<th>Person</th>
-									<th>Blocked</th>
+									<th>{t('blk.person')}</th>
+									<th>{t('blk.blocked')}</th>
 									<th />
 								</tr>
 							</thead>
@@ -68,15 +73,15 @@ const MyBlocks = () => {
 													<Avatar image={b.blockedData?.memberImage} dealer={dealer} />
 													<div>
 														<b>{dealerName(b.blockedData)}</b>
-														<small>{dealer ? 'Dealer' : 'Buyer'}</small>
+														<small>{dealer ? t('board.dealer') : t('menu.buyer')}</small>
 													</div>
 												</div>
 											</td>
-											<td>{timeAgo(b.createdAt)}</td>
+											<td>{fmt.timeAgo(b.createdAt)}</td>
 											<td>
 												<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
 													<button className="btn ghost sm" onClick={() => unblock(b.blockedId)}>
-														Unblock
+														{t('dealers.unblock')}
 													</button>
 												</div>
 											</td>
@@ -88,20 +93,20 @@ const MyBlocks = () => {
 					) : (
 						!loading && (
 							<div className="empty" style={{ margin: 18 }}>
-								<h3>You haven&apos;t blocked anyone</h3>
-								<p>If someone is bothering you, block them from your followers or comments.</p>
+								<h3>{t('blk.none')}</h3>
+								<p>{t('blk.noneText')}</p>
 							</div>
 						)
 					)}
 				</div>
 				<div className="sidecard">
-					<h3>What blocking does</h3>
+					<h3>{t('blk.whatTitle')}</h3>
 					<ul className="card-side" style={{ border: 0, padding: 0, margin: 0 }}>
-						<li>They can&apos;t comment on your cars or articles</li>
-						<li>They can&apos;t like your cars</li>
-						<li>They can&apos;t follow you or request test drives from you</li>
-						<li>They can still see your cars and contact details</li>
-						<li className="x">It is not a CarZip-wide ban. Report serious abuse to admins.</li>
+						<li>{t('blk.w1')}</li>
+						<li>{t('blk.w2')}</li>
+						<li>{t('blk.w3')}</li>
+						<li>{t('blk.w4')}</li>
+						<li className="x">{t('blk.w5')}</li>
 					</ul>
 				</div>
 			</div>

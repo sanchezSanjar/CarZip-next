@@ -8,9 +8,11 @@ import { MemberType } from '../../enums/member.enum';
 import { Followers, Followings } from '../../types/follow/follow';
 import { getErrorMessage } from '../../auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
-import { dealerName, timeAgo } from '../../utils';
+import { dealerName } from '../../utils';
 import Pager from '../common/Pager';
 import Avatar from '../common/Avatar';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
 const LIMIT = 10;
 
@@ -19,6 +21,8 @@ const LIMIT = 10;
  * Dealers also see who follows them, can follow dealers back and can block people.
  */
 const MyFollows = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const user = useReactiveVar(userVar);
 	const isAgent = user.memberType === MemberType.AGENT;
 	const [tab, setTab] = useState<'followers' | 'followings'>(isAgent ? 'followers' : 'followings');
@@ -56,49 +60,50 @@ const MyFollows = () => {
 	};
 	const block = async (id: string, name: string) => {
 		const ok = await sweetConfirmAlert(
-			`Block ${name}? They won't be able to comment on, like, follow or request test drives for your cars and articles. They are not notified.`,
-			'Block',
+			t('dealers.blockQ', { name }),
+			t('dealers.block'),
 			true,
 		);
-		if (ok) await run(() => blockMember({ variables: { input: id } }), 'Blocked');
+		if (ok) await run(() => blockMember({ variables: { input: id } }), t('my.blocked'));
 	};
 
 	return (
 		<>
 			<div className="main-head">
 				<div>
-					<h1>{isAgent ? 'Followers & following' : 'Following'}</h1>
-					<p>{isAgent ? 'People who follow you see your new cars first.' : 'Dealers you follow, newest first.'}</p>
+					<h1>{isAgent ? t('menu.follows') : t('menu.following')}</h1>
+					<p>{isAgent ? t('fl.agentSub') : t('fl.buyerSub')}</p>
 				</div>
 			</div>
 			{isAgent && (
 				<div className="kpis" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
 					<div className="kpi">
-						<small>Followers</small>
+						<small>{t('fl.followers')}</small>
 						<b>{followersTotal}</b>
 					</div>
 					<div className="kpi">
-						<small>Following</small>
+						<small>{t('menu.following')}</small>
 						<b>{followingsTotal}</b>
 					</div>
 				</div>
 			)}
 			<div className="block">
 				<div className="block-head">
-					<h2>{tab === 'followers' ? 'People who follow you' : 'Dealers you follow'}</h2>
+					<h2>{tab === 'followers' ? t('fl.whoFollow') : t('fl.youFollow')}</h2>
 				</div>
 				{isAgent && (
 					<div className="ftabs">
-						{(['followers', 'followings'] as const).map((t) => (
+						{(['followers', 'followings'] as const).map((which) => (
 							<span
-								key={t}
-								className={`chip ${tab === t ? 'on' : ''}`}
+								key={which}
+								className={`chip ${tab === which ? 'on' : ''}`}
 								onClick={() => {
-									setTab(t);
+									setTab(which);
 									setPage(1);
 								}}
 							>
-								{t === 'followers' ? 'Followers' : 'Following'} <span className="num">{t === 'followers' ? followersTotal : followingsTotal}</span>
+								{which === 'followers' ? t('fl.followers') : t('menu.following')}{' '}
+								<span className="num">{which === 'followers' ? followersTotal : followingsTotal}</span>
 							</span>
 						))}
 					</div>
@@ -106,9 +111,9 @@ const MyFollows = () => {
 				<table className="flist">
 					<thead>
 						<tr>
-							<th>{tab === 'followers' ? 'Member' : 'Dealer'}</th>
-							<th>Type</th>
-							<th>Since</th>
+							<th>{tab === 'followers' ? t('fl.member') : t('board.dealer')}</th>
+							<th>{t('fl.type')}</th>
+							<th>{t('fl.since')}</th>
 							<th />
 						</tr>
 					</thead>
@@ -130,23 +135,23 @@ const MyFollows = () => {
 												</div>
 											</td>
 											<td>
-												<span className={`rolepill ${dealer ? 'd' : 'b'}`}>{dealer ? 'Dealer' : 'Buyer'}</span>
+												<span className={`rolepill ${dealer ? 'd' : 'b'}`}>{dealer ? t('board.dealer') : t('menu.buyer')}</span>
 											</td>
-											<td>{timeAgo(f.createdAt)}</td>
+											<td>{fmt.timeAgo(f.createdAt)}</td>
 											<td>
 												<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
 													{dealer &&
 														(iFollow ? (
 															<button className="btn ghost sm" onClick={() => run(() => unsubscribe({ variables: { input: f.followerId } }))}>
-																Following
+																{t('follow.following')}
 															</button>
 														) : (
 															<button className="btn dark sm" onClick={() => run(() => subscribe({ variables: { input: f.followerId } }))}>
-																Follow back
+																{t('fl.followBack')}
 															</button>
 														))}
 													<button className="btn danger sm" onClick={() => block(f.followerId, dealerName(p))}>
-														Block
+														{t('dealers.block')}
 													</button>
 												</div>
 											</td>
@@ -167,16 +172,16 @@ const MyFollows = () => {
 												</div>
 											</td>
 											<td>
-												<span className="rolepill d">Dealer</span>
+												<span className="rolepill d">{t('board.dealer')}</span>
 											</td>
-											<td>{timeAgo(f.createdAt)}</td>
+											<td>{fmt.timeAgo(f.createdAt)}</td>
 											<td>
 												<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
 													<Link href={`/agent/detail?id=${f.followingId}`} className="btn ghost sm">
-														View dealer
+														{t('dealers.viewDealer')}
 													</Link>
-													<button className="btn ghost sm" onClick={() => run(() => unsubscribe({ variables: { input: f.followingId } }), 'Unfollowed')}>
-														Unfollow
+													<button className="btn ghost sm" onClick={() => run(() => unsubscribe({ variables: { input: f.followingId } }), t('fl.unfollowed'))}>
+														{t('fl.unfollow')}
 													</button>
 												</div>
 											</td>
@@ -187,11 +192,11 @@ const MyFollows = () => {
 				</table>
 				{(tab === 'followers' ? followers : followings).length === 0 && (
 					<div className="empty" style={{ margin: 18 }}>
-						<h3>{tab === 'followers' ? 'No followers yet' : "You don't follow any dealers"}</h3>
-						<p>{tab === 'followers' ? 'Buyers who follow you show up here.' : 'Follow a dealer from their page to see their new cars first.'}</p>
+						<h3>{tab === 'followers' ? t('fl.noFollowers') : t('fl.noFollowing')}</h3>
+						<p>{tab === 'followers' ? t('fl.noFollowersText') : t('fl.noFollowingText')}</p>
 						{tab === 'followings' && (
 							<Link href="/agent" className="btn ghost">
-								Browse dealers
+								{t('fl.browseDealers')}
 							</Link>
 						)}
 					</div>

@@ -7,8 +7,9 @@ import { NotificationGroup, NotificationStatus, NotificationType } from '../../e
 import { Notification, Notifications } from '../../types/notification/notification';
 import { getErrorMessage } from '../../auth';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
-import { timeAgo } from '../../utils';
 import Pager from '../common/Pager';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
 const LIMIT = 15;
 
@@ -25,14 +26,16 @@ const icons: Partial<Record<NotificationType, { text: string; bg: string; color:
 };
 
 const tabs = [
-	{ group: '', label: 'All' },
-	{ group: NotificationGroup.CAR, label: 'Cars' },
-	{ group: NotificationGroup.ARTICLE, label: 'Articles' },
-	{ group: NotificationGroup.MEMBER, label: 'Account' },
+	{ group: '', label: 'board.all' },
+	{ group: NotificationGroup.CAR, label: 'nt.cars' },
+	{ group: NotificationGroup.ARTICLE, label: 'menu.articles' },
+	{ group: NotificationGroup.MEMBER, label: 'nt.account' },
 ];
 
 /** my notifications, newest first; opening one marks it read and goes to the car or article it is about */
 const MyNotifications = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const router = useRouter();
 	const [group, setGroup] = useState<NotificationGroup | ''>('');
 	const [unreadOnly, setUnreadOnly] = useState(false);
@@ -74,26 +77,26 @@ const MyNotifications = () => {
 		<>
 			<div className="main-head">
 				<div>
-					<h1>Notifications</h1>
-					<p>{unread ? `${unread} unread` : 'All caught up'}</p>
+					<h1>{t('menu.notifications')}</h1>
+					<p>{unread ? t('nt.unread', { count: unread }) : t('nt.caughtUp')}</p>
 				</div>
 				<button className="btn ghost" disabled={!unread} onClick={markAllRead}>
-					Mark all as read
+					{t('nt.markAll')}
 				</button>
 			</div>
 			<div className="block">
 				<div className="block-head">
 					<div className="tabs2">
-						{tabs.map((t) => (
+						{tabs.map((tab) => (
 							<span
-								key={t.label}
-								className={`chip ${group === t.group ? 'on' : ''}`}
+								key={tab.label}
+								className={`chip ${group === tab.group ? 'on' : ''}`}
 								onClick={() => {
-									setGroup(t.group as NotificationGroup | '');
+									setGroup(tab.group as NotificationGroup | '');
 									setPage(1);
 								}}
 							>
-								{t.label}
+								{t(tab.label)}
 							</span>
 						))}
 					</div>
@@ -106,7 +109,7 @@ const MyNotifications = () => {
 								setPage(1);
 							}}
 						/>
-						Unread only
+						{t('nt.unreadOnly')}
 					</label>
 				</div>
 				{rows.map((n) => {
@@ -121,15 +124,15 @@ const MyNotifications = () => {
 								<b>{n.notificationTitle}</b>
 								{n.notificationDesc && <small>{n.notificationDesc}</small>}
 							</div>
-							<div className="when2">{timeAgo(n.createdAt)}</div>
+							<div className="when2">{fmt.timeAgo(n.createdAt)}</div>
 							{isUnread && <span className="dot" style={{ marginTop: 6 }} />}
 						</div>
 					);
 				})}
 				{!loading && !rows.length && (
 					<div className="empty" style={{ margin: 18 }}>
-						<h3>No notifications</h3>
-						<p>Likes, comments and test drive updates show up here.</p>
+						<h3>{t('nt.none')}</h3>
+						<p>{t('nt.noneText')}</p>
 					</div>
 				)}
 			</div>

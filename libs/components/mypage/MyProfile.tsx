@@ -14,13 +14,14 @@ import { dealerName } from '../../utils';
 import Verified from '../common/Verified';
 import ChangePassword from './ChangePassword';
 import { Silhouette } from '../common/Avatar';
+import { useTranslation } from 'next-i18next/pages';
 
 const contactFields = [
-	{ key: 'contactPhone', icon: '☎', bg: 'var(--asphalt)', color: '#fff', placeholder: 'Shop phone' },
-	{ key: 'contactEmail', icon: '@', bg: 'var(--line)', color: 'inherit', placeholder: 'Email' },
-	{ key: 'contactKakao', icon: 'K', bg: '#FEE500', color: 'inherit', placeholder: 'KakaoTalk ID' },
-	{ key: 'contactTelegram', icon: 'T', bg: '#229ED9', color: '#fff', placeholder: 'Telegram' },
-	{ key: 'contactWhatsapp', icon: 'W', bg: '#25D366', color: '#fff', placeholder: 'WhatsApp' },
+	{ key: 'contactPhone', icon: '☎', bg: 'var(--asphalt)', color: '#fff', placeholder: 'pf.phShop' },
+	{ key: 'contactEmail', icon: '@', bg: 'var(--line)', color: 'inherit', placeholder: 'account.phEmail' },
+	{ key: 'contactKakao', icon: 'K', bg: '#FEE500', color: 'inherit', placeholder: 'account.phKakao' },
+	{ key: 'contactTelegram', icon: 'T', bg: '#229ED9', color: '#fff', placeholder: 'account.phTelegram' },
+	{ key: 'contactWhatsapp', icon: 'W', bg: '#25D366', color: '#fff', placeholder: 'account.phWhatsapp' },
 ] as const;
 
 type Editable = Required<Pick<MemberUpdate, 'memberNick' | 'memberFullName' | 'memberImage' | 'memberAddress' | 'memberDesc' | (typeof contactFields)[number]['key']>>;
@@ -40,18 +41,20 @@ const toForm = (m: Member): Editable => ({
 
 /** loads my profile first, then shows the form filled with it */
 const MyProfile = () => {
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const { data, loading } = useQuery<{ getMember: Member }>(GET_MEMBER, {
 		fetchPolicy: 'network-only',
 		variables: { input: user._id },
 		skip: !user._id,
 	});
-	if (loading || !data) return <p className="muted">Loading your profile…</p>;
+	if (loading || !data) return <p className="muted">{t('pf.loading')}</p>;
 	return <ProfileForm key={data.getMember.updatedAt.toString()} member={data.getMember} />;
 };
 
 /** own profile. Phone and password have their own flows; company and business number change only through an admin */
 const ProfileForm = ({ member }: { member: Member }) => {
+	const { t } = useTranslation('common');
 	const isAgent = member.memberType === MemberType.AGENT;
 	const initialForm = toForm(member);
 	const [form, setForm] = useState<Editable>(initialForm);
@@ -62,7 +65,7 @@ const ProfileForm = ({ member }: { member: Member }) => {
 	const set = (key: keyof Editable, value: string) => setForm({ ...form, [key]: value });
 	// only what changed is sent; an emptied contact field is sent as '' so the API clears it
 	const changes = (Object.keys(form) as (keyof Editable)[]).filter((k) => form[k] !== initialForm[k]);
-	const nickError = /^[A-Za-z0-9_]{3,12}$/.test(form.memberNick) ? '' : '3 to 12 letters, digits or _';
+	const nickError = /^[A-Za-z0-9_]{3,12}$/.test(form.memberNick) ? '' : t('account.ruleNick');
 
 	/** HANDLERS **/
 	const changePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,7 +95,7 @@ const ProfileForm = ({ member }: { member: Member }) => {
 				updateStorage({ jwtToken: token });
 				updateUserInfo(token);
 			}
-			await sweetTopSuccessAlert('Profile saved', 1200);
+			await sweetTopSuccessAlert(t('pf.saved'), 1200);
 		} catch (err) {
 			await sweetMixinErrorAlert(getErrorMessage(err));
 		} finally {
@@ -104,16 +107,16 @@ const ProfileForm = ({ member }: { member: Member }) => {
 		<>
 			<div className="main-head">
 				<div>
-					<h1>My profile</h1>
+					<h1>{t('menu.profile')}</h1>
 					<p>
 						{isAgent
-							? 'This is what people see on your dealer page and next to every car you list.'
-							: 'Your nickname and photo show next to your comments.'}
+							? t('pf.agentSub')
+							: t('pf.buyerSub')}
 					</p>
 				</div>
 				{isAgent && (
 					<Link href={`/agent/detail?id=${member._id}`} className="btn ghost">
-						View my dealer page
+						{t('my.viewDealerPage')}
 					</Link>
 				)}
 			</div>
@@ -126,7 +129,7 @@ const ProfileForm = ({ member }: { member: Member }) => {
 						) : (
 							<Silhouette />
 						)}
-						<label className="cam" style={{ cursor: uploading ? 'wait' : 'pointer' }} title="Change photo">
+						<label className="cam" style={{ cursor: uploading ? 'wait' : 'pointer' }} title={t('my.changePhoto')}>
 							📷
 							<input type="file" accept="image/jpeg,image/png,image/webp" hidden disabled={uploading} onChange={changePhoto} />
 						</label>
@@ -134,54 +137,54 @@ const ProfileForm = ({ member }: { member: Member }) => {
 					<b style={{ fontSize: 17 }}>{dealerName(member)}</b>
 					{isAgent && <Verified center />}
 					<div className="hint" style={{ margin: '10px 0 12px' }}>
-						{uploading ? 'Uploading…' : 'Square photo or logo, at least 400 × 400 px. JPG, PNG or WebP.'}
+						{uploading ? t('my.uploading') : t('pf.photoHint')}
 					</div>
 					{form.memberImage && (
 						<button className="btn ghost sm" onClick={() => set('memberImage', '')}>
-							Remove photo
+							{t('my.removePhoto')}
 						</button>
 					)}
 				</div>
 				<div>
 					<div className="formsec">
-						<h2>About you</h2>
-						<p>{isAgent ? 'Shown on your dealer page.' : 'Only your nickname is public.'}</p>
+						<h2>{t('pf.about')}</h2>
+						<p>{isAgent ? t('pf.aboutAgent') : t('pf.aboutBuyer')}</p>
 						<div className="fgrid">
 							<div>
-								<div className="label">Nickname</div>
+								<div className="label">{t('account.nickname')}</div>
 								<input className={`field ${nickError ? 'err' : ''}`} maxLength={12} value={form.memberNick} onChange={(e) => set('memberNick', e.target.value)} />
 								{nickError && <div className="hint err">{nickError}</div>}
 							</div>
 							<div>
-								<div className="label">Your name</div>
+								<div className="label">{t('pf.yourName')}</div>
 								<input className="field" maxLength={50} value={form.memberFullName} onChange={(e) => set('memberFullName', e.target.value)} />
 							</div>
 							{isAgent && (
 								<div>
-									<div className="label">Company name</div>
+									<div className="label">{t('account.company')}</div>
 									<div className="field locked">
 										{member.agentCompany}
-										<span style={{ fontSize: 12 }}>Contact admin to change</span>
+										<span style={{ fontSize: 12 }}>{t('pf.askAdmin')}</span>
 									</div>
 								</div>
 							)}
 							<div className={isAgent ? '' : 'full'}>
-								<div className="label">{isAgent ? 'Lot address' : 'Address'}</div>
+								<div className="label">{isAgent ? t('pf.lotAddress') : t('pf.address')}</div>
 								<input className="field" maxLength={200} value={form.memberAddress} onChange={(e) => set('memberAddress', e.target.value)} />
 							</div>
 							{isAgent && (
 								<div className="full">
-									<div className="label">About the dealership</div>
+									<div className="label">{t('pf.aboutDealership')}</div>
 									<textarea className="field" maxLength={500} value={form.memberDesc} onChange={(e) => set('memberDesc', e.target.value)} />
-									<div className="hint">{form.memberDesc.length} of 500 characters</div>
+									<div className="hint">{t('my.charsOf', { count: form.memberDesc.length, max: 500 })}</div>
 								</div>
 							)}
 						</div>
 					</div>
 					{isAgent && (
 						<div className="formsec">
-							<h2>Contact details</h2>
-							<p>Visible to everyone, including people who aren&apos;t logged in. Leave a field empty to hide it.</p>
+							<h2>{t('pf.contacts')}</h2>
+							<p>{t('pf.contactsText')}</p>
 							<div className="cgrid">
 								{contactFields.map((c) => (
 									<div key={c.key} className="cfield">
@@ -190,7 +193,7 @@ const ProfileForm = ({ member }: { member: Member }) => {
 										</span>
 										<input
 											style={{ border: 0, outline: 'none', flex: 1, fontFamily: 'inherit', fontSize: 14 }}
-											placeholder={c.placeholder}
+											placeholder={t(c.placeholder)}
 											value={form[c.key]}
 											onChange={(e) => set(c.key, e.target.value)}
 										/>
@@ -200,30 +203,32 @@ const ProfileForm = ({ member }: { member: Member }) => {
 						</div>
 					)}
 					<div className="formsec">
-						<h2>Account</h2>
-						<p>Private. Only you and CarZip admins see this.</p>
+						<h2>{t('nt.account')}</h2>
+						<p>{t('pf.private')}</p>
 						<div className="acc-row">
 							<div>
-								Login phone<small className="num">{member.memberPhone}</small>
+								{t('pf.loginPhone')}
+								<small className="num">{member.memberPhone}</small>
 							</div>
 						</div>
 						<ChangePassword />
 						{isAgent && (
 							<div className="acc-row">
 								<div>
-									Business registration number<small className="num">{member.agentBusinessNo || 'Not given'}</small>
+									{t('pf.businessNo')}
+									<small className="num">{member.agentBusinessNo || t('pf.notGiven')}</small>
 								</div>
-								<span style={{ fontSize: 13, color: 'var(--muted)' }}>Contact admin to change</span>
+								<span style={{ fontSize: 13, color: 'var(--muted)' }}>{t('pf.askAdmin')}</span>
 							</div>
 						)}
 					</div>
 					<div className="savebar">
-						{changes.length > 0 && <span className="t">You have unsaved changes</span>}
+						{changes.length > 0 && <span className="t">{t('pf.unsaved')}</span>}
 						<button className="btn ghost" disabled={!changes.length || saving} onClick={() => setForm(initialForm)}>
-							Discard
+							{t('pf.discard')}
 						</button>
 						<button className="btn primary" disabled={!changes.length || !!nickError || saving || uploading} onClick={save}>
-							{saving ? 'Saving…' : 'Save changes'}
+							{saving ? t('my.saving') : t('my.saveChanges')}
 						</button>
 					</div>
 				</div>
