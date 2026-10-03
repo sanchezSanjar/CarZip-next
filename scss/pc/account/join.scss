@@ -5,7 +5,7 @@
 .step b { display: block; color: var(--asphalt); font-size: 14.5px; }
 .step.done { border-color: var(--dealer); } .step.now { border-color: var(--signal); }
 .formcard { background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 32px; }
-.formcard h1 { font-family: 'Archivo', 'Pretendard', sans-serif; font-stretch: 118%; font-weight: 800; font-size: 28px; letter-spacing: -0.015em; }
+.formcard h1 { font-family: 'Pretendard', sans-serif; font-stretch: 118%; font-weight: 800; font-size: 28px; letter-spacing: -0.015em; }
 .formcard > p { color: var(--muted); margin-top: 6px; margin-bottom: 24px; }
 .types { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 26px; }
 .type { border: 1.5px solid var(--line); border-radius: 14px; padding: 16px 18px; }
@@ -30,7 +30,7 @@
 .pending .clock { width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--signal); position: relative; margin-bottom: 20px; }
 .pending .clock::before { content: ''; position: absolute; left: 29px; top: 12px; width: 3px; height: 20px; background: var(--signal); border-radius: 2px; }
 .pending .clock::after { content: ''; position: absolute; left: 29px; top: 29px; width: 16px; height: 3px; background: var(--signal); border-radius: 2px; }
-.pending h2 { font-family: 'Archivo', 'Pretendard', sans-serif; font-stretch: 116%; font-weight: 800; font-size: 24px; letter-spacing: -0.01em; }
+.pending h2 { font-family: 'Pretendard', sans-serif; font-stretch: 116%; font-weight: 800; font-size: 24px; letter-spacing: -0.01em; }
 .pending p { color: #B9C1C8; margin-top: 8px; font-size: 14.5px; }
 .timeline { margin-top: 24px; display: grid; gap: 0; }
 .tl { display: grid; grid-template-columns: 22px 1fr; gap: 12px; padding-bottom: 18px; position: relative; font-size: 14px; }
@@ -48,13 +48,13 @@
 // login, buyer signup, forgot password
 .auth { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; padding: 48px 120px 64px; align-items: start; }
 .authcard { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 32px; }
-.authcard h1 { font-family: 'Archivo', 'Pretendard', sans-serif; font-stretch: 118%; font-weight: 800; font-size: 28px; letter-spacing: -0.015em; }
+.authcard h1 { font-family: 'Pretendard', sans-serif; font-stretch: 118%; font-weight: 800; font-size: 28px; letter-spacing: -0.015em; }
 .authcard > p { color: var(--muted); margin: 6px 0 22px; }
 .stack { display: grid; gap: 14px; }
 .or { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; margin: 18px 0; }
 .or::before, .or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 .otp { display: flex; gap: 8px; }
-.otp span { width: 54px; height: 62px; border: 1.5px solid var(--line); border-radius: 11px; display: grid; place-items: center; font-family: 'Archivo', 'Pretendard', sans-serif; font-size: 28px; font-weight: 700; background: #fff; }
+.otp span { width: 54px; height: 62px; border: 1.5px solid var(--line); border-radius: 11px; display: grid; place-items: center; font-family: 'Pretendard', sans-serif; font-size: 28px; font-weight: 700; background: #fff; }
 .otp span.on { border-color: var(--road); box-shadow: 0 0 0 3px var(--road-tint); }
 .timerline { display: flex; justify-content: space-between; font-size: 13.5px; margin-top: 10px; color: var(--muted); }
 .stepper { display: flex; gap: 8px; margin-bottom: 20px; }

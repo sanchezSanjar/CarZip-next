@@ -1,6 +1,6 @@
 // browse: search bar, filters and results
 .searchbar { background: var(--asphalt); padding: 34px 48px 30px; color: #fff; }
-.searchbar h1 { font-family: 'Archivo', 'Pretendard', sans-serif; font-stretch: 122%; font-weight: 800; font-size: 34px; letter-spacing: -0.015em; line-height: 1.15; }
+.searchbar h1 { font-family: 'Pretendard', sans-serif; font-stretch: 122%; font-weight: 800; font-size: 34px; letter-spacing: -0.015em; line-height: 1.15; }
 .searchbar p { color: #AAB2BA; margin-top: 6px; }
 .searchbar .row { display: grid; grid-template-columns: 1fr 220px 220px 150px; gap: 10px; margin-top: 22px; }
 .searchbar .field { height: 52px; border: 0; font-size: 15.5px; }

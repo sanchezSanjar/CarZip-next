@@ -1,5 +1,5 @@
 @font-face { font-family: 'Pretendard'; src: url('/fonts/PretendardVariable.woff2') format('woff2'); font-weight: 100 900; }
-@font-face { font-family: 'Archivo', 'Pretendard', sans-serif; src: url('/fonts/archivo.woff2') format('woff2'); font-weight: 100 900; font-stretch: 62% 125%; }
+@font-face { font-family: 'Archivo'; src: url('/fonts/archivo.woff2') format('woff2'); font-weight: 100 900; font-stretch: 62% 125%; }
 
 :root {
   --asphalt: #1E242B;
@@ -25,8 +25,8 @@
 body { background: var(--paper); font-family: 'Pretendard', sans-serif; color: var(--asphalt); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 /* Korean wraps between words, not inside them */
 html[lang='ko'] body { word-break: keep-all; overflow-wrap: break-word; }
-.num { font-family: 'Archivo', 'Pretendard', sans-serif; font-variant-numeric: tabular-nums; }
-.display { font-family: 'Archivo', 'Pretendard', sans-serif; font-stretch: 118%; font-weight: 800; letter-spacing: -0.01em; }
+.num { font-family: 'Pretendard', sans-serif; font-variant-numeric: tabular-nums; }
+.display { font-family: 'Pretendard', sans-serif; font-stretch: 118%; font-weight: 800; letter-spacing: -0.01em; }
 a { color: var(--road); text-decoration: none; }
 
 /* nav */
@@ -78,10 +78,10 @@ a { color: var(--road); text-decoration: none; }
 .specs { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: 0; margin: 12px 0 10px; font-size: 13px; color: var(--ink-2); }
 .specs span { padding: 0 10px; border-left: 1px solid var(--line); }
 .specs span:first-child { padding-left: 0; border-left: 0; }
-.price { font-family: 'Archivo', 'Pretendard', sans-serif; font-stretch: 112%; font-weight: 800; font-size: 26px; letter-spacing: -0.01em; }
+.price { font-family: 'Pretendard', sans-serif; font-stretch: 112%; font-weight: 800; font-size: 26px; letter-spacing: -0.01em; }
 .price small { font-family: 'Pretendard'; font-size: 15px; font-weight: 700; margin-left: 2px; }
 .car-card .foot { border-top: 1px solid var(--line-2); margin-top: 14px; padding: 12px 18px; display: flex; align-items: center; gap: 10px; font-size: 13.5px; }
-.avatar { width: 30px; height: 30px; border-radius: 8px; background: var(--asphalt); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 13px; font-family: 'Archivo', 'Pretendard', sans-serif; flex: none; }
+.avatar { width: 30px; height: 30px; border-radius: 8px; background: var(--asphalt); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 13px; font-family: 'Pretendard', sans-serif; flex: none; }
 .car-card .foot .loc { margin-left: auto; color: var(--muted); }
 
 /* table */
@@ -131,7 +131,7 @@ textarea.field { height: auto; min-height: 96px; padding: 12px 14px; line-height
 input.field:focus, select.field:focus, textarea.field:focus { border-color: var(--road); box-shadow: 0 0 0 3px var(--road-tint); }
 input.field.err, textarea.field.err { border-color: var(--stop); box-shadow: 0 0 0 3px var(--stop-tint); }
 select.field { appearance: auto; }
-.otp input { width: 54px; height: 62px; border: 1.5px solid var(--line); border-radius: 11px; text-align: center; font-family: 'Archivo', 'Pretendard', sans-serif; font-size: 28px; font-weight: 700; background: #fff; outline: none; }
+.otp input { width: 54px; height: 62px; border: 1.5px solid var(--line); border-radius: 11px; text-align: center; font-family: 'Pretendard', sans-serif; font-size: 28px; font-weight: 700; background: #fff; outline: none; }
 .otp input:focus { border-color: var(--road); box-shadow: 0 0 0 3px var(--road-tint); }
 #pc-wrap { min-height: 100vh; display: flex; flex-direction: column; }
 #pc-wrap #main { flex: 1; }
@@ -150,7 +150,7 @@ select.field { appearance: auto; }
 .map-links { display: flex; gap: 8px; flex-wrap: wrap; }
 .map-link { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px 0 6px; border-radius: 9px; background: #fff; border: 1px solid var(--line); color: var(--asphalt); font-size: 13.5px; font-weight: 700; cursor: pointer; transition: transform .15s, box-shadow .15s; }
 .map-link:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(30, 36, 43, .12); }
-.map-link .mark { width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; font-family: 'Archivo', 'Pretendard', sans-serif; font-weight: 900; font-size: 14px; }
+.map-link .mark { width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; font-family: 'Pretendard', sans-serif; font-weight: 900; font-size: 14px; }
 .map-link .mark svg { width: 15px; height: 15px; fill: currentColor; }
 .map-link.naver .mark { background: #03C75A; color: #fff; }
 .map-link.kakao .mark { background: #FEE500; color: #3C1E1E; }
