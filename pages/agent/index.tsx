@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NextPage } from 'next';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client/react';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import Verified from '../../libs/components/common/Verified';
@@ -22,16 +23,31 @@ const agentSorts = [
 	{ label: 'Newest', sort: 'createdAt' },
 ];
 
+/** /agent?text=jeju&sort=memberCars&page=2 : the search lives in the address, so reloading or sharing keeps it */
 const AgentList: NextPage = () => {
-	const [text, setText] = useState('');
-	const [search, setSearch] = useState('');
-	const [sort, setSort] = useState('memberRank');
-	const [page, setPage] = useState(1);
+	const router = useRouter();
+	const one = (key: string) => (typeof router.query[key] === 'string' ? (router.query[key] as string) : '');
+	const search = one('text').trim().slice(0, 50);
+	const sort = agentSorts.some((s) => s.sort === one('sort')) ? one('sort') : 'memberRank';
+	const page = Math.max(1, Number(one('page')) || 1);
+
+	// writes the new search to the address; defaults are left out to keep links short
+	const update = (next: { text?: string; sort?: string; page?: number }) => {
+		const merged = { text: search, sort, page, ...next };
+		const query: Record<string, string> = {};
+		if (merged.text) query.text = merged.text;
+		if (merged.sort !== 'memberRank') query.sort = merged.sort;
+		if (merged.page > 1) query.page = String(merged.page);
+		router.push({ pathname: '/agent', query }, undefined, { shallow: true, scroll: false }).then();
+	};
+	const setPage = (p: number) => update({ page: p });
 
 	/** APOLLO REQUESTS **/
 	const { data, loading } = useQuery<{ getAgents: Members }>(GET_AGENTS, {
 		fetchPolicy: 'cache-and-network',
-		variables: { input: { page, limit: LIMIT, sort, direction: Direction.DESC, ...(search ? { search: { text: search } } : {}) } },
+		variables: {
+			input: { page, limit: LIMIT, sort, direction: Direction.DESC, ...(search ? { search: { text: search } } : {}) },
+		},
 	});
 	const agents = data?.getAgents.list ?? [];
 	const total = data?.getAgents.metaCounter?.[0]?.total ?? 0;
@@ -39,25 +55,25 @@ const AgentList: NextPage = () => {
 	/** HANDLERS **/
 	const searchHandler = (e: React.FormEvent) => {
 		e.preventDefault();
-		setSearch(text.trim());
-		setPage(1);
+		const typed = new FormData(e.currentTarget as HTMLFormElement).get('text');
+		update({ text: String(typed ?? '').trim(), page: 1 });
 	};
 
 	return (
 		<div className="wrap">
 			<h1 className="page-title">Dealers</h1>
-			<p className="page-sub">Every dealer is checked by CarZip before they can list cars. Call or message them directly.</p>
+			<p className="page-sub">
+				Every dealer is checked by CarZip before they can list cars. Call or message them directly.
+			</p>
 			<form className="bar" onSubmit={searchHandler}>
-				<input className="field grow" placeholder="Search by nickname" value={text} onChange={(e) => setText(e.target.value)} />
+				{/* re-drawn whenever the address changes, so a shared link fills the box */}
+				<input key={search} name="text" className="field grow" placeholder="Search by nickname" defaultValue={search} />
 				<button className="btn dark">Search</button>
 				<select
 					className="field"
 					style={{ width: 220, fontWeight: 600 }}
 					value={sort}
-					onChange={(e) => {
-						setSort(e.target.value);
-						setPage(1);
-					}}
+					onChange={(e) => update({ sort: e.target.value, page: 1 })}
 				>
 					{agentSorts.map((s) => (
 						<option key={s.sort} value={s.sort}>
@@ -69,13 +85,7 @@ const AgentList: NextPage = () => {
 			{search && (
 				<p className="muted" style={{ marginBottom: 14 }}>
 					{total} dealer{total === 1 ? '' : 's'} matching “{search}” ·{' '}
-					<a
-						style={{ cursor: 'pointer' }}
-						onClick={() => {
-							setText('');
-							setSearch('');
-						}}
-					>
+					<a style={{ cursor: 'pointer' }} onClick={() => update({ text: '', page: 1 })}>
 						Show all
 					</a>
 				</p>
@@ -95,7 +105,17 @@ const AgentList: NextPage = () => {
 							{sort === 'memberRank' && !search && <span className="rankno">#{(page - 1) * LIMIT + i + 1}</span>}
 						</div>
 						{agent.memberDesc && (
-							<p className="muted" style={{ fontSize: 13.5, marginTop: 12, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+							<p
+								className="muted"
+								style={{
+									fontSize: 13.5,
+									marginTop: 12,
+									display: '-webkit-box',
+									WebkitLineClamp: 2,
+									WebkitBoxOrient: 'vertical',
+									overflow: 'hidden',
+								}}
+							>
 								{agent.memberDesc}
 							</p>
 						)}
