@@ -4,6 +4,7 @@ import { initializeApollo } from '../../apollo/client';
 import { emptyUser, userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
 import { sweetMixinErrorAlert } from '../sweetAlert';
+import { translateServerMessage } from '../serverMessages';
 import { LOGIN, REQUEST_OTP, RESET_PASSWORD, SIGN_UP, VERIFY_OTP } from '../../apollo/user/mutation';
 import { MemberType } from '../enums/member.enum';
 import { OtpPurpose } from '../enums/otp.enum';
@@ -21,11 +22,11 @@ export function setJwtToken(token: string) {
 	localStorage.setItem('accessToken', token);
 }
 
-/** the server's message is written for people, so it can be shown as is */
+/** the server's message is written for people, so it can be shown (translated when we know it) */
 export const getErrorMessage = (err: unknown): string => {
-	if (CombinedGraphQLErrors.is(err)) return err.errors[0]?.message ?? 'Something went wrong!';
-	if (err instanceof Error) return err.message;
-	return 'Something went wrong!';
+	if (CombinedGraphQLErrors.is(err)) return translateServerMessage(err.errors[0]?.message ?? 'Something went wrong!');
+	if (err instanceof Error) return translateServerMessage(err.message);
+	return translateServerMessage('Something went wrong!');
 };
 
 /** login accepts a nickname OR a phone number (digits only, starting with 01) */

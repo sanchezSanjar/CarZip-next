@@ -1,6 +1,8 @@
 import React from 'react';
 import { NextPage } from 'next';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next/pages';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import Login from '../../libs/components/account/Login';
 import Signup from '../../libs/components/account/Signup';
@@ -10,6 +12,7 @@ import { withTranslations } from '../../libs/i18n';
 
 /** /account/join?mode=login (default) | signup (&type=AGENT for dealers) | forgot */
 const Join: NextPage = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const addressReady = useAddressReady();
 	const mode = typeof router.query.mode === 'string' ? router.query.mode : 'login';
@@ -19,6 +22,9 @@ const Join: NextPage = () => {
 
 	return (
 		<div className="auth" style={{ gridTemplateColumns: mode === 'signup' ? 'minmax(0, 720px)' : 'minmax(0, 520px)', justifyContent: 'center' }}>
+			<Head>
+				<title>{t(mode === 'signup' ? 'title.signup' : mode === 'forgot' ? 'title.forgot' : 'title.account')}</title>
+			</Head>
 			{mode === 'login' && <Login />}
 			{mode === 'signup' && <Signup key={String(router.query.type)} />}
 			{mode === 'forgot' && <ForgotPassword />}

@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { logIn } from '../../auth';
+import { useTranslation } from 'next-i18next/pages';
 
 /** log in with a nickname or phone number and a password */
 const Login = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [nickOrPhone, setNickOrPhone] = useState('');
 	const [password, setPassword] = useState('');
@@ -27,11 +29,11 @@ const Login = () => {
 
 	return (
 		<form className="authcard" onSubmit={doLogin}>
-			<h1>Log in</h1>
-			<p>Welcome back to CarZip.</p>
+			<h1>{t('account.logIn')}</h1>
+			<p>{t('account.welcomeBack')}</p>
 			<div className="stack">
 				<div>
-					<div className="label">Nickname or phone</div>
+					<div className="label">{t('account.nickOrPhone')}</div>
 					<input
 						className="field"
 						value={nickOrPhone}
@@ -40,7 +42,7 @@ const Login = () => {
 					/>
 				</div>
 				<div>
-					<div className="label">Password</div>
+					<div className="label">{t('account.password')}</div>
 					<input
 						className="field"
 						type="password"
@@ -52,15 +54,15 @@ const Login = () => {
 			</div>
 			<div style={{ display: 'flex', justifyContent: 'flex-end', margin: '14px 0 20px', fontSize: 14 }}>
 				<Link href="/account/join?mode=forgot" style={{ fontWeight: 600 }}>
-					Forgot password?
+					{t('account.forgot')}
 				</Link>
 			</div>
 			<button className="btn primary" style={{ width: '100%', height: 50 }} disabled={loading || !nickOrPhone || !password}>
-				{loading ? 'Logging in…' : 'Log in'}
+				{loading ? t('account.loggingIn') : t('account.logInBtn')}
 			</button>
-			<div className="or">New to CarZip?</div>
+			<div className="or">{t('account.newHere')}</div>
 			<Link href="/account/join?mode=signup" className="btn ghost" style={{ width: '100%' }}>
-				Create an account
+				{t('account.createAccount')}
 			</Link>
 		</form>
 	);

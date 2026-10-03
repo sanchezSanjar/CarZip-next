@@ -7,6 +7,7 @@ import { MemberType } from '../../enums/member.enum';
 import { OtpPurpose } from '../../enums/otp.enum';
 import { MemberInput } from '../../types/member/member.input';
 import OtpInput from './OtpInput';
+import { Trans, useTranslation } from 'next-i18next/pages';
 
 // the same rules the API checks, so mistakes show before sending
 const rules = {
@@ -16,11 +17,11 @@ const rules = {
 };
 
 const contactFields = [
-	{ key: 'contactPhone', icon: '☎', bg: 'var(--asphalt)', color: '#fff', placeholder: 'Shop phone, e.g. 02-123-4567' },
-	{ key: 'contactEmail', icon: '@', bg: 'var(--line)', color: 'inherit', placeholder: 'Email' },
-	{ key: 'contactKakao', icon: 'K', bg: '#FEE500', color: 'inherit', placeholder: 'KakaoTalk ID' },
-	{ key: 'contactTelegram', icon: 'T', bg: '#229ED9', color: '#fff', placeholder: 'Telegram, e.g. @yourshop' },
-	{ key: 'contactWhatsapp', icon: 'W', bg: '#25D366', color: '#fff', placeholder: 'WhatsApp, e.g. +82 10 …' },
+	{ key: 'contactPhone', icon: '☎', bg: 'var(--asphalt)', color: '#fff', placeholder: 'account.phShopPhone' },
+	{ key: 'contactEmail', icon: '@', bg: 'var(--line)', color: 'inherit', placeholder: 'account.phEmail' },
+	{ key: 'contactKakao', icon: 'K', bg: '#FEE500', color: 'inherit', placeholder: 'account.phKakao' },
+	{ key: 'contactTelegram', icon: 'T', bg: '#229ED9', color: '#fff', placeholder: 'account.phTelegram' },
+	{ key: 'contactWhatsapp', icon: 'W', bg: '#25D366', color: '#fff', placeholder: 'account.phWhatsapp' },
 ] as const;
 
 type ContactKey = (typeof contactFields)[number]['key'];
@@ -30,6 +31,7 @@ type ContactKey = (typeof contactFields)[number]['key'];
  * A buyer is logged in right away; a dealer waits for an admin to approve the account.
  */
 const Signup = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [step, setStep] = useState<1 | 2 | 3>(1);
 	const [loading, setLoading] = useState(false);
@@ -59,11 +61,11 @@ const Signup = () => {
 	const phoneDigits = phone.replace(/\D/g, '');
 
 	const errors = {
-		nick: nick && !rules.nick.test(nick) ? '3 to 12 letters, digits or _' : '',
-		password: password && (password.length < 6 || password.length > 30) ? '6 to 30 characters' : '',
-		fullName: fullName && (fullName.trim().length < 2 || fullName.length > 50) ? '2 to 50 characters' : '',
-		company: company && (company.trim().length < 2 || company.length > 100) ? '2 to 100 characters' : '',
-		businessNo: businessNo && !rules.businessNo.test(businessNo) ? 'Business numbers have 10 digits, like 123-45-67890' : '',
+		nick: nick && !rules.nick.test(nick) ? t('account.ruleNick') : '',
+		password: password && (password.length < 6 || password.length > 30) ? t('account.rulePassword') : '',
+		fullName: fullName && (fullName.trim().length < 2 || fullName.length > 50) ? t('account.ruleName') : '',
+		company: company && (company.trim().length < 2 || company.length > 100) ? t('account.ruleCompany') : '',
+		businessNo: businessNo && !rules.businessNo.test(businessNo) ? t('account.ruleBusinessNo') : '',
 	};
 	const canSubmit =
 		agreed &&
@@ -75,7 +77,7 @@ const Signup = () => {
 
 	/** HANDLERS **/
 	const sendCode = async () => {
-		if (!rules.phone.test(phoneDigits)) return sweetMixinErrorAlert('Enter a Korean mobile number, like 010-1234-5678');
+		if (!rules.phone.test(phoneDigits)) return sweetMixinErrorAlert(t('account.enterMobile'));
 		setLoading(true);
 		try {
 			await requestOtp(phoneDigits, OtpPurpose.SIGNUP);
@@ -130,27 +132,29 @@ const Signup = () => {
 		return (
 			<div className="pending">
 				<div className="clock" />
-				<h2>Your dealer account is under review</h2>
-				<p>We check your business details and send you a text. This usually takes less than 24 hours.</p>
+				<h2>{t('account.reviewTitle')}</h2>
+				<p>{t('account.reviewText')}</p>
 				<div className="timeline">
 					<div className="tl done">
 						<i />
-						<div>Phone verified</div>
+						<div>{t('account.tlPhone')}</div>
 					</div>
 					<div className="tl done">
 						<i />
-						<div>Application sent</div>
+						<div>{t('account.tlSent')}</div>
 					</div>
 					<div className="tl now">
 						<i />
 						<div>
-							Checking your business<span>In progress</span>
+							{t('account.tlChecking')}
+							<span>{t('account.tlInProgress')}</span>
 						</div>
 					</div>
 					<div className="tl">
 						<i />
 						<div>
-							Start listing cars<span>After approval: log in with your nickname and password</span>
+							{t('account.tlStart')}
+							<span>{t('account.tlStartText')}</span>
 						</div>
 					</div>
 				</div>
@@ -164,13 +168,13 @@ const Signup = () => {
 				<span className={step === 1 ? 'now' : 'done'} />
 				<span className={step === 2 ? 'now' : ''} />
 			</div>
-			<div className="steplabel">Step {step} of 2</div>
+			<div className="steplabel">{t('account.stepOf', { step, total: 2 })}</div>
 
 			{step === 1 && (
 				<div className="authcard">
-					<h1>Verify your phone</h1>
-					<p>We use it to log you in and to reset your password.</p>
-					<div className="label">Phone number</div>
+					<h1>{t('account.verifyPhone')}</h1>
+					<p>{t('account.verifyText')}</p>
+					<div className="label">{t('account.phone')}</div>
 					<div style={{ display: 'grid', gridTemplateColumns: '1fr 130px', gap: 8 }}>
 						<input
 							className="field num"
@@ -181,19 +185,19 @@ const Signup = () => {
 							onChange={(e) => setPhone(e.target.value)}
 						/>
 						<button className="btn dark" type="button" onClick={sendCode} disabled={loading || !phoneDigits}>
-							{codeSent ? 'Send again' : 'Send code'}
+							{codeSent ? t('account.sendAgain') : t('account.sendCode')}
 						</button>
 					</div>
 					{codeSent && (
 						<>
 							<div className="label" style={{ marginTop: 18 }}>
-								6-digit code
+								{t('account.code6')}
 							</div>
 							<OtpInput value={code} onChange={setCode} />
 							<div className="timerline">
-								<span>The code expires in 3 minutes.</span>
+								<span>{t('account.expires')}</span>
 								<a style={{ fontWeight: 600, cursor: 'pointer' }} onClick={() => setCodeSent(false)}>
-									Change number
+									{t('account.changeNumber')}
 								</a>
 							</div>
 							<button
@@ -203,7 +207,7 @@ const Signup = () => {
 								disabled={loading || code.length !== 6}
 								onClick={checkCode}
 							>
-								Verify code
+								{t('account.verifyCode')}
 							</button>
 						</>
 					)}
@@ -212,30 +216,30 @@ const Signup = () => {
 
 			{step === 2 && (
 				<form className="formcard" onSubmit={submit}>
-					<h1>Create your account</h1>
-					<p>Buyers can like, comment and book test drives. Only dealers can list cars.</p>
+					<h1>{t('account.createTitle')}</h1>
+					<p>{t('account.createText')}</p>
 					<div className="types">
 						<div className={`type ${!isAgent ? 'on' : ''}`} onClick={() => setMemberType(MemberType.USER)}>
 							<b>
-								I&apos;m buying <i className={`radio ${!isAgent ? 'on' : ''}`} />
+								{t('account.buying')} <i className={`radio ${!isAgent ? 'on' : ''}`} />
 							</b>
-							<p>Browse, like, comment, book test drives. Ready right away.</p>
+							<p>{t('account.buyingText')}</p>
 						</div>
 						<div className={`type ${isAgent ? 'on' : ''}`} onClick={() => setMemberType(MemberType.AGENT)}>
 							<b>
-								I&apos;m a car dealer <i className={`radio ${isAgent ? 'on' : ''}`} />
+								{t('account.dealer')} <i className={`radio ${isAgent ? 'on' : ''}`} />
 							</b>
-							<p>List cars for sale, rent or barter. Checked by our team first.</p>
+							<p>{t('account.dealerText')}</p>
 						</div>
 					</div>
 					<div className="fgrid">
 						<div>
-							<div className="label">Nickname</div>
+							<div className="label">{t('account.nickname')}</div>
 							<input className={`field ${errors.nick ? 'err' : ''}`} value={nick} onChange={(e) => setNick(e.target.value)} />
-							<div className={`hint ${errors.nick ? 'err' : ''}`}>{errors.nick || '3 to 12 letters, digits or _'}</div>
+							<div className={`hint ${errors.nick ? 'err' : ''}`}>{errors.nick || t('account.ruleNick')}</div>
 						</div>
 						<div>
-							<div className="label">Password</div>
+							<div className="label">{t('account.password')}</div>
 							<input
 								className={`field ${errors.password ? 'err' : ''}`}
 								type="password"
@@ -243,29 +247,29 @@ const Signup = () => {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 							/>
-							<div className={`hint ${errors.password ? 'err' : ''}`}>{errors.password || 'At least 6 characters'}</div>
+							<div className={`hint ${errors.password ? 'err' : ''}`}>{errors.password || t('account.atLeast6')}</div>
 						</div>
 						{isAgent ? (
 							<>
 								<div>
-									<div className="label">Company name</div>
+									<div className="label">{t('account.company')}</div>
 									<input className={`field ${errors.company ? 'err' : ''}`} value={company} onChange={(e) => setCompany(e.target.value)} />
 									{errors.company && <div className="hint err">{errors.company}</div>}
 								</div>
 								<div>
-									<div className="label">Business registration number (optional)</div>
+									<div className="label">{t('account.businessNo')}</div>
 									<input
 										className={`field num ${errors.businessNo ? 'err' : ''}`}
 										placeholder="123-45-67890"
 										value={businessNo}
 										onChange={(e) => setBusinessNo(e.target.value)}
 									/>
-									<div className={`hint ${errors.businessNo ? 'err' : ''}`}>{errors.businessNo || '사업자등록번호'}</div>
+									<div className={`hint ${errors.businessNo ? 'err' : ''}`}>{errors.businessNo || t('account.businessNoHint')}</div>
 								</div>
 							</>
 						) : (
 							<div className="full">
-								<div className="label">Full name</div>
+								<div className="label">{t('account.fullName')}</div>
 								<input className={`field ${errors.fullName ? 'err' : ''}`} value={fullName} onChange={(e) => setFullName(e.target.value)} />
 								{errors.fullName && <div className="hint err">{errors.fullName}</div>}
 							</div>
@@ -274,8 +278,8 @@ const Signup = () => {
 
 					{isAgent && (
 						<>
-							<div className="subhead">Public contact details</div>
-							<p>Shown on your listings and dealer page, so anyone can reach you.</p>
+							<div className="subhead">{t('account.contactsTitle')}</div>
+							<p>{t('account.contactsText')}</p>
 							<div className="cgrid">
 								{contactFields.map((c) => (
 									<div key={c.key} className="cfield">
@@ -284,7 +288,7 @@ const Signup = () => {
 										</span>
 										<input
 											style={{ border: 0, outline: 'none', flex: 1, fontFamily: 'inherit', fontSize: 14 }}
-											placeholder={c.placeholder}
+											placeholder={t(c.placeholder)}
 											value={contacts[c.key]}
 											onChange={(e) => setContacts({ ...contacts, [c.key]: e.target.value })}
 										/>
@@ -295,14 +299,13 @@ const Signup = () => {
 					)}
 
 					<label style={{ display: 'flex', gap: 9, alignItems: 'flex-start', fontSize: 14, margin: '18px 0', cursor: 'pointer' }}>
-						<input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} style={{ marginTop: 3 }} />I
-						agree to the{' '}
-						<Link href="/cs?tab=terms" target="_blank">
-							Terms of use and Privacy policy
-						</Link>
+						<input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} style={{ marginTop: 3 }} />
+						<span>
+							<Trans t={t} i18nKey="account.agree" components={{ terms: <Link href="/cs?tab=terms" target="_blank" /> }} />
+						</span>
 					</label>
 					<button className="btn primary" style={{ width: '100%', height: 50 }} disabled={loading || !canSubmit}>
-						{isAgent ? 'Send for review' : 'Create account'}
+						{isAgent ? t('account.sendReview') : t('account.createBtn')}
 					</button>
 				</form>
 			)}

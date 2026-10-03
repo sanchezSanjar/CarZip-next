@@ -5,12 +5,14 @@ import { getErrorMessage, requestOtp, resetPassword, verifyOtp } from '../../aut
 import { sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../sweetAlert';
 import { OtpPurpose } from '../../enums/otp.enum';
 import OtpInput from './OtpInput';
+import { Trans, useTranslation } from 'next-i18next/pages';
 
 /**
  * 1) phone, 2) SMS code, 3) new password.
  * Also how a dealer created by an admin sets a first password.
  */
 const ForgotPassword = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [step, setStep] = useState<1 | 2 | 3>(1);
 	const [loading, setLoading] = useState(false);
@@ -24,9 +26,9 @@ const ForgotPassword = () => {
 	const masked = phoneDigits.replace(/^(\d{3})(\d{2})\d*(\d{2})$/, '$1-$2•• ••$3');
 	const passwordError =
 		password && (password.length < 6 || password.length > 30)
-			? '6 to 30 characters'
+			? t('account.rulePassword')
 			: password2 && password !== password2
-				? 'The two passwords are different'
+				? t('account.passwordsDiffer')
 				: '';
 
 	/** HANDLERS **/
@@ -64,7 +66,7 @@ const ForgotPassword = () => {
 		e.preventDefault();
 		run(async () => {
 			await resetPassword(resetToken, password);
-			await sweetMixinSuccessAlert('Password changed. Please log in.');
+			await sweetMixinSuccessAlert(t('account.passwordChanged'));
 			await router.push('/account/join?mode=login');
 		});
 	};
@@ -76,56 +78,56 @@ const ForgotPassword = () => {
 					<span key={s} className={s < step ? 'done' : s === step ? 'now' : ''} />
 				))}
 			</div>
-			<div className="steplabel">Step {step} of 3</div>
+			<div className="steplabel">{t('account.stepOf', { step, total: 3 })}</div>
 
 			{step === 1 && (
 				<form onSubmit={sendCode}>
-					<h1>Forgot password</h1>
-					<p style={{ color: 'var(--muted)', margin: '6px 0 22px' }}>Enter the phone number of your account.</p>
-					<div className="label">Phone number</div>
+					<h1>{t('account.forgotTitle')}</h1>
+					<p style={{ color: 'var(--muted)', margin: '6px 0 22px' }}>{t('account.forgotText')}</p>
+					<div className="label">{t('account.phone')}</div>
 					<input className="field num" inputMode="tel" placeholder="010-1234-5678" value={phone} onChange={(e) => setPhone(e.target.value)} />
 					<button className="btn primary" style={{ width: '100%', height: 50, marginTop: 20 }} disabled={loading || !phoneDigits}>
-						Send code
+						{t('account.sendCode')}
 					</button>
 					<div className="hint" style={{ textAlign: 'center', marginTop: 14 }}>
-						<Link href="/account/join?mode=login">Back to log in</Link>
+						<Link href="/account/join?mode=login">{t('account.backToLogin')}</Link>
 					</div>
 				</form>
 			)}
 
 			{step === 2 && (
 				<form onSubmit={checkCode}>
-					<h1>Enter the code</h1>
+					<h1>{t('account.enterCode')}</h1>
 					<p style={{ color: 'var(--muted)', margin: '6px 0 22px' }}>
-						If <b className="num">{masked}</b> is registered, we sent a 6-digit code to it.
+						<Trans t={t} i18nKey="account.sentTo" values={{ phone: masked }} components={{ b: <b className="num" /> }} />
 					</p>
 					<OtpInput value={code} onChange={setCode} />
 					<div className="timerline">
-						<span>The code expires in 3 minutes.</span>
+						<span>{t('account.expires')}</span>
 						<a style={{ fontWeight: 600, cursor: 'pointer' }} onClick={() => setStep(1)}>
-							Send a new code
+							{t('account.newCode')}
 						</a>
 					</div>
 					<button className="btn primary" style={{ width: '100%', height: 50, marginTop: 20 }} disabled={loading || code.length !== 6}>
-						Verify code
+						{t('account.verifyCode')}
 					</button>
 					<div className="hint" style={{ textAlign: 'center', marginTop: 14 }}>
-						Next you choose a new password. You&apos;ll be logged out on other devices.
+						{t('account.nextStepNote')}
 					</div>
 				</form>
 			)}
 
 			{step === 3 && (
 				<form onSubmit={savePassword}>
-					<h1>New password</h1>
-					<p style={{ color: 'var(--muted)', margin: '6px 0 22px' }}>Choose a password you don&apos;t use anywhere else.</p>
+					<h1>{t('account.newPassword')}</h1>
+					<p style={{ color: 'var(--muted)', margin: '6px 0 22px' }}>{t('account.newPasswordText')}</p>
 					<div className="stack">
 						<div>
-							<div className="label">New password</div>
+							<div className="label">{t('account.newPassword')}</div>
 							<input className="field" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
 						</div>
 						<div>
-							<div className="label">Repeat the new password</div>
+							<div className="label">{t('account.repeatPassword')}</div>
 							<input className="field" type="password" autoComplete="new-password" value={password2} onChange={(e) => setPassword2(e.target.value)} />
 							{passwordError && <div className="hint err">{passwordError}</div>}
 						</div>
@@ -135,7 +137,7 @@ const ForgotPassword = () => {
 						style={{ width: '100%', height: 50, marginTop: 20 }}
 						disabled={loading || !password || password !== password2 || !!passwordError}
 					>
-						Save new password
+						{t('account.savePassword')}
 					</button>
 				</form>
 			)}
