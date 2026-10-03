@@ -10,6 +10,7 @@ import Verified from '../../libs/components/common/Verified';
 import ContactList from '../../libs/components/car/ContactList';
 import CarCard from '../../libs/components/common/CarCard';
 import CommentSection from '../../libs/components/common/CommentSection';
+import FollowButton from '../../libs/components/common/FollowButton';
 import { CommentGroup } from '../../libs/enums/comment.enum';
 import { GET_CAR, GET_CARS, GET_MEMBER } from '../../apollo/user/query';
 import { Car, Cars } from '../../libs/types/car/car';
@@ -262,9 +263,9 @@ const CarDetail: NextPage = () => {
 								</Link>
 								<Verified />
 							</div>
-							<button className="btn ghost sm" style={{ marginLeft: 'auto' }}>
-								Follow
-							</button>
+							<span style={{ marginLeft: 'auto' }}>
+								<FollowButton dealerId={dealerId} />
+							</span>
 						</div>
 						<div className="agent-stats">
 							<span>
