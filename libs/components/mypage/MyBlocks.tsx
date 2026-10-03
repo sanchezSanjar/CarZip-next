@@ -1,17 +1,38 @@
-import React from 'react';
-import { initial, timeAgo } from '../../utils';
+import React, { useState } from 'react';
+import { useMutation, useQuery } from '@apollo/client/react';
+import { GET_MY_BLOCKS } from '../../../apollo/user/query';
+import { UNBLOCK_MEMBER } from '../../../apollo/user/mutation';
+import { Blocks } from '../../types/block/block';
+import { getErrorMessage } from '../../auth';
+import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
+import { dealerName, initial, timeAgo } from '../../utils';
+import Pager from '../common/Pager';
 
-const ago = (h: number) => new Date(Date.now() - h * 3600000);
-
-// sample rows from the UI design
-const blocks = [
-	{ _id: 'b1', nick: 'car_hunter88', dealer: false, since: ago(3) },
-	{ _id: 'b2', nick: 'Pyeongtaek Auto', dealer: true, since: ago(24 * 14) },
-	{ _id: 'b3', nick: 'rider_kim', dealer: false, since: ago(24 * 30) },
-];
+const LIMIT = 10;
 
 /** dealer: people blocked from interacting with own cars, articles and profile. Nobody is notified */
 const MyBlocks = () => {
+	const [page, setPage] = useState(1);
+
+	/** APOLLO REQUESTS **/
+	const { data, loading } = useQuery<{ getMyBlocks: Blocks }>(GET_MY_BLOCKS, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { page, limit: LIMIT } },
+	});
+	const [unblockMember] = useMutation(UNBLOCK_MEMBER, { refetchQueries: [GET_MY_BLOCKS] });
+	const blocks = data?.getMyBlocks.list ?? [];
+	const total = data?.getMyBlocks.metaCounter?.[0]?.total ?? 0;
+
+	/** HANDLERS **/
+	const unblock = async (memberId: string) => {
+		try {
+			await unblockMember({ variables: { input: memberId } });
+			await sweetTopSuccessAlert('Unblocked', 1000);
+		} catch (err) {
+			await sweetMixinErrorAlert(getErrorMessage(err));
+		}
+	};
+
 	return (
 		<>
 			<div className="main-head">
@@ -24,7 +45,7 @@ const MyBlocks = () => {
 				<div className="block" style={{ margin: 0 }}>
 					<div className="block-head">
 						<h2>
-							Blocked<span>{blocks.length}</span>
+							Blocked<span>{total}</span>
 						</h2>
 					</div>
 					{blocks.length ? (
@@ -37,32 +58,39 @@ const MyBlocks = () => {
 								</tr>
 							</thead>
 							<tbody>
-								{blocks.map((b) => (
-									<tr key={b._id}>
-										<td>
-											<div className="person">
-												<div className={`avatar ${b.dealer ? '' : 'user'}`}>{initial(b.nick)}</div>
-												<div>
-													<b>{b.nick}</b>
-													<small>{b.dealer ? 'Dealer' : 'Buyer'}</small>
+								{blocks.map((b) => {
+									const dealer = !!b.blockedData?.agentCompany;
+									return (
+										<tr key={b._id}>
+											<td>
+												<div className="person">
+													<div className={`avatar ${dealer ? '' : 'user'}`}>{initial(dealerName(b.blockedData))}</div>
+													<div>
+														<b>{dealerName(b.blockedData)}</b>
+														<small>{dealer ? 'Dealer' : 'Buyer'}</small>
+													</div>
 												</div>
-											</div>
-										</td>
-										<td>{timeAgo(b.since)}</td>
-										<td>
-											<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
-												<button className="btn ghost sm">Unblock</button>
-											</div>
-										</td>
-									</tr>
-								))}
+											</td>
+											<td>{timeAgo(b.createdAt)}</td>
+											<td>
+												<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
+													<button className="btn ghost sm" onClick={() => unblock(b.blockedId)}>
+														Unblock
+													</button>
+												</div>
+											</td>
+										</tr>
+									);
+								})}
 							</tbody>
 						</table>
 					) : (
-						<div className="empty" style={{ margin: 18 }}>
-							<h3>You haven&apos;t blocked anyone</h3>
-							<p>If someone is bothering you, block them from their comment or profile.</p>
-						</div>
+						!loading && (
+							<div className="empty" style={{ margin: 18 }}>
+								<h3>You haven&apos;t blocked anyone</h3>
+								<p>If someone is bothering you, block them from your followers or comments.</p>
+							</div>
+						)
 					)}
 				</div>
 				<div className="sidecard">
@@ -76,6 +104,7 @@ const MyBlocks = () => {
 					</ul>
 				</div>
 			</div>
+			<Pager page={page} total={Math.ceil(total / LIMIT)} onChange={setPage} />
 		</>
 	);
 };
