@@ -1,16 +1,15 @@
-import { useEffect } from 'react';
+import React from 'react';
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
+import withLayoutBasic from '../libs/components/layout/LayoutBasic';
+import Hero from '../libs/components/homepage/Hero';
 
-/** the welcome page comes next; until then the home page opens the car search */
+/** welcome page: first impression, then the way into the car search */
 const Home: NextPage = () => {
-	const router = useRouter();
-
-	useEffect(() => {
-		router.replace('/car').then();
-	}, [router]);
-
-	return null;
+	return (
+		<>
+			<Hero />
+		</>
+	);
 };
 
-export default Home;
+export default withLayoutBasic(Home, 'CarZip | Used cars from verified dealers');

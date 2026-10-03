@@ -1,0 +1,19 @@
+// welcome page
+
+/* hero: drone video (or poster) with the logo and a quick search */
+.hero { position: relative; height: 640px; overflow: hidden; color: #fff; display: grid; place-items: center; text-align: center; }
+.hero-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: hero-drift 40s ease-in-out infinite alternate; }
+.hero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20, 25, 31, .55) 0%, rgba(20, 25, 31, .72) 70%, rgba(20, 25, 31, .92) 100%); }
+.hero-inner { position: relative; z-index: 1; width: min(920px, 100% - 32px); }
+.hero-logo { font-family: 'Archivo'; font-stretch: 125%; font-weight: 900; font-size: 30px; display: inline-flex; align-items: center; gap: 10px; letter-spacing: -.02em; margin-bottom: 22px; }
+.hero-logo i { width: 34px; height: 34px; border-radius: 9px; background: var(--signal); color: var(--asphalt); display: inline-grid; place-items: center; font-style: normal; font-size: 19px; }
+.hero h1 { font-family: 'Archivo'; font-stretch: 118%; font-weight: 800; font-size: 54px; line-height: 1.08; letter-spacing: -.02em; text-wrap: balance; }
+.hero p { color: #C9D0D6; font-size: 18px; margin: 16px auto 0; max-width: 60ch; }
+.hero-search { display: grid; grid-template-columns: 1fr 220px 160px; gap: 10px; margin-top: 34px; padding: 10px; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .18); border-radius: 16px; backdrop-filter: blur(8px); }
+.hero-search .field, .hero-search .btn { height: 54px; border: 0; font-size: 16px; }
+.hero-quick { margin-top: 18px; font-size: 14px; color: #AAB2BA; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.hero-quick a { color: #fff; font-weight: 600; cursor: pointer; border-bottom: 1px solid rgba(255, 255, 255, .35); }
+.hero-quick a:hover { border-color: var(--signal); }
+
+@keyframes hero-drift { from { transform: scale(1.08) translate(-1.5%, -1%); } to { transform: scale(1.14) translate(1.5%, 1%); } }
+@media (prefers-reduced-motion: reduce) { .hero-media { animation: none; } }
