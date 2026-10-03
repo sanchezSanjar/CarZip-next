@@ -4,6 +4,7 @@ import { i18n } from 'next-i18next/pages';
 const keys: Record<string, string> = {
 	'Something went wrong!': 'errors.somethingWrong',
 	'Wrong nick or password!': 'errors.wrongLogin',
+	'Too many failed log-in attempts. Please try again in 15 minutes.': 'errors.loginTooMany',
 	'This nick is already taken!': 'errors.usedNick',
 	'This phone number is already registered!': 'errors.usedPhone',
 	'This business number is already registered!': 'errors.usedBusinessNo',

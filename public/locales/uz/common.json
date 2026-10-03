@@ -483,6 +483,7 @@
 		"imageFormat": "jpg, jpeg, png yoki webp rasm yuklang!",
 		"invalidImage": "Fayl to'g'ri rasm emas.",
 		"likeBlocked": "Buni yoqtira olmaysiz (egasi sizni bloklagan).",
+		"loginTooMany": "Kirishga urinishlar juda ko'p. 15 daqiqadan keyin qayta urinib ko'ring.",
 		"notAuthenticated": "Avval hisobingizga kiring!",
 		"otpExpired": "Kodning muddati tugadi. Yangisini so'rang.",
 		"otpTooMany": "Kod so'rovlari juda ko'p. Keyinroq urinib ko'ring.",

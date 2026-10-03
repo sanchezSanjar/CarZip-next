@@ -483,6 +483,7 @@
 		"imageFormat": "Please provide jpg, jpeg, png or webp images!",
 		"invalidImage": "The file is not a valid image.",
 		"likeBlocked": "You are not allowed to like this (blocked by the owner).",
+		"loginTooMany": "Too many failed log-in attempts. Please try again in 15 minutes.",
 		"notAuthenticated": "You are not authenticated, please login first!",
 		"otpExpired": "The code has expired. Please request a new one.",
 		"otpTooMany": "Too many code requests. Please try again later.",
