@@ -1,56 +1,89 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
+import { useMutation, useQuery } from '@apollo/client/react';
+import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query';
+import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation';
 import { MemberStatus, MemberType } from '../../enums/member.enum';
-import { initial } from '../../utils';
+import { Direction } from '../../enums/common.enum';
+import { Member, Members } from '../../types/member/member';
+import { getErrorMessage } from '../../auth';
+import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
+import { dealerName, initial, timeAgo } from '../../utils';
 import Pager from '../common/Pager';
 
-interface Row {
-	_id: string;
-	nick: string;
-	company?: string;
-	city: string;
-	phone: string;
-	businessNo?: string;
-	cars?: number;
-	warnings: number;
-	status: MemberStatus;
-}
-
-// sample rows from the UI design
-const dealers: Row[] = [
-	{ _id: 'd1', nick: 'mokdongmotors', company: 'Mokdong Motors', city: 'Seoul', phone: '010-23•• ••89', businessNo: '123-45-67890', cars: 42, warnings: 0, status: MemberStatus.ACTIVE },
-	{ _id: 'd2', nick: 'gangnampremium', company: 'Gangnam Premium', city: 'Seoul', phone: '010-34•• ••90', businessNo: '220-87-11042', cars: 57, warnings: 1, status: MemberStatus.ACTIVE },
-	{ _id: 'd9', nick: 'pyeongtaekauto', company: 'Pyeongtaek Auto', city: 'Incheon', phone: '010-45•• ••01', businessNo: '312-45-90871', cars: 0, warnings: 4, status: MemberStatus.BLOCK },
-	{ _id: 'd3', nick: 'haeundaecars', company: 'Haeundae Cars', city: 'Busan', phone: '010-56•• ••12', businessNo: '605-12-33481', cars: 33, warnings: 0, status: MemberStatus.ACTIVE },
-	{ _id: 'p3', nick: 'bp_carcenter', company: 'Bupyeong Car Center', city: 'Incheon', phone: '010-45•• ••12', businessNo: '214-81-33092', cars: 0, warnings: 0, status: MemberStatus.PENDING },
-];
-const buyers: Row[] = [
-	{ _id: 'u1', nick: 'hyejin_k', city: 'Busan', phone: '010-58•• ••21', warnings: 0, status: MemberStatus.ACTIVE },
-	{ _id: 'u2', nick: 'dongwoo', city: 'Seoul', phone: '010-44•• ••09', warnings: 0, status: MemberStatus.ACTIVE },
-	{ _id: 'u4', nick: 'car_hunter88', city: 'Seoul', phone: '010-77•• ••50', warnings: 3, status: MemberStatus.ACTIVE },
-	{ _id: 'u5', nick: 'rider_kim', city: 'Daegu', phone: '010-12•• ••88', warnings: 1, status: MemberStatus.ACTIVE },
-	{ _id: 'u6', nick: 'spam_seller01', city: 'Seoul', phone: '010-90•• ••11', warnings: 5, status: MemberStatus.BLOCK },
-];
+const LIMIT = 10;
 
 const statusPill: Record<MemberStatus, { cls: string; label: string }> = {
 	[MemberStatus.ACTIVE]: { cls: 'active', label: 'Active' },
 	[MemberStatus.PENDING]: { cls: 'hold', label: 'Pending review' },
-	[MemberStatus.REJECTED]: { cls: 'rej', label: 'Rejected' },
+	[MemberStatus.REJECTED]: { cls: 'rej', label: 'Declined' },
 	[MemberStatus.BLOCK]: { cls: 'rej', label: 'Blocked' },
 	[MemberStatus.DELETE]: { cls: 'sold', label: 'Deleted' },
 };
 
-/** admin: dealers or buyers. Blocking is CarZip-wide; blocking or deleting a dealer also affects their cars */
+/** how many members a tab has: a one-row query that only reads the total */
+const TabCount = ({ memberType, memberStatus }: { memberType: MemberType; memberStatus?: MemberStatus }) => {
+	const { data } = useQuery<{ getAllMembersByAdmin: Members }>(GET_ALL_MEMBERS_BY_ADMIN, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { page: 1, limit: 1, search: { memberType, ...(memberStatus ? { memberStatus } : {}) } } },
+	});
+	return <span className="num">{data?.getAllMembersByAdmin.metaCounter?.[0]?.total ?? 0}</span>;
+};
+
+/**
+ * Admin: dealers or buyers. Blocking is CarZip-wide (the member can't log in);
+ * blocking a dealer puts their cars on hold and deleting deletes them.
+ */
 const MemberList = ({ memberType }: { memberType: MemberType.AGENT | MemberType.USER }) => {
 	const isAgent = memberType === MemberType.AGENT;
-	const all = isAgent ? dealers : buyers;
-	const [status, setStatus] = useState<MemberStatus | ''>('');
-	const [text, setText] = useState('');
-	const [page, setPage] = useState(1);
 	const statuses = isAgent
-		? [MemberStatus.ACTIVE, MemberStatus.PENDING, MemberStatus.BLOCK, MemberStatus.DELETE]
+		? [MemberStatus.ACTIVE, MemberStatus.PENDING, MemberStatus.REJECTED, MemberStatus.BLOCK, MemberStatus.DELETE]
 		: [MemberStatus.ACTIVE, MemberStatus.BLOCK, MemberStatus.DELETE];
-	const rows = all.filter((r) => (!status || r.status === status) && `${r.nick} ${r.company ?? ''}`.toLowerCase().includes(text.toLowerCase()));
+	const [status, setStatus] = useState<MemberStatus | undefined>();
+	const [text, setText] = useState('');
+	const [search, setSearch] = useState('');
+	const [sort, setSort] = useState('createdAt');
+	const [page, setPage] = useState(1);
 
+	/** APOLLO REQUESTS **/
+	const { data, loading } = useQuery<{ getAllMembersByAdmin: Members }>(GET_ALL_MEMBERS_BY_ADMIN, {
+		fetchPolicy: 'cache-and-network',
+		variables: {
+			input: { page, limit: LIMIT, sort, direction: Direction.DESC, search: { memberType, ...(status ? { memberStatus: status } : {}), ...(search ? { text: search } : {}) } },
+		},
+	});
+	const [updateMember] = useMutation(UPDATE_MEMBER_BY_ADMIN, { refetchQueries: [GET_ALL_MEMBERS_BY_ADMIN] });
+	const rows = data?.getAllMembersByAdmin.list ?? [];
+	const total = data?.getAllMembersByAdmin.metaCounter?.[0]?.total ?? 0;
+
+	/** HANDLERS **/
+	const change = async (m: Member, input: { memberStatus: MemberStatus }, question: string, confirmText: string, done: string) => {
+		if (!(await sweetConfirmAlert(question, confirmText, true))) return;
+		try {
+			await updateMember({ variables: { input: { _id: m._id, ...input } } });
+			await sweetTopSuccessAlert(done, 1200);
+		} catch (err) {
+			await sweetMixinErrorAlert(getErrorMessage(err));
+		}
+	};
+	const name = (m: Member) => dealerName(m);
+	const block = (m: Member) =>
+		change(
+			m,
+			{ memberStatus: MemberStatus.BLOCK },
+			`Block ${name(m)} on all of CarZip? They can't log in${isAgent ? ', their cars go on hold' : ''} and their open test drives are cancelled.`,
+			'Block',
+			'Blocked',
+		);
+	const remove = (m: Member) =>
+		change(
+			m,
+			{ memberStatus: MemberStatus.DELETE },
+			`Delete ${name(m)}?${isAgent ? ' Their cars are deleted and' : ''} open test drives are cancelled.`,
+			'Delete',
+			'Deleted',
+		);
+	const restore = (m: Member) => change(m, { memberStatus: MemberStatus.ACTIVE }, `Make ${name(m)} active again?`, 'Restore', 'Restored');
 	return (
 		<>
 			<div className="main-head">
@@ -62,70 +95,124 @@ const MemberList = ({ memberType }: { memberType: MemberType.AGENT | MemberType.
 							: "Blocking here is CarZip-wide: the member can't log in."}
 					</p>
 				</div>
-				{isAgent && <button className="btn primary">Add dealer</button>}
+				{isAgent && (
+					<Link href="/_admin/applications" className="btn ghost">
+						Pending applications (<TabCount memberType={MemberType.AGENT} memberStatus={MemberStatus.PENDING} />)
+					</Link>
+				)}
 			</div>
 			<div className="bar" style={{ marginTop: 0 }}>
 				<div className="tabs2">
-					<span className={`chip ${status === '' ? 'on' : ''}`} onClick={() => setStatus('')}>
-						All <span className="num">{all.length}</span>
-					</span>
-					{statuses.map((s) => (
-						<span key={s} className={`chip ${status === s ? 'on' : ''}`} onClick={() => setStatus(s)}>
-							{statusPill[s].label} <span className="num">{all.filter((r) => r.status === s).length}</span>
+					{[undefined, ...statuses].map((s) => (
+						<span
+							key={s ?? 'all'}
+							className={`chip ${status === s ? 'on' : ''}`}
+							onClick={() => {
+								setStatus(s);
+								setPage(1);
+							}}
+						>
+							{s ? statusPill[s].label : 'All'} <TabCount memberType={memberType} memberStatus={s} />
 						</span>
 					))}
 				</div>
 				<div className="grow" />
-				<input className="field" style={{ width: 300 }} placeholder={isAgent ? 'Search name or nickname' : 'Search nickname'} value={text} onChange={(e) => setText(e.target.value)} />
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						setSearch(text.trim());
+						setPage(1);
+					}}
+				>
+					<input className="field" style={{ width: 240 }} placeholder="Search nickname" value={text} onChange={(e) => setText(e.target.value)} />
+				</form>
+				<select className="field" style={{ width: 180, fontWeight: 600 }} value={sort} onChange={(e) => setSort(e.target.value)}>
+					<option value="createdAt">Newest</option>
+					<option value="memberWarnings">Most warnings</option>
+					<option value="memberBlocks">Most blocked by dealers</option>
+					{isAgent && <option value="memberCars">Most cars</option>}
+				</select>
 			</div>
-			<div className="block">
+			<div className="block" style={{ opacity: loading && rows.length ? 0.6 : 1 }}>
 				<table>
 					<thead>
 						<tr>
 							<th>{isAgent ? 'Dealer' : 'Member'}</th>
 							<th>Phone</th>
 							{isAgent && <th>Business number</th>}
-							{isAgent && <th>Cars</th>}
-							<th>Warnings</th>
+							{isAgent ? <th>Cars</th> : <th>Comments</th>}
+							<th>Blocked by</th>
+							<th>Joined</th>
 							<th>Status</th>
 							<th />
 						</tr>
 					</thead>
 					<tbody>
-						{rows.map((r) => (
-							<tr key={r._id}>
+						{rows.map((m) => (
+							<tr key={m._id}>
 								<td>
 									<div className="person">
-										<div className={`avatar ${isAgent ? '' : 'user'}`}>{initial(r.company ?? r.nick)}</div>
+										<div className={`avatar ${isAgent ? '' : 'user'}`}>{initial(name(m))}</div>
 										<div>
-											<b>{r.company ?? r.nick}</b>
-											<small>{isAgent ? `${r.nick}, ${r.city}` : r.city}</small>
+											{isAgent && m.memberStatus === MemberStatus.ACTIVE ? (
+												<Link href={`/agent/detail?id=${m._id}`} style={{ color: 'inherit' }}>
+													<b>{name(m)}</b>
+												</Link>
+											) : (
+												<b>{name(m)}</b>
+											)}
+											<small>{isAgent ? m.memberNick : m.memberFullName || '—'}</small>
 										</div>
 									</div>
 								</td>
-								<td className="num">{r.phone}</td>
-								{isAgent && <td className="num">{r.businessNo || '—'}</td>}
-								{isAgent && <td className="num">{r.cars}</td>}
-								<td className="num" style={r.warnings >= 3 ? { color: 'var(--stop)', fontWeight: 700 } : undefined}>
-									{r.warnings}
+								<td className="num">{m.memberPhone}</td>
+								{isAgent && <td className="num">{m.agentBusinessNo || '—'}</td>}
+								<td className="num">{isAgent ? m.memberCars : m.memberComments}</td>
+								<td className="num" style={(m.memberBlocks ?? 0) >= 3 ? { color: 'var(--stop)', fontWeight: 700 } : undefined}>
+									{m.memberBlocks ?? 0}
 								</td>
+								<td>{timeAgo(m.createdAt)}</td>
 								<td>
-									<span className={`pill ${statusPill[r.status].cls}`}>{statusPill[r.status].label}</span>
+									<span className={`pill ${statusPill[m.memberStatus].cls}`}>{statusPill[m.memberStatus].label}</span>
 								</td>
 								<td>
 									<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
-										{r.status === MemberStatus.PENDING && <button className="btn dark sm">Review</button>}
-										{r.status === MemberStatus.ACTIVE && <button className="btn danger sm">Block</button>}
-										{r.status === MemberStatus.BLOCK && <button className="btn dark sm">Unblock</button>}
-										{r.status !== MemberStatus.DELETE && r.status !== MemberStatus.PENDING && <button className="btn danger sm">Delete</button>}
+										{m.memberStatus === MemberStatus.PENDING && (
+											<Link href="/_admin/applications" className="btn dark sm">
+												Review
+											</Link>
+										)}
+										{m.memberStatus === MemberStatus.ACTIVE && (
+											<>
+												<button className="btn danger sm" onClick={() => block(m)}>
+													Block
+												</button>
+											</>
+										)}
+										{(m.memberStatus === MemberStatus.BLOCK || m.memberStatus === MemberStatus.DELETE) && (
+											<button className="btn dark sm" onClick={() => restore(m)}>
+												{m.memberStatus === MemberStatus.BLOCK ? 'Unblock' : 'Restore'}
+											</button>
+										)}
+										{m.memberStatus !== MemberStatus.DELETE && m.memberStatus !== MemberStatus.PENDING && (
+											<button className="btn danger sm" onClick={() => remove(m)}>
+												Delete
+											</button>
+										)}
 									</div>
 								</td>
 							</tr>
 						))}
 					</tbody>
 				</table>
+				{!loading && !rows.length && (
+					<div className="empty" style={{ margin: 18 }}>
+						<h3>Nobody here</h3>
+						<p>{search ? 'No nickname matches.' : 'No members with this status.'}</p>
+					</div>
+				)}
 			</div>
-			<Pager page={page} total={1} onChange={setPage} />
+			<Pager page={page} total={Math.ceil(total / LIMIT)} onChange={setPage} />
 		</>
 	);
 };
