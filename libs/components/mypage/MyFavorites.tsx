@@ -1,23 +1,40 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useReactiveVar } from '@apollo/client/react';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
-import { sampleCars } from '../../sampleData';
+import { GET_FAVORITES, GET_VISITED } from '../../../apollo/user/query';
+import { CarsPage } from '../../types/car/car';
 import { CarStatus } from '../../enums/car.enum';
+import { useLikeCar } from '../../hooks/useLikeCar';
 import CarCard from '../common/CarCard';
 import Pager from '../common/Pager';
 
-// sample: liked cars, one of them already sold
-const favorites = [sampleCars[2], sampleCars[4], sampleCars[7], sampleCars[3], sampleCars[0], { ...sampleCars[1], carStatus: CarStatus.SOLD }].map(
-	(c) => ({ ...c, meLiked: [{ memberId: 'me', likeRefId: c._id, myFavorite: true }] }),
-);
+const LIMIT = 9;
 
-/** cars I liked (favorites) or opened (recently viewed); only cars for sale or sold are shown */
+/** cars I liked (favorites) or opened (recently viewed). Only cars for sale or sold are shown */
 const MyFavorites = ({ visited = false }: { visited?: boolean }) => {
 	const user = useReactiveVar(userVar);
 	const [status, setStatus] = useState<CarStatus | ''>('');
 	const [page, setPage] = useState(1);
-	const cars = favorites.filter((c) => !status || c.carStatus === status);
+	const like = useLikeCar();
+
+	/** APOLLO REQUESTS **/
+	const { data, loading, refetch } = useQuery<{ getFavorites?: CarsPage; getVisited?: CarsPage }>(visited ? GET_VISITED : GET_FAVORITES, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { page, limit: LIMIT } },
+		notifyOnNetworkStatusChange: true,
+	});
+	const result = visited ? data?.getVisited : data?.getFavorites;
+	const all = result?.list ?? [];
+	const total = result?.metaCounter?.[0]?.total ?? 0;
+	// the API has no status filter here, so the tabs filter the current page
+	const cars = all.filter((c) => !status || c.carStatus === status);
+
+	/** HANDLERS **/
+	const likeCarHandler = async (carId: string) => {
+		await like(carId);
+		if (!visited) await refetch(); // un-liked cars leave the favourites
+	};
 
 	return (
 		<>
@@ -35,27 +52,29 @@ const MyFavorites = ({ visited = false }: { visited?: boolean }) => {
 						{ s: CarStatus.SOLD, l: 'Sold' },
 					].map((t) => (
 						<span key={t.l} className={`chip ${status === t.s ? 'on' : ''}`} onClick={() => setStatus(t.s as CarStatus | '')}>
-							{t.l} <span className="num">{favorites.filter((c) => !t.s || c.carStatus === t.s).length}</span>
+							{t.l} <span className="num">{t.s ? all.filter((c) => c.carStatus === t.s).length : total}</span>
 						</span>
 					))}
 				</div>
 			</div>
 			{cars.length ? (
-				<div className="grid3">
+				<div className="grid3" style={{ opacity: loading ? 0.6 : 1 }}>
 					{cars.map((car) => (
-						<CarCard key={car._id} car={car} mine={car.memberId === user._id} />
+						<CarCard key={car._id} car={car} mine={car.memberId === user._id} likeCarHandler={likeCarHandler} />
 					))}
 				</div>
 			) : (
-				<div className="empty">
-					<h3>{visited ? 'Nothing viewed yet' : 'No favourites yet'}</h3>
-					<p>{visited ? 'Cars you open show up here.' : 'Tap the heart on any car to keep it here.'}</p>
-					<Link href="/car" className="btn ghost">
-						Browse cars
-					</Link>
-				</div>
+				!loading && (
+					<div className="empty">
+						<h3>{visited ? 'Nothing viewed yet' : 'No favourites yet'}</h3>
+						<p>{visited ? 'Cars you open show up here.' : 'Tap the heart on any car to keep it here.'}</p>
+						<Link href="/car" className="btn ghost">
+							Browse cars
+						</Link>
+					</div>
+				)
 			)}
-			<Pager page={page} total={1} onChange={setPage} />
+			<Pager page={page} total={Math.ceil(total / LIMIT)} onChange={setPage} />
 		</>
 	);
 };
