@@ -10,23 +10,33 @@ import CarCard from '../libs/components/common/CarCard';
 import { GET_CARS } from '../apollo/user/query';
 import { sortOptions } from '../libs/config';
 import { Cars } from '../libs/types/car/car';
-import { CarsInquiry } from '../libs/types/car/car.input';
+import { CarsInquiry, CarsSearch } from '../libs/types/car/car.input';
 import { CarSort } from '../libs/enums/car.enum';
 import { Direction } from '../libs/enums/common.enum';
 
 const PAGE_SIZE = 9;
 
+/** drops empty values so the request only carries filters the user picked */
+const cleanSearch = (search: CarsSearch): CarsSearch =>
+	Object.fromEntries(
+		Object.entries(search).filter(([, v]) => v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0)),
+	) as CarsSearch;
+
 const Home: NextPage = () => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [sortIndex, setSortIndex] = useState(0);
 	const [loadingMore, setLoadingMore] = useState(false);
+	const [search, setSearch] = useState<CarsSearch>({});
+	const [resetKey, setResetKey] = useState(0); // redraws the filter panels after "clear all"
 
 	// a cursor belongs to its sort: changing the sort starts again from the first page
 	const input: CarsInquiry = {
 		limit: PAGE_SIZE,
 		sort: sortOptions[sortIndex].sort as CarSort,
 		direction: sortOptions[sortIndex].direction as Direction,
+		search: cleanSearch(search),
 	};
+	const filtered = Object.keys(input.search ?? {}).length > 0;
 
 	/** APOLLO REQUESTS **/
 	const {
@@ -43,6 +53,11 @@ const Home: NextPage = () => {
 	const nextCursor = getCarsData?.getCars.nextCursor;
 
 	/** HANDLERS **/
+	const clearAllHandler = () => {
+		setSearch({});
+		setResetKey(resetKey + 1);
+	};
+
 	const showMoreHandler = async () => {
 		if (!nextCursor) return;
 		setLoadingMore(true);
@@ -63,9 +78,9 @@ const Home: NextPage = () => {
 
 	return (
 		<>
-			<HeaderFilter />
+			<HeaderFilter key={`h${resetKey}`} search={search} setSearch={setSearch} />
 			<div className="browse">
-				<Filter />
+				<Filter key={`f${resetKey}`} search={search} setSearch={setSearch} />
 				<main>
 					<div className="results-head">
 						<h2>{getCarsLoading && !cars.length ? 'Loading cars…' : `${cars.length} cars${nextCursor ? '+' : ''} for sale`}</h2>
@@ -101,7 +116,15 @@ const Home: NextPage = () => {
 						</div>
 					)}
 
-					{!getCarsLoading && !getCarsError && !cars.length ? (
+					{!getCarsLoading && !getCarsError && !cars.length && filtered ? (
+						<div className="empty">
+							<h3>No cars match all these filters</h3>
+							<p>Try removing a filter or widening the price range.</p>
+							<button className="btn dark" onClick={clearAllHandler}>
+								Clear all filters
+							</button>
+						</div>
+					) : !getCarsLoading && !getCarsError && !cars.length ? (
 						<div className="empty">
 							<h3>No cars for sale yet</h3>
 							<p>Verified dealers&apos; listings will appear here. Are you a dealer?</p>
