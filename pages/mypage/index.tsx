@@ -11,6 +11,7 @@ import MyFollows from '../../libs/components/mypage/MyFollows';
 import MyComments from '../../libs/components/mypage/MyComments';
 import MyBlocks from '../../libs/components/mypage/MyBlocks';
 import MyProfile from '../../libs/components/mypage/MyProfile';
+import MyNotifications from '../../libs/components/mypage/MyNotifications';
 
 /** /mypage?category=... : one section of the dealer's or buyer's own pages */
 const MyPage: NextPage = () => {
@@ -31,6 +32,7 @@ const MyPage: NextPage = () => {
 			{category === 'comments' && <MyComments />}
 			{category === 'blocked' && <MyBlocks />}
 			{category === 'myProfile' && <MyProfile />}
+			{category === 'notifications' && <MyNotifications />}
 		</>
 	);
 };
