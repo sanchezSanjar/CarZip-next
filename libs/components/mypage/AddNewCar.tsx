@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useMutation, useQuery } from '@apollo/client/react';
+import { GET_AGENT_CARS, GET_CAR_CATALOG } from '../../../apollo/user/query';
+import { CREATE_CAR } from '../../../apollo/user/mutation';
+import { CarCatalogBrand } from '../../types/car/car';
+import { CarInput } from '../../types/car/car.input';
+import { getErrorMessage } from '../../auth';
+import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
+import { UploadedImage, uploadImages } from '../../upload';
 import {
 	CarBrand,
 	CarColor,
@@ -13,14 +22,6 @@ import {
 } from '../../enums/car.enum';
 import { carYears } from '../../config';
 import { colorHex, enumLabel, formatNumber } from '../../utils';
-import CarPhoto from '../common/CarPhoto';
-
-// a few models per brand until the form reads getCarCatalog
-const sampleModels: Partial<Record<CarBrand, string[]>> = {
-	[CarBrand.KIA]: ['Morning', 'Ray', 'K3', 'K5', 'K8', 'K9', 'Niro', 'Seltos', 'Sportage', 'Sorento', 'Mohave', 'Carnival', 'EV6', 'EV9', 'Bongo'],
-	[CarBrand.HYUNDAI]: ['Avante', 'Sonata', 'Grandeur', 'Kona', 'Tucson', 'Santa Fe', 'Palisade', 'Ioniq 5', 'Ioniq 6', 'Staria', 'Porter'],
-	[CarBrand.GENESIS]: ['G70', 'G80', 'G90', 'GV60', 'GV70', 'GV80'],
-};
 
 const markets = [
 	{ value: CarMarket.DOMESTIC, title: 'Korea only', desc: 'Price in KRW. Rent allowed.' },
@@ -29,7 +30,13 @@ const markets = [
 ];
 
 /** dealer: list a new car. A new listing is for sale right away */
+const MAX_PHOTOS = 20;
+
 const AddNewCar = () => {
+	const router = useRouter();
+	const [photos, setPhotos] = useState<UploadedImage[]>([]);
+	const [uploading, setUploading] = useState(false);
+	const [publishing, setPublishing] = useState(false);
 	const [brand, setBrand] = useState<CarBrand | ''>('');
 	const [model, setModel] = useState('');
 	const [year, setYear] = useState('');
@@ -56,10 +63,16 @@ const AddNewCar = () => {
 	const needsKrw = market === CarMarket.DOMESTIC || market === CarMarket.BOTH;
 	const needsUsd = market === CarMarket.EXPORT || market === CarMarket.BOTH;
 	const exportOnly = market === CarMarket.EXPORT;
-	const models = brand && brand !== CarBrand.OTHER ? sampleModels[brand] : undefined;
+
+	/** APOLLO REQUESTS **/
+	const { data: catalogData } = useQuery<{ getCarCatalog: CarCatalogBrand[] }>(GET_CAR_CATALOG, { fetchPolicy: 'cache-first' });
+	const [createCar] = useMutation<{ createCar: { _id: string } }>(CREATE_CAR, { refetchQueries: [GET_AGENT_CARS] });
+	// brand OTHER takes a typed model; every other brand picks from the catalog
+	const models = brand && brand !== CarBrand.OTHER ? catalogData?.getCarCatalog.find((c) => c.brand === brand)?.models : undefined;
 
 	// what still needs the dealer's attention, in plain words
 	const problems: string[] = [];
+	if (!photos.length) problems.push('photos');
 	if (!brand) problems.push('brand');
 	if (!model.trim()) problems.push('model');
 	if (!year) problems.push('year');
@@ -75,6 +88,66 @@ const AddNewCar = () => {
 	if (address.trim().length < 3) problems.push('viewing address');
 
 	const toggleOption = (o: CarOption) => setOptions(options.includes(o) ? options.filter((x) => x !== o) : [...options, o]);
+
+	/** HANDLERS **/
+	const addPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const files = Array.from(e.target.files ?? []).slice(0, MAX_PHOTOS - photos.length);
+		e.target.value = ''; // the same file can be picked again
+		if (!files.length) return;
+		setUploading(true);
+		try {
+			const uploaded = await uploadImages(files, 'car');
+			setPhotos((prev) => [...prev, ...uploaded]);
+		} catch (err) {
+			await sweetMixinErrorAlert(getErrorMessage(err));
+		} finally {
+			setUploading(false);
+		}
+	};
+
+	const makeCover = (i: number) => setPhotos([photos[i], ...photos.filter((_, k) => k !== i)]);
+
+	const publish = async () => {
+		if (problems.length || publishing) return;
+		const input: CarInput = {
+			carImages: photos.map((p) => p.url),
+			carBrand: brand as CarBrand,
+			carModel: model.trim(),
+			carYear: Number(year),
+			carMileage: Number(mileage),
+			carType: type as CarType,
+			carTransmission: transmission as CarTransmission,
+			carCondition: condition as CarCondition,
+			carFuelType: fuel as CarFuelType,
+			carColor: color as CarColor,
+			carOptions: options,
+			carMarket: market as CarMarket,
+			carBarter: barter,
+			carTestDrive: testDrive,
+			carRent: rent && !exportOnly,
+			carTitle: title.trim(),
+			carLocation: location as CarLocation,
+			carAddress: address.trim(),
+			carDesc: desc.trim() || undefined,
+		};
+		if (needsKrw) input.carPrice = Number(priceManwon) * 10000;
+		if (needsUsd) {
+			input.carPriceUsd = Number(priceUsd);
+			input.exportAgreed = exportAgreed;
+		}
+		if (input.carRent) input.carRentPrice = Number(rentPrice);
+
+		setPublishing(true);
+		try {
+			const { data } = await createCar({ variables: { input } });
+			await sweetTopSuccessAlert('Listing published', 1500);
+			await router.push(data ? `/car/detail?id=${data.createCar._id}` : '/mypage?category=myCars');
+		} catch (err) {
+			await sweetMixinErrorAlert(getErrorMessage(err));
+		} finally {
+			setPublishing(false);
+		}
+	};
 
 	return (
 		<>
@@ -92,16 +165,37 @@ const AddNewCar = () => {
 				<h2>Photos</h2>
 				<p>Up to 20 photos. The first one is the cover. JPG, PNG or WebP, max 10 MB each.</p>
 				<div className="upgrid">
-					<div className="upslot">
-						<span className="cover">Cover</span>
-						<CarPhoto type={type || undefined} color={color || undefined} />
-					</div>
-					<label className="upslot add" style={{ cursor: 'pointer' }}>
-						+ Add photos
-						<br />
-						JPG or PNG, max 10 MB
-						<input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden />
-					</label>
+					{photos.map((p, i) => (
+						<div key={p.url} className="upslot">
+							{i === 0 && <span className="cover">Cover</span>}
+							{/* eslint-disable-next-line @next/next/no-img-element */}
+							<img src={p.thumbnailUrl || p.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10 }} />
+							<div className="slot-acts">
+								{i > 0 && (
+									<button type="button" onClick={() => makeCover(i)}>
+										Cover
+									</button>
+								)}
+								<button type="button" onClick={() => setPhotos(photos.filter((_, k) => k !== i))}>
+									Remove
+								</button>
+							</div>
+						</div>
+					))}
+					{photos.length < MAX_PHOTOS && (
+						<label className="upslot add" style={{ cursor: uploading ? 'wait' : 'pointer' }}>
+							{uploading ? (
+								'Uploading…'
+							) : (
+								<>
+									+ Add photos
+									<br />
+									{photos.length}/{MAX_PHOTOS}
+								</>
+							)}
+							<input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden disabled={uploading} onChange={addPhotos} />
+						</label>
+					)}
 				</div>
 			</div>
 
@@ -369,8 +463,8 @@ const AddNewCar = () => {
 				<span className="t">
 					{problems.length ? `${problems.length} to fill in: ${problems.join(', ')}` : 'Ready to publish'}
 				</span>
-				<button className="btn primary" disabled={problems.length > 0}>
-					Publish listing
+				<button className="btn primary" disabled={problems.length > 0 || publishing || uploading} onClick={publish}>
+					{publishing ? 'Publishing…' : 'Publish listing'}
 				</button>
 			</div>
 		</>
