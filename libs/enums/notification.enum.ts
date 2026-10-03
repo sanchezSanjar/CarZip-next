@@ -1,0 +1,22 @@
+export enum NotificationType {
+	LIKE = 'LIKE',
+	COMMENT = 'COMMENT',
+	FOLLOW = 'FOLLOW',
+	TEST_DRIVE = 'TEST_DRIVE',
+	AGENT_APPLICATION = 'AGENT_APPLICATION',
+	AGENT_APPROVED = 'AGENT_APPROVED',
+	AGENT_REJECTED = 'AGENT_REJECTED',
+	CAR_MODERATED = 'CAR_MODERATED',
+	LISTING_CHECK = 'LISTING_CHECK',
+}
+
+export enum NotificationStatus {
+	WAIT = 'WAIT',
+	READ = 'READ',
+}
+
+export enum NotificationGroup {
+	MEMBER = 'MEMBER',
+	ARTICLE = 'ARTICLE',
+	CAR = 'CAR',
+}
