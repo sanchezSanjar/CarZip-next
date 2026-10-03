@@ -22,14 +22,18 @@ import { MemberType } from '../../libs/enums/member.enum';
 import { Cars } from '../../libs/types/car/car';
 import { BoardArticles } from '../../libs/types/board-article/board-article';
 import { Member } from '../../libs/types/member/member';
-import { dealerName, enumLabel, formatNumber, timeAgo } from '../../libs/utils';
+import { dealerName } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
 import { useAddressReady } from '../../libs/hooks/useAddressReady';
 import { withTranslations } from '../../libs/i18n';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../libs/hooks/useLocaleFormat';
 
 const CARS_PAGE = 8;
 
 const AgentDetail: NextPage = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const router = useRouter();
 	const addressReady = useAddressReady();
 	const user = useReactiveVar(userVar);
@@ -66,15 +70,15 @@ const AgentDetail: NextPage = () => {
 	const nextCursor = carsData?.getCars.nextCursor;
 	const articles = articlesData?.getBoardArticles.list ?? [];
 
-	if (!addressReady || (memberLoading && !agent)) return <div className="wrap muted">Loading the dealer…</div>;
+	if (!addressReady || (memberLoading && !agent)) return <div className="wrap muted">{t('dealers.loading')}</div>;
 	if (error || !agent || agent.memberType !== MemberType.AGENT) {
 		return (
 			<div className="wrap">
 				<div className="empty">
-					<h3>This dealer isn&apos;t available</h3>
-					<p>The account may be under review or closed.</p>
+					<h3>{t('dealers.notAvailable')}</h3>
+					<p>{t('dealers.notAvailableText')}</p>
 					<Link href="/agent" className="btn dark">
-						All dealers
+						{t('dealers.allDealers')}
 					</Link>
 				</div>
 			</div>
@@ -85,7 +89,7 @@ const AgentDetail: NextPage = () => {
 	const liked = !!agent.meLiked?.[0]?.myFavorite;
 	const like = async () => {
 		if (!user._id) {
-			if (await sweetLoginConfirmAlert('Log in to like dealers.')) await router.push('/account/join?mode=login');
+			if (await sweetLoginConfirmAlert(t('dealers.likePrompt'), t('follow.logIn'))) await router.push('/account/join?mode=login');
 			return;
 		}
 		try {
@@ -96,9 +100,9 @@ const AgentDetail: NextPage = () => {
 	};
 	const toggleBlock = async () => {
 		const question = agent.meBlocked
-			? `Unblock ${dealerName(agent)}?`
-			: `Block ${dealerName(agent)}? They won't be able to comment on, like, follow or request test drives for your cars. They are not notified.`;
-		if (!(await sweetConfirmAlert(question, agent.meBlocked ? 'Unblock' : 'Block', !agent.meBlocked))) return;
+			? t('dealers.unblockQ', { name: dealerName(agent) })
+			: t('dealers.blockQ', { name: dealerName(agent) });
+		if (!(await sweetConfirmAlert(question, agent.meBlocked ? t('dealers.unblock') : t('dealers.block'), !agent.meBlocked))) return;
 		try {
 			await (agent.meBlocked ? unblockMember : blockMember)({ variables: { input: agent._id } });
 		} catch (err) {
@@ -126,16 +130,15 @@ const AgentDetail: NextPage = () => {
 						</h1>
 						<div className="facts">
 							<Verified />
-							<span>{agent.memberAddress || 'Korea'}</span>
+							<span>{agent.memberAddress || t('dealers.korea')}</span>
 							<span>
-								<b className="num">{agent.memberCars}</b> for sale
+								{t('count.carsForSale', { count: agent.memberCars })}
 							</span>
 							<span>
-								<b className="num">{agent.memberFollowers}</b> followers
+								{t('count.followers', { count: agent.memberFollowers })}
 							</span>
 							<span>
-								On CarZip since{' '}
-								{new Date(agent.createdAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+								{t('dealers.since', { date: fmt.date(agent.createdAt, { month: 'short', year: 'numeric' }) })}
 							</span>
 						</div>
 						{agent.memberDesc && (
@@ -149,7 +152,7 @@ const AgentDetail: NextPage = () => {
 						<FollowButton dealerId={agent._id} className="btn dark" />
 						{agent.meBlocked !== null && agent.meBlocked !== undefined && agent._id !== user._id && (
 							<button className="btn danger" onClick={toggleBlock}>
-								{agent.meBlocked ? 'Unblock' : 'Block'}
+								{agent.meBlocked ? t('dealers.unblock') : t('dealers.block')}
 							</button>
 						)}
 					</div>
@@ -158,9 +161,9 @@ const AgentDetail: NextPage = () => {
 				<div className="tabs">
 					{(
 						[
-							['cars', 'For sale', agent.memberCars],
-							['articles', 'Articles', agent.memberArticles],
-							['comments', 'Comments', agent.memberComments],
+							['cars', t('dealers.tabCars'), agent.memberCars],
+							['articles', t('dealers.tabArticles'), agent.memberArticles],
+							['comments', t('dealers.tabComments'), agent.memberComments],
 						] as const
 					).map(([key, label, count]) => (
 						<span key={key} className={tab === key ? 'on' : ''} onClick={() => setTab(key)}>
@@ -174,18 +177,18 @@ const AgentDetail: NextPage = () => {
 			<div className="agent-info-row">
 				<div className="offer">
 					<div style={{ flex: 1 }}>
-						<h3>Selling your own car?</h3>
-						<p>{dealerName(agent)} can list and sell it for you. Contact them to agree the fee.</p>
+						<h3>{t('dealers.sellingTitle')}</h3>
+						<p>{t('dealers.sellingText', { name: dealerName(agent) })}</p>
 					</div>
 					{agent.contactPhone && (
 						<a className="btn dark" href={`tel:${agent.contactPhone}`}>
-							Call the dealer
+							{t('dealers.callDealer')}
 						</a>
 					)}
 				</div>
 				{agent.memberAddress && (
 					<LocationCard
-						title="Visit the lot"
+						title={t('detail.visitLot')}
 						address={agent.memberAddress}
 						city={cityOf(agent.memberAddress) ?? cars[0]?.carLocation}
 					/>
@@ -203,15 +206,15 @@ const AgentDetail: NextPage = () => {
 					) : (
 						<div className="wrap">
 							<div className="empty">
-								<h3>No cars for sale right now</h3>
-								<p>Follow {dealerName(agent)} to hear about new cars first.</p>
+								<h3>{t('dealers.noCars')}</h3>
+								<p>{t('dealers.followHint', { name: dealerName(agent) })}</p>
 							</div>
 						</div>
 					)}
 					{nextCursor && (
 						<div className="more" style={{ marginBottom: 40 }}>
 							<button className="btn ghost" style={{ width: 260 }} onClick={showMore}>
-								Show more cars
+								{t('search.showMore')}
 							</button>
 						</div>
 					)}
@@ -225,28 +228,28 @@ const AgentDetail: NextPage = () => {
 							{articles.map((a) => (
 								<div key={a._id} className="post">
 									<div>
-										<span className="cat">{enumLabel(a.articleCategory)}</span>
+										<span className="cat">{t(`enum.${a.articleCategory}`)}</span>
 										<Link href={`/community/detail?id=${a._id}`} style={{ color: 'inherit' }}>
 											<h3>{a.articleTitle}</h3>
 										</Link>
 										<p>{a.articleContent}</p>
 										<div className="by">
-											<span>{timeAgo(a.createdAt)}</span>
+											<span>{fmt.timeAgo(a.createdAt)}</span>
 										</div>
 									</div>
 									<div className="st">
-										<b>{formatNumber(a.articleViews)}</b> views
+										{t('count.views', { count: a.articleViews })}
 										<br />
-										<b>{a.articleLikes}</b> likes
+										{t('count.likes', { count: a.articleLikes })}
 										<br />
-										<b>{a.articleComments}</b> comments
+										{t('count.comments', { count: a.articleComments })}
 									</div>
 								</div>
 							))}
 						</div>
 					) : (
 						<div className="empty">
-							<h3>No articles yet</h3>
+							<h3>{t('dealers.noArticles')}</h3>
 						</div>
 					)}
 				</div>
@@ -258,7 +261,7 @@ const AgentDetail: NextPage = () => {
 						group={CommentGroup.MEMBER}
 						refId={agent._id}
 						ownerId={agent._id}
-						placeholder={`Ask ${dealerName(agent)} something`}
+						placeholder={t('dealers.askDealer', { name: dealerName(agent) })}
 					/>
 				</div>
 			)}
@@ -268,4 +271,4 @@ const AgentDetail: NextPage = () => {
 
 export const getStaticProps = withTranslations;
 
-export default withLayoutBasic(AgentDetail, 'Dealer | CarZip');
+export default withLayoutBasic(AgentDetail, 'title.dealer');

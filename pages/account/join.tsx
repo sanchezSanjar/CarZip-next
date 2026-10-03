@@ -28,4 +28,4 @@ const Join: NextPage = () => {
 
 export const getStaticProps = withTranslations;
 
-export default withLayoutBasic(Join, 'Log in | CarZip');
+export default withLayoutBasic(Join, 'title.account');

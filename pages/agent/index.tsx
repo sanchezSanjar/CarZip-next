@@ -13,19 +13,21 @@ import { Direction } from '../../libs/enums/common.enum';
 import { dealerName } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
 import { withTranslations } from '../../libs/i18n';
+import { useTranslation } from 'next-i18next/pages';
 
 const LIMIT = 9;
 // the sorts the API accepts for dealers
 const agentSorts = [
-	{ label: 'Top ranked', sort: 'memberRank' },
-	{ label: 'Most cars for sale', sort: 'memberCars' },
-	{ label: 'Most liked', sort: 'memberLikes' },
-	{ label: 'Most viewed', sort: 'memberViews' },
-	{ label: 'Newest', sort: 'createdAt' },
+	{ label: 'dealers.sortRank', sort: 'memberRank' },
+	{ label: 'dealers.sortCars', sort: 'memberCars' },
+	{ label: 'dealers.sortLikes', sort: 'memberLikes' },
+	{ label: 'dealers.sortViews', sort: 'memberViews' },
+	{ label: 'dealers.sortNewest', sort: 'createdAt' },
 ];
 
 /** /agent?text=jeju&sort=memberCars&page=2 : the search lives in the address, so reloading or sharing keeps it */
 const AgentList: NextPage = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const one = (key: string) => (typeof router.query[key] === 'string' ? (router.query[key] as string) : '');
 	const search = one('text').trim().slice(0, 50);
@@ -62,14 +64,14 @@ const AgentList: NextPage = () => {
 
 	return (
 		<div className="wrap">
-			<h1 className="page-title">Dealers</h1>
+			<h1 className="page-title">{t('dealers.title')}</h1>
 			<p className="page-sub">
-				Every dealer is checked by CarZip before they can list cars. Call or message them directly.
+				{t('dealers.subtitle')}
 			</p>
 			<form className="bar" onSubmit={searchHandler}>
 				{/* re-drawn whenever the address changes, so a shared link fills the box */}
-				<input key={search} name="text" className="field grow" placeholder="Search by nickname" defaultValue={search} />
-				<button className="btn dark">Search</button>
+				<input key={search} name="text" className="field grow" placeholder={t('dealers.searchNick')} defaultValue={search} />
+				<button className="btn dark">{t('search.search')}</button>
 				<select
 					className="field"
 					style={{ width: 220, fontWeight: 600 }}
@@ -78,16 +80,16 @@ const AgentList: NextPage = () => {
 				>
 					{agentSorts.map((s) => (
 						<option key={s.sort} value={s.sort}>
-							{s.label}
+							{t(s.label)}
 						</option>
 					))}
 				</select>
 			</form>
 			{search && (
 				<p className="muted" style={{ marginBottom: 14 }}>
-					{total} dealer{total === 1 ? '' : 's'} matching “{search}” ·{' '}
+					{t('dealers.matching', { count: total, text: search })} ·{' '}
 					<a style={{ cursor: 'pointer' }} onClick={() => update({ text: '', page: 1 })}>
-						Show all
+						{t('dealers.showAll')}
 					</a>
 				</p>
 			)}
@@ -99,7 +101,7 @@ const AgentList: NextPage = () => {
 							<div>
 								<h3>{dealerName(agent)}</h3>
 								<div className="muted" style={{ fontSize: 13 }}>
-									{agent.memberAddress || 'Korea'}
+									{agent.memberAddress || t('dealers.korea')}
 								</div>
 								<Verified />
 							</div>
@@ -122,18 +124,18 @@ const AgentList: NextPage = () => {
 						)}
 						<div className="nums">
 							<div>
-								<b>{agent.memberCars}</b>for sale
+								<b>{agent.memberCars}</b>{t('dealers.forSale')}
 							</div>
 							<div>
-								<b>{agent.memberFollowers}</b>followers
+								<b>{agent.memberFollowers}</b>{t('dealers.followers')}
 							</div>
 							<div>
-								<b>{agent.memberArticles}</b>articles
+								<b>{agent.memberArticles}</b>{t('dealers.articles')}
 							</div>
 						</div>
 						<div className="acts2">
 							<Link href={`/agent/detail?id=${agent._id}`} className="btn ghost sm">
-								View dealer
+								{t('dealers.viewDealer')}
 							</Link>
 							<FollowButton dealerId={agent._id} className="btn dark sm" />
 						</div>
@@ -142,8 +144,8 @@ const AgentList: NextPage = () => {
 			</div>
 			{!loading && !agents.length && (
 				<div className="empty">
-					<h3>No dealers found</h3>
-					<p>Try another nickname.</p>
+					<h3>{t('dealers.noneFound')}</h3>
+					<p>{t('dealers.tryAnother')}</p>
 				</div>
 			)}
 			<Pager page={page} total={Math.ceil(total / LIMIT)} onChange={setPage} />
@@ -153,4 +155,4 @@ const AgentList: NextPage = () => {
 
 export const getStaticProps = withTranslations;
 
-export default withLayoutBasic(AgentList, 'Dealers | CarZip');
+export default withLayoutBasic(AgentList, 'title.dealers');

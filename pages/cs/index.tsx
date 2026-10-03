@@ -10,14 +10,16 @@ import { GET_NOTICES } from '../../apollo/user/query';
 import { NoticeCategory } from '../../libs/enums/notice.enum';
 import { Notices } from '../../libs/types/notice/notice';
 import { withTranslations } from '../../libs/i18n';
+import { useTranslation } from 'next-i18next/pages';
 
 const tabs = [
-	{ key: 'faq', label: 'FAQ', category: NoticeCategory.FAQ },
-	{ key: 'notices', label: 'Notices', category: NoticeCategory.NOTICE },
-	{ key: 'terms', label: 'Terms of use', category: NoticeCategory.TERMS },
+	{ key: 'faq', label: 'cs.faq', category: NoticeCategory.FAQ },
+	{ key: 'notices', label: 'cs.notices', category: NoticeCategory.NOTICE },
+	{ key: 'terms', label: 'cs.terms', category: NoticeCategory.TERMS },
 ];
 
 const CS: NextPage = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	// the open tab lives in the address (/cs?tab=terms), so footer links can open it
 	const tab = typeof router.query.tab === 'string' ? router.query.tab : 'faq';
@@ -40,22 +42,25 @@ const CS: NextPage = () => {
 
 	return (
 		<div className="wrap">
-			<h1 className="page-title">Help</h1>
-			<p className="page-sub">Answers to common questions, service notices and our terms.</p>
+			<h1 className="page-title">{t('cs.title')}</h1>
+			<p className="page-sub">
+				{t('cs.subtitle')}
+				{router.locale !== 'en' && ` ${t('cs.contentNote')}`}
+			</p>
 			<div className="bar">
 				<input
 					className="field grow"
-					placeholder='Search help, e.g. "test drive", "dealer"'
+					placeholder={t('cs.search')}
 					value={text}
 					onChange={(e) => setText(e.target.value)}
 				/>
 			</div>
 			<div className="helpgrid">
 				<div className="helpnav">
-					{tabs.map((t) => (
-						<a key={t.key} className={tab === t.key ? 'on' : ''} onClick={() => setTab(t.key)}>
-							{t.label}
-							<small>{of(t.category).length}</small>
+					{tabs.map((section) => (
+						<a key={section.key} className={tab === section.key ? 'on' : ''} onClick={() => setTab(section.key)}>
+							{t(section.label)}
+							<small>{of(section.category).length}</small>
 						</a>
 					))}
 				</div>
@@ -76,4 +81,4 @@ const CS: NextPage = () => {
 
 export const getStaticProps = withTranslations;
 
-export default withLayoutBasic(CS, 'Help | CarZip');
+export default withLayoutBasic(CS, 'title.help');

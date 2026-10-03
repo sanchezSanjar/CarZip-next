@@ -190,4 +190,4 @@ const CarSearch = ({ search, sortIndex, go }: CarSearchProps) => {
 
 export const getStaticProps = withTranslations;
 
-export default withLayoutBasic(CarList, 'Buy a car | CarZip');
+export default withLayoutBasic(CarList, 'title.cars');

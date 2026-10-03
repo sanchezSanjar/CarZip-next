@@ -32,4 +32,4 @@ const Home: NextPage = () => {
 
 export const getStaticProps = withTranslations;
 
-export default withLayoutBasic(Home, 'CarZip | Used cars from verified dealers');
+export default withLayoutBasic(Home, 'title.home');

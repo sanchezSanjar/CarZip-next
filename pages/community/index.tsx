@@ -10,19 +10,23 @@ import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
 import { MemberType } from '../../libs/enums/member.enum';
 import { Direction } from '../../libs/enums/common.enum';
 import { BoardArticles } from '../../libs/types/board-article/board-article';
-import { dealerName, enumLabel, formatNumber, timeAgo } from '../../libs/utils';
+import { dealerName } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
 import { withTranslations } from '../../libs/i18n';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../libs/hooks/useLocaleFormat';
 
 const LIMIT = 8;
 const sorts = [
-	{ value: 'createdAt', label: 'Newest' },
-	{ value: 'articleViews', label: 'Most viewed' },
-	{ value: 'articleLikes', label: 'Most liked' },
-	{ value: 'articleComments', label: 'Most comments' },
+	{ value: 'createdAt', label: 'board.sortNewest' },
+	{ value: 'articleViews', label: 'board.sortViews' },
+	{ value: 'articleLikes', label: 'board.sortLikes' },
+	{ value: 'articleComments', label: 'board.sortComments' },
 ];
 
 const Community: NextPage = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const user = useReactiveVar(userVar);
 	const [category, setCategory] = useState<BoardArticleCategory | ''>('');
 	const [text, setText] = useState('');
@@ -58,22 +62,22 @@ const Community: NextPage = () => {
 
 	return (
 		<div className="wrap">
-			<h1 className="page-title">Community</h1>
-			<p className="page-sub">Advice and news from dealers. Everyone can read and comment; dealers write the articles.</p>
+			<h1 className="page-title">{t('board.title')}</h1>
+			<p className="page-sub">{t('board.subtitle')}</p>
 			<div className="bar">
 				<div className="tabs2">
 					<span className={`chip ${category === '' ? 'on' : ''}`} onClick={() => pick('')}>
-						All
+						{t('board.all')}
 					</span>
 					{Object.values(BoardArticleCategory).map((c) => (
 						<span key={c} className={`chip ${category === c ? 'on' : ''}`} onClick={() => pick(c)}>
-							{enumLabel(c)}
+							{t(`enum.${c}`)}
 						</span>
 					))}
 				</div>
 				<div className="grow" />
 				<form onSubmit={searchHandler} style={{ display: 'flex', gap: 8 }}>
-					<input className="field" style={{ width: 240 }} placeholder="Search articles" value={text} onChange={(e) => setText(e.target.value)} />
+					<input className="field" style={{ width: 240 }} placeholder={t('board.search')} value={text} onChange={(e) => setText(e.target.value)} />
 				</form>
 				<select
 					className="field"
@@ -86,7 +90,7 @@ const Community: NextPage = () => {
 				>
 					{sorts.map((s) => (
 						<option key={s.value} value={s.value}>
-							{s.label}
+							{t(s.label)}
 						</option>
 					))}
 				</select>
@@ -97,30 +101,30 @@ const Community: NextPage = () => {
 						{articles.map((a) => (
 							<div key={a._id} className="post">
 								<div>
-									<span className="cat">{enumLabel(a.articleCategory)}</span>
+									<span className="cat">{t(`enum.${a.articleCategory}`)}</span>
 									<Link href={`/community/detail?id=${a._id}`} style={{ color: 'inherit' }}>
 										<h3>{a.articleTitle}</h3>
 									</Link>
 									<p>{a.articleContent}</p>
 									<div className="by">
 										<Avatar image={a.memberData?.memberImage} dealer={!!a.memberData?.agentCompany} />
-										{dealerName(a.memberData)} {a.memberData?.agentCompany && <span className="role">Dealer</span>}
-										<span>{timeAgo(a.createdAt)}</span>
+										{dealerName(a.memberData)} {a.memberData?.agentCompany && <span className="role">{t('board.dealer')}</span>}
+										<span>{fmt.timeAgo(a.createdAt)}</span>
 									</div>
 								</div>
 								<div className="st">
-									<b>{formatNumber(a.articleViews)}</b> views
+									{t('count.views', { count: a.articleViews })}
 									<br />
-									<b>{a.articleLikes}</b> likes
+									{t('count.likes', { count: a.articleLikes })}
 									<br />
-									<b>{a.articleComments}</b> comments
+									{t('count.comments', { count: a.articleComments })}
 								</div>
 							</div>
 						))}
 						{!loading && !articles.length && (
 							<div className="empty" style={{ border: 0 }}>
-								<h3>No articles found</h3>
-								<p>{search ? 'Try other words.' : 'Nothing in this category yet.'}</p>
+								<h3>{t('board.noneFound')}</h3>
+								<p>{search ? t('board.tryOther') : t('board.emptyCategory')}</p>
 							</div>
 						)}
 					</div>
@@ -129,32 +133,32 @@ const Community: NextPage = () => {
 				<aside>
 					{canWrite ? (
 						<div className="sidecard" style={{ background: 'var(--asphalt)', color: '#fff', borderColor: 'var(--asphalt)' }}>
-							<h3>Share your knowledge</h3>
-							<p style={{ color: '#B9C1C8', fontSize: 14, marginBottom: 14 }}>Your articles appear here and on your dealer page.</p>
+							<h3>{t('board.shareTitle')}</h3>
+							<p style={{ color: '#B9C1C8', fontSize: 14, marginBottom: 14 }}>{t('board.shareText')}</p>
 							<Link href="/mypage?category=myArticles" className="btn primary sm">
-								Write article
+								{t('board.write')}
 							</Link>
 						</div>
 					) : (
 						<div className="sidecard" style={{ background: 'var(--asphalt)', color: '#fff', borderColor: 'var(--asphalt)' }}>
-							<h3>Want to write here?</h3>
+							<h3>{t('board.wantWrite')}</h3>
 							<p style={{ color: '#B9C1C8', fontSize: 14, marginBottom: 14 }}>
-								Articles are written by verified dealers. Buyers can comment on any article.
+								{t('board.wantWriteText')}
 							</p>
 							<Link href="/account/join?mode=signup&type=AGENT" className="btn primary sm">
-								Become a dealer
+								{t('board.becomeDealer')}
 							</Link>
 						</div>
 					)}
 					<div className="sidecard">
-						<h3>Most read</h3>
+						<h3>{t('board.mostRead')}</h3>
 						{mostRead.map((a, i) => (
 							<div key={a._id} className="toprow">
 								<span className="n">{i + 1}</span>
 								<Link href={`/community/detail?id=${a._id}`} style={{ color: 'inherit' }}>
 									{a.articleTitle}
 								</Link>
-								<small className="num">{formatNumber(a.articleViews)}</small>
+								<small className="num">{fmt.number(a.articleViews)}</small>
 							</div>
 						))}
 					</div>
@@ -166,4 +170,4 @@ const Community: NextPage = () => {
 
 export const getStaticProps = withTranslations;
 
-export default withLayoutBasic(Community, 'Community | CarZip');
+export default withLayoutBasic(Community, 'title.community');

@@ -16,12 +16,16 @@ import { sweetLoginConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } fr
 import { CommentGroup } from '../../libs/enums/comment.enum';
 import { BoardArticle, BoardArticles } from '../../libs/types/board-article/board-article';
 import { Cars } from '../../libs/types/car/car';
-import { dealerName, enumLabel, formatNumber, timeAgo } from '../../libs/utils';
+import { dealerName } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
 import { useAddressReady } from '../../libs/hooks/useAddressReady';
 import { withTranslations } from '../../libs/i18n';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../libs/hooks/useLocaleFormat';
 
 const ArticleDetail: NextPage = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const router = useRouter();
 	const addressReady = useAddressReady();
 	const user = useReactiveVar(userVar);
@@ -50,15 +54,15 @@ const ArticleDetail: NextPage = () => {
 	const more = (moreData?.getBoardArticles.list ?? []).filter((a) => a._id !== articleId).slice(0, 3);
 	const dealerCar = carsData?.getCars.list[0];
 
-	if (!addressReady || (loading && !article)) return <div className="wrap muted">Loading the article…</div>;
+	if (!addressReady || (loading && !article)) return <div className="wrap muted">{t('board.loading')}</div>;
 	if (error || !article) {
 		return (
 			<div className="wrap">
 				<div className="empty">
-					<h3>This article isn&apos;t available</h3>
-					<p>It may have been removed.</p>
+					<h3>{t('board.notAvailable')}</h3>
+					<p>{t('board.removed')}</p>
 					<Link href="/community" className="btn dark">
-						Back to Community
+						{t('board.back')}
 					</Link>
 				</div>
 			</div>
@@ -69,7 +73,7 @@ const ArticleDetail: NextPage = () => {
 	const liked = !!article.meLiked?.[0]?.myFavorite;
 	const like = async () => {
 		if (!user._id) {
-			if (await sweetLoginConfirmAlert('Log in to like articles.')) await router.push('/account/join?mode=login');
+			if (await sweetLoginConfirmAlert(t('board.likePrompt'), t('follow.logIn'))) await router.push('/account/join?mode=login');
 			return;
 		}
 		try {
@@ -81,7 +85,7 @@ const ArticleDetail: NextPage = () => {
 	};
 	const share = async () => {
 		await navigator.clipboard.writeText(window.location.href);
-		await sweetTopSuccessAlert('Link copied', 1000);
+		await sweetTopSuccessAlert(t('detail.linkCopied'), 1000);
 	};
 
 	return (
@@ -89,9 +93,9 @@ const ArticleDetail: NextPage = () => {
 			<div className="article">
 				<div className="crumbs" style={{ padding: 0 }}>
 					<Link href="/community" style={{ color: 'inherit' }}>
-						Community
+						{t('board.title')}
 					</Link>{' '}
-					/ <b>{enumLabel(article.articleCategory)}</b>
+					/ <b>{t(`enum.${article.articleCategory}`)}</b>
 				</div>
 				<h1>{article.articleTitle}</h1>
 				<div className="authorbar">
@@ -104,9 +108,9 @@ const ArticleDetail: NextPage = () => {
 						) : (
 							<b>{dealerName(article.memberData)}</b>
 						)}{' '}
-						{isDealer && <span className="role">Dealer</span>}
+						{isDealer && <span className="role">{t('board.dealer')}</span>}
 						<div className="muted" style={{ fontSize: 13 }}>
-							{timeAgo(article.createdAt)}, {formatNumber(article.articleViews)} views
+							{fmt.timeAgo(article.createdAt)}, {t('count.views', { count: article.articleViews })}
 						</div>
 					</div>
 					{isDealer && (
@@ -125,10 +129,10 @@ const ArticleDetail: NextPage = () => {
 				</div>
 				<div className="reactbar">
 					<button className="btn ghost" onClick={like}>
-						<Heart filled={liked} /> {liked ? 'Liked' : 'Like'} <span className="num">{article.articleLikes}</span>
+						<Heart filled={liked} /> {liked ? t('detail.liked') : t('detail.like')} <span className="num">{article.articleLikes}</span>
 					</button>
 					<button className="btn ghost" onClick={share}>
-						Share
+						{t('detail.share')}
 					</button>
 				</div>
 				<CommentSection group={CommentGroup.ARTICLE} refId={article._id} ownerId={authorId} />
@@ -136,20 +140,20 @@ const ArticleDetail: NextPage = () => {
 			<aside>
 				{more.length > 0 && (
 					<div className="sidecard">
-						<h3>More from {dealerName(article.memberData)}</h3>
+						<h3>{t('board.moreFrom', { name: dealerName(article.memberData) })}</h3>
 						{more.map((a) => (
 							<div key={a._id} className="toprow">
 								<Link href={`/community/detail?id=${a._id}`} style={{ color: 'inherit' }}>
 									{a.articleTitle}
 								</Link>
-								<small>{new Date(a.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</small>
+								<small>{fmt.date(a.createdAt)}</small>
 							</div>
 						))}
 					</div>
 				)}
 				{dealerCar && (
 					<>
-						<h3 style={{ fontSize: 15, fontWeight: 800, margin: '4px 0 10px' }}>For sale by {dealerName(article.memberData)}</h3>
+						<h3 style={{ fontSize: 15, fontWeight: 800, margin: '4px 0 10px' }}>{t('board.forSaleBy', { name: dealerName(article.memberData) })}</h3>
 						<CarCard car={dealerCar} />
 					</>
 				)}
@@ -160,4 +164,4 @@ const ArticleDetail: NextPage = () => {
 
 export const getStaticProps = withTranslations;
 
-export default withLayoutBasic(ArticleDetail, 'Article | CarZip');
+export default withLayoutBasic(ArticleDetail, 'title.article');

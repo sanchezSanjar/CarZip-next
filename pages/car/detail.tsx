@@ -312,4 +312,4 @@ const CarDetail: NextPage = () => {
 
 export const getStaticProps = withTranslations;
 
-export default withLayoutBasic(CarDetail, 'Car | CarZip');
+export default withLayoutBasic(CarDetail, 'title.car');

@@ -38,7 +38,10 @@ export const useLocaleFormat = () => {
 
 	const date = (d?: Date | string | null, options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' }) => {
 		if (!d) return '';
-		if (locale === 'uz') return uzDate(new Date(d), !!options.year);
+		if (locale === 'uz') {
+			const x = new Date(d);
+			return options.day ? uzDate(x, !!options.year) : `${UZ_MONTHS[x.getMonth()]} ${x.getFullYear()}`;
+		}
 		return new Date(d).toLocaleDateString(intl, options);
 	};
 
