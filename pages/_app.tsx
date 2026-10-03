@@ -11,6 +11,7 @@ import { appWithTranslation } from 'next-i18next/pages';
 import { htmlLang } from '../libs/languages';
 import '../scss/app.scss';
 import '../scss/pc/main.scss';
+import '../scss/theme.scss';
 import '../scss/mobile/main.scss';
 
 const App = ({ Component, pageProps }: AppProps) => {

@@ -1,0 +1,107 @@
+// CarZip theme: clean & bright.
+// Loaded after the page styles (and before the phone layout), so it only changes the look: colors, type, corners, shadows.
+
+:root {
+	--asphalt: #191F28; // main text
+	--ink-2: #333D4B;
+	--muted: #6B7684;
+	--line: #E5E8EB;
+	--line-2: #F2F4F6;
+	--paper: #F5F7FA; // page background
+	--soft: #F2F4F6; // quiet buttons and chips
+	--brand: #3182F6; // the one accent: main buttons, links, selection
+	--brand-dark: #1B64DA;
+	--road: #3182F6;
+	--road-tint: #E8F3FF;
+	--dealer: #0E9F6E;
+	--dealer-tint: #E3F7EF;
+	--stop: #E5484D;
+	--stop-tint: #FEECEC;
+	--hold: #B7791F;
+	--hold-tint: #FFF4E0;
+	--photo-bg: #EEF1F4;
+	--shadow-sm: 0 1px 2px rgba(25, 31, 40, 0.04), 0 2px 10px rgba(25, 31, 40, 0.04);
+	--shadow-md: 0 10px 30px rgba(25, 31, 40, 0.09);
+}
+
+// headings: Pretendard, bold and slightly tight (the logo keeps its own font)
+h1, h2, h3, h4, .page-title { letter-spacing: -0.025em; }
+.page-title { font-weight: 800; }
+
+// nav
+.nav { border-bottom-color: var(--line-2); }
+.nav .links { color: var(--ink-2); }
+.nav .links .on { color: var(--asphalt); box-shadow: inset 0 -3px 0 var(--brand); }
+.nav .btn.primary:hover { background: var(--brand-dark); }
+.lang-btn { border-color: var(--line); border-radius: 10px; }
+
+// buttons
+.btn { height: 46px; border-radius: 12px; transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease; }
+.btn:active { transform: scale(0.98); }
+.btn.sm { height: 36px; border-radius: 10px; }
+.btn.primary { background: var(--brand); color: #fff; }
+.btn.primary:hover { background: var(--brand-dark); }
+.btn.dark { background: var(--asphalt); }
+.btn.dark:hover { background: var(--ink-2); }
+.btn.ghost { background: var(--soft); border-color: transparent; color: var(--ink-2); }
+.btn.ghost:hover { background: var(--line); color: var(--asphalt); }
+.btn.danger { background: var(--stop-tint); border-color: transparent; color: var(--stop); }
+.btn.danger:hover { background: #FDDCDC; }
+.btn.good { background: var(--dealer); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+// fields
+.field { border-radius: 12px; border-color: var(--line); transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+input.field:focus, select.field:focus, textarea.field:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--road-tint); }
+
+// chips and pills
+.chip { height: 34px; padding: 0 14px; border: 0; background: var(--soft); color: var(--ink-2); font-weight: 600; cursor: pointer; transition: background 0.15s ease; }
+.chip:hover { background: var(--line); }
+.chip.on, .chip.on:hover { background: var(--asphalt); color: #fff; }
+.pill.sold { background: var(--soft); }
+
+// cards: white, no hard border, a soft shadow
+.card, .filters, .sidecard, .block, .formsec, .photo-card, .article-card, .dcard { border-color: #EEF0F3; box-shadow: var(--shadow-sm); }
+.card, .filters, .sidecard, .block, .formsec, .photo-card, .dcard { border-radius: 18px; }
+.car-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.car-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.car-card .badges span { border-radius: 8px; box-shadow: 0 1px 3px rgba(25, 31, 40, 0.12); }
+.car-card .badges span.mk { background: var(--brand); }
+.photo.real, .article-img:has(img), .post-thumb { background: var(--photo-bg); }
+
+// car search: a light band instead of the dark one
+.searchbar { background: linear-gradient(180deg, #E8F3FF 0%, var(--paper) 100%); color: var(--asphalt); }
+.searchbar p { color: var(--muted); }
+.searchbar .field { border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+
+// car page
+.contact.call { background: var(--brand); border-color: var(--brand); }
+.gallery .photo { border-radius: 18px; }
+
+// lists
+.pager span { border-radius: 10px; }
+.pager span.on { background: var(--brand); border-color: var(--brand); }
+.dots button.on { background: var(--brand); }
+
+// My page: a light side menu
+.sidenav { background: #fff; border-right: 1px solid var(--line-2); color: var(--ink-2); }
+.sidenav .logo { color: var(--asphalt); }
+.sidenav .who { background: var(--paper); }
+.sidenav .who b { color: var(--asphalt); }
+.sidenav .who span { color: var(--muted); }
+.sidenav .who .avatar { box-shadow: 0 0 0 4px #fff, var(--shadow-sm); }
+.sidenav a { color: var(--ink-2); }
+.sidenav a:not(.on):hover { background: var(--soft); color: var(--asphalt); }
+.sidenav a.on { background: var(--road-tint); color: var(--brand); }
+.seg span.on { background: var(--asphalt); }
+
+// background: two soft color glows (brand blue and warm amber) drifting slowly behind every page
+body::before, body::after { content: ''; position: fixed; z-index: -1; pointer-events: none; width: 70vmax; height: 70vmax; border-radius: 50%; }
+body::before { top: -30vmax; left: -20vmax; background: radial-gradient(circle, rgba(49, 130, 246, 0.28) 0%, rgba(49, 130, 246, 0) 62%); animation: glow-a 28s ease-in-out infinite alternate; }
+body::after { bottom: -35vmax; right: -20vmax; background: radial-gradient(circle, rgba(245, 166, 35, 0.24) 0%, rgba(245, 166, 35, 0) 62%); animation: glow-b 34s ease-in-out infinite alternate; }
+@keyframes glow-a { to { transform: translate(28vw, 30vh) scale(1.2); } }
+@keyframes glow-b { to { transform: translate(-30vw, -26vh) scale(1.15); } }
+// people who ask their device for less motion get still glows
+@media (prefers-reduced-motion: reduce) { body::before, body::after { animation: none; } }
+// the light search band lets the glow show through
+.searchbar { background: linear-gradient(180deg, rgba(232, 243, 255, 0.85) 0%, rgba(245, 247, 250, 0) 100%); }
