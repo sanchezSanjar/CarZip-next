@@ -156,6 +156,11 @@ const MyCars = () => {
 													Still for sale
 												</button>
 											)}
+											{(c.carStatus === CarStatus.ACTIVE || c.carStatus === CarStatus.HOLD) && (
+												<Link href={`/mypage?category=editCar&carId=${c._id}`} className="btn ghost sm">
+													Edit
+												</Link>
+											)}
 											{c.carStatus === CarStatus.ACTIVE && (
 												<>
 													<button className="btn ghost sm" onClick={() => changeStatus(c._id, c.carTitle, CarStatus.SOLD)}>

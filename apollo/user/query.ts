@@ -177,6 +177,7 @@ export const GET_CAR = gql`
 			carPrice
 			carPriceUsd
 			carRentPrice
+			carExportAgreedAt
 			carImages
 			carDesc
 			carOptions

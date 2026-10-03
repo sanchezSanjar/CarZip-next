@@ -5,6 +5,7 @@ import withLayoutMember from '../../libs/components/layout/LayoutMember';
 import TestDrives from '../../libs/components/mypage/TestDrives';
 import MyCars from '../../libs/components/mypage/MyCars';
 import AddNewCar from '../../libs/components/mypage/AddNewCar';
+import EditCar from '../../libs/components/mypage/EditCar';
 import MyFavorites from '../../libs/components/mypage/MyFavorites';
 import MyArticles from '../../libs/components/mypage/MyArticles';
 import MyFollows from '../../libs/components/mypage/MyFollows';
@@ -25,6 +26,7 @@ const MyPage: NextPage = () => {
 			{category === 'testDrives' && <TestDrives />}
 			{category === 'myCars' && <MyCars />}
 			{category === 'addCar' && <AddNewCar />}
+			{category === 'editCar' && <EditCar carId={typeof router.query.carId === 'string' ? router.query.carId : ''} />}
 			{category === 'myFavorites' && <MyFavorites />}
 			{category === 'recentlyVisited' && <MyFavorites visited />}
 			{category === 'myArticles' && <MyArticles />}

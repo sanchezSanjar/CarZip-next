@@ -40,7 +40,8 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 	const myImage = useMyImage();
 		const isAgent = user.memberType === MemberType.AGENT;
 		const menu = isAgent ? agentMenu : userMenu;
-		const category = (router.query.category as string) ?? 'testDrives';
+		const raw = (router.query.category as string) ?? 'testDrives';
+		const category = raw === 'addCar' || raw === 'editCar' ? 'myCars' : raw; // the car form belongs to "My cars"
 
 		/** LIFECYCLES **/
 		useEffect(() => {

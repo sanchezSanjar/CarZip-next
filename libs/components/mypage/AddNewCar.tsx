@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { GET_AGENT_CARS, GET_CAR_CATALOG } from '../../../apollo/user/query';
-import { CREATE_CAR } from '../../../apollo/user/mutation';
-import { CarCatalogBrand } from '../../types/car/car';
+import { CREATE_CAR, UPDATE_CAR } from '../../../apollo/user/mutation';
+import { Car, CarCatalogBrand } from '../../types/car/car';
 import { CarInput } from '../../types/car/car.input';
 import { getErrorMessage } from '../../auth';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
@@ -32,33 +32,35 @@ const markets = [
 /** dealer: list a new car. A new listing is for sale right away */
 const MAX_PHOTOS = 20;
 
-const AddNewCar = () => {
+/** list a new car, or edit `car` when given (the same form, filled in) */
+const AddNewCar = ({ car }: { car?: Car }) => {
+	const editing = !!car;
 	const router = useRouter();
-	const [photos, setPhotos] = useState<UploadedImage[]>([]);
+	const [photos, setPhotos] = useState<UploadedImage[]>(car?.carImages.map((url) => ({ url, thumbnailUrl: url })) ?? []);
 	const [uploading, setUploading] = useState(false);
 	const [publishing, setPublishing] = useState(false);
-	const [brand, setBrand] = useState<CarBrand | ''>('');
-	const [model, setModel] = useState('');
-	const [year, setYear] = useState('');
-	const [mileage, setMileage] = useState('');
-	const [type, setType] = useState<CarType | ''>('');
-	const [transmission, setTransmission] = useState<CarTransmission | ''>('');
-	const [condition, setCondition] = useState<CarCondition | ''>('');
-	const [fuel, setFuel] = useState<CarFuelType | ''>('');
-	const [color, setColor] = useState<CarColor | ''>('');
-	const [options, setOptions] = useState<CarOption[]>([]);
-	const [market, setMarket] = useState<CarMarket | ''>('');
-	const [priceManwon, setPriceManwon] = useState('');
-	const [priceUsd, setPriceUsd] = useState('');
-	const [exportAgreed, setExportAgreed] = useState(false);
-	const [rent, setRent] = useState(false);
-	const [rentPrice, setRentPrice] = useState('');
-	const [barter, setBarter] = useState(false);
-	const [testDrive, setTestDrive] = useState(true);
-	const [title, setTitle] = useState('');
-	const [location, setLocation] = useState<CarLocation | ''>('');
-	const [address, setAddress] = useState('');
-	const [desc, setDesc] = useState('');
+	const [brand, setBrand] = useState<CarBrand | ''>(car?.carBrand ?? '');
+	const [model, setModel] = useState(car?.carModel ?? '');
+	const [year, setYear] = useState(car ? String(car.carYear) : '');
+	const [mileage, setMileage] = useState(car ? String(car.carMileage) : '');
+	const [type, setType] = useState<CarType | ''>(car?.carType ?? '');
+	const [transmission, setTransmission] = useState<CarTransmission | ''>(car?.carTransmission ?? '');
+	const [condition, setCondition] = useState<CarCondition | ''>(car?.carCondition ?? '');
+	const [fuel, setFuel] = useState<CarFuelType | ''>(car?.carFuelType ?? '');
+	const [color, setColor] = useState<CarColor | ''>(car?.carColor ?? '');
+	const [options, setOptions] = useState<CarOption[]>(car?.carOptions ?? []);
+	const [market, setMarket] = useState<CarMarket | ''>(car?.carMarket ?? '');
+	const [priceManwon, setPriceManwon] = useState(car?.carPrice ? String(Math.round(car.carPrice / 10000)) : '');
+	const [priceUsd, setPriceUsd] = useState(car?.carPriceUsd ? String(car.carPriceUsd) : '');
+	const [exportAgreed, setExportAgreed] = useState(!!car?.carExportAgreedAt);
+	const [rent, setRent] = useState(car?.carRent ?? false);
+	const [rentPrice, setRentPrice] = useState(car?.carRentPrice ? String(car.carRentPrice) : '');
+	const [barter, setBarter] = useState(car?.carBarter ?? false);
+	const [testDrive, setTestDrive] = useState(car?.carTestDrive ?? true);
+	const [title, setTitle] = useState(car?.carTitle ?? '');
+	const [location, setLocation] = useState<CarLocation | ''>(car?.carLocation ?? '');
+	const [address, setAddress] = useState(car?.carAddress ?? '');
+	const [desc, setDesc] = useState(car?.carDesc ?? '');
 
 	const needsKrw = market === CarMarket.DOMESTIC || market === CarMarket.BOTH;
 	const needsUsd = market === CarMarket.EXPORT || market === CarMarket.BOTH;
@@ -67,6 +69,7 @@ const AddNewCar = () => {
 	/** APOLLO REQUESTS **/
 	const { data: catalogData } = useQuery<{ getCarCatalog: CarCatalogBrand[] }>(GET_CAR_CATALOG, { fetchPolicy: 'cache-first' });
 	const [createCar] = useMutation<{ createCar: { _id: string } }>(CREATE_CAR, { refetchQueries: [GET_AGENT_CARS] });
+	const [updateCar] = useMutation(UPDATE_CAR, { refetchQueries: [GET_AGENT_CARS] });
 	// brand OTHER takes a typed model; every other brand picks from the catalog
 	const models = brand && brand !== CarBrand.OTHER ? catalogData?.getCarCatalog.find((c) => c.brand === brand)?.models : undefined;
 
@@ -139,9 +142,16 @@ const AddNewCar = () => {
 
 		setPublishing(true);
 		try {
-			const { data } = await createCar({ variables: { input } });
-			await sweetTopSuccessAlert('Listing published', 1500);
-			await router.push(data ? `/car/detail?id=${data.createCar._id}` : '/mypage?category=myCars');
+			if (car) {
+				// the server checks the whole car again after the change
+				await updateCar({ variables: { input: { _id: car._id, ...input } } });
+				await sweetTopSuccessAlert('Changes saved', 1500);
+				await router.push(`/car/detail?id=${car._id}`);
+			} else {
+				const { data } = await createCar({ variables: { input } });
+				await sweetTopSuccessAlert('Listing published', 1500);
+				await router.push(data ? `/car/detail?id=${data.createCar._id}` : '/mypage?category=myCars');
+			}
 		} catch (err) {
 			await sweetMixinErrorAlert(getErrorMessage(err));
 		} finally {
@@ -153,8 +163,12 @@ const AddNewCar = () => {
 		<>
 			<div className="main-head">
 				<div>
-					<h1>List a car</h1>
-					<p>Fields marked with an asterisk are required. The listing goes live as soon as you publish.</p>
+					<h1>{editing ? 'Edit car' : 'List a car'}</h1>
+					<p>
+						{editing
+							? 'Change anything and save. Buyers see the new details right away.'
+							: 'Fields marked with an asterisk are required. The listing goes live as soon as you publish.'}
+					</p>
 				</div>
 				<Link href="/mypage?category=myCars" className="btn ghost">
 					Cancel
@@ -461,10 +475,10 @@ const AddNewCar = () => {
 
 			<div className="stickybar">
 				<span className="t">
-					{problems.length ? `${problems.length} to fill in: ${problems.join(', ')}` : 'Ready to publish'}
+					{problems.length ? `${problems.length} to fill in: ${problems.join(', ')}` : editing ? 'Ready to save' : 'Ready to publish'}
 				</span>
 				<button className="btn primary" disabled={problems.length > 0 || publishing || uploading} onClick={publish}>
-					{publishing ? 'Publishing…' : 'Publish listing'}
+					{publishing ? 'Saving…' : editing ? 'Save changes' : 'Publish listing'}
 				</button>
 			</div>
 		</>
