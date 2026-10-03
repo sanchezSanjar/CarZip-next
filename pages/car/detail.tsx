@@ -8,6 +8,7 @@ import CarPhoto from '../../libs/components/common/CarPhoto';
 import Heart from '../../libs/components/common/Heart';
 import Verified from '../../libs/components/common/Verified';
 import ContactList from '../../libs/components/car/ContactList';
+import LocationCard from '../../libs/components/common/LocationCard';
 import TestDriveBox from '../../libs/components/car/TestDriveBox';
 import CarCard from '../../libs/components/common/CarCard';
 import CommentSection from '../../libs/components/common/CommentSection';
@@ -285,6 +286,7 @@ const CarDetail: NextPage = () => {
 						<ContactList dealer={car.agentData} />
 						<p className="note">Payment and fees are agreed directly with the dealer. CarZip does not handle money.</p>
 					</div>
+					<LocationCard title="Where to see the car" address={car.carAddress} city={car.carLocation} />
 					{car.carMarket !== CarMarket.DOMESTIC && (
 						<div className="exportnote">
 							<b>Buying for export?</b>The dealer is fully responsible for the export: deregistration (말소등록), export
