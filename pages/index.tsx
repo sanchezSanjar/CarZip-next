@@ -4,6 +4,7 @@ import withLayoutBasic from '../libs/components/layout/LayoutBasic';
 import Hero from '../libs/components/homepage/Hero';
 import TopAgents from '../libs/components/homepage/TopAgents';
 import QuickBrowse from '../libs/components/homepage/QuickBrowse';
+import ValueCards from '../libs/components/homepage/ValueCards';
 import { useCarStats } from '../libs/hooks/useCarStats';
 
 /** welcome page: first impression, then the way into the car search */
@@ -14,6 +15,7 @@ const Home: NextPage = () => {
 		<>
 			<Hero />
 			<QuickBrowse count={count} total={cars.length} />
+			<ValueCards />
 			<TopAgents />
 		</>
 	);
