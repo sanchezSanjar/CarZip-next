@@ -73,3 +73,20 @@
 .article-body p { color: var(--muted); font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .article-body .by { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: auto; padding-top: 8px; }
 .article-body .by .avatar { width: 24px; height: 24px; font-size: 11px; border-radius: 6px; }
+
+/* cars across Korea */
+.korea { display: grid; grid-template-columns: 380px 1fr; gap: 40px; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 28px 36px; }
+.korea-map { width: 100%; height: auto; }
+.korea-map .land { fill: #E9EDE8; stroke: #C9D0CA; stroke-width: 1.5; }
+.korea-map .city { fill: var(--road); stroke: #fff; stroke-width: 2; transition: fill .2s; cursor: pointer; }
+.korea-map .city.none { fill: #AEB4B0; }
+.korea-map .city.on { fill: var(--signal); }
+.korea-map .pulse { fill: var(--road); opacity: 0; transition: opacity .2s; }
+.korea-map .pulse.on { opacity: .18; }
+.korea-map .label { font-size: 11px; font-weight: 700; fill: var(--ink-2); pointer-events: none; }
+.city-list { display: grid; gap: 6px; }
+.city-row { display: grid; grid-template-columns: 110px 1fr 70px; gap: 14px; align-items: center; padding: 10px 14px; border-radius: 10px; color: var(--asphalt); font-size: 14.5px; }
+.city-row:hover, .city-row.on { background: var(--road-tint); }
+.city-row .bar { height: 8px; border-radius: 4px; background: var(--line-2); overflow: hidden; }
+.city-row .bar i { display: block; height: 100%; background: var(--road); border-radius: 4px; }
+.city-row .num { text-align: right; color: var(--muted); font-weight: 700; }

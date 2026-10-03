@@ -7,6 +7,7 @@ import QuickBrowse from '../libs/components/homepage/QuickBrowse';
 import ValueCards from '../libs/components/homepage/ValueCards';
 import TopCars from '../libs/components/homepage/TopCars';
 import CommunityBoards from '../libs/components/homepage/CommunityBoards';
+import KoreaMap from '../libs/components/homepage/KoreaMap';
 import { useCarStats } from '../libs/hooks/useCarStats';
 
 /** welcome page: first impression, then the way into the car search */
@@ -21,6 +22,7 @@ const Home: NextPage = () => {
 			<TopAgents />
 			<TopCars />
 			<CommunityBoards />
+			<KoreaMap counts={count('carLocation')} />
 		</>
 	);
 };
