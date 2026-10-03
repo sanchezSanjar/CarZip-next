@@ -156,6 +156,12 @@ const MyArticles = () => {
 					/>
 					<div className="hint">{t('my.charsOf', { count: content.length, max: fmt.number(5000) })}</div>
 					<div className="pub">
+						{/* say what still blocks publishing, instead of a silently greyed-out button */}
+						{!valid && (
+							<span className="pub-hint">
+								{title.trim().length < 3 || title.length > 100 ? t('art.needTitle') : t('art.needText')}
+							</span>
+						)}
 						<button className="btn ghost" onClick={reset}>
 							{editing ? t('art.cancelEditing') : t('art.clear')}
 						</button>
