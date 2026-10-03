@@ -9,6 +9,7 @@ import MyFavorites from '../../libs/components/mypage/MyFavorites';
 import MyArticles from '../../libs/components/mypage/MyArticles';
 import MyFollows from '../../libs/components/mypage/MyFollows';
 import MyComments from '../../libs/components/mypage/MyComments';
+import MyBlocks from '../../libs/components/mypage/MyBlocks';
 
 /** /mypage?category=... : one section of the dealer's or buyer's own pages */
 const MyPage: NextPage = () => {
@@ -27,6 +28,7 @@ const MyPage: NextPage = () => {
 			{category === 'myArticles' && <MyArticles />}
 			{category === 'follows' && <MyFollows />}
 			{category === 'comments' && <MyComments />}
+			{category === 'blocked' && <MyBlocks />}
 		</>
 	);
 };
