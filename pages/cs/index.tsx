@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
@@ -14,12 +14,9 @@ const tabs = [
 
 const CS: NextPage = () => {
 	const router = useRouter();
-	const [tab, setTab] = useState('faq');
-
-	/** LIFECYCLES **/
-	useEffect(() => {
-		if (typeof router.query.tab === 'string') setTab(router.query.tab);
-	}, [router.query.tab]);
+	// the open tab lives in the address (/cs?tab=terms), so footer links can open it
+	const tab = typeof router.query.tab === 'string' ? router.query.tab : 'faq';
+	const setTab = (key: string) => router.push({ pathname: '/cs', query: { tab: key } }, undefined, { shallow: true });
 
 	return (
 		<div className="wrap">

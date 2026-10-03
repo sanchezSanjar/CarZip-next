@@ -3,7 +3,7 @@ import 'animate.css';
 
 const colors = { asphalt: '#1E242B', signal: '#F5A623', stop: '#B3261E' };
 
-export const sweetErrorHandling = async (err: any) => {
+export const sweetErrorHandling = async (err: Error) => {
 	await Swal.fire({
 		icon: 'error',
 		text: err.message,

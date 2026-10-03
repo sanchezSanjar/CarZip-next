@@ -31,8 +31,8 @@ export const userMenu = [
 ];
 
 /** dealer and buyer pages: dark side menu on the left */
-const withLayoutMember = (Component: React.ComponentType<any>) => {
-	const LayoutMember = (props: any) => {
+const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) => {
+	const LayoutMember = (props: P) => {
 		const router = useRouter();
 		const user = useReactiveVar(userVar);
 		const isAgent = user.memberType === MemberType.AGENT;

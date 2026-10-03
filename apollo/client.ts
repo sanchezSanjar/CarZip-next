@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ApolloClient, ApolloLink, CombinedGraphQLErrors, HttpLink, InMemoryCache } from '@apollo/client';
+import { ApolloClient, ApolloLink, CombinedGraphQLErrors, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
 import { SetContextLink } from '@apollo/client/link/context';
 import { ErrorLink } from '@apollo/client/link/error';
 import { getJwtToken, logOut } from '../libs/auth';
@@ -42,7 +42,7 @@ function createApolloClient() {
 	});
 }
 
-export function initializeApollo(initialState: any = null) {
+export function initializeApollo(initialState: NormalizedCacheObject | null = null) {
 	const _apolloClient = apolloClient ?? createApolloClient();
 	if (initialState) _apolloClient.cache.restore(initialState);
 	if (typeof window === 'undefined') return _apolloClient;
@@ -51,6 +51,6 @@ export function initializeApollo(initialState: any = null) {
 	return _apolloClient;
 }
 
-export function useApollo(initialState: any) {
+export function useApollo(initialState: NormalizedCacheObject | null) {
 	return useMemo(() => initializeApollo(initialState), [initialState]);
 }

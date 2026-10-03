@@ -4,8 +4,8 @@ import Top from '../Top';
 import Footer from '../Footer';
 
 /** public pages: top navigation, page, footer */
-const withLayoutBasic = (Component: React.ComponentType<any>, title = 'CarZip') => {
-	const LayoutBasic = (props: any) => {
+const withLayoutBasic = <P extends object>(Component: React.ComponentType<P>, title = 'CarZip') => {
+	const LayoutBasic = (props: P) => {
 		return (
 			<>
 				<Head>

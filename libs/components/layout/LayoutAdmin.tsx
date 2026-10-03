@@ -10,8 +10,8 @@ import { Logo } from '../Top';
 import AdminMenuList from '../admin/AdminMenuList';
 
 /** admin pages: only ADMIN members may stay here */
-const withLayoutAdmin = (Component: React.ComponentType<any>) => {
-	const LayoutAdmin = (props: any) => {
+const withLayoutAdmin = <P extends object>(Component: React.ComponentType<P>) => {
+	const LayoutAdmin = (props: P) => {
 		const router = useRouter();
 		const user = useReactiveVar(userVar);
 
@@ -19,7 +19,6 @@ const withLayoutAdmin = (Component: React.ComponentType<any>) => {
 		useEffect(() => {
 			const jwt = getJwtToken();
 			if (jwt) updateUserInfo(jwt);
-			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, []);
 
 		useEffect(() => {
