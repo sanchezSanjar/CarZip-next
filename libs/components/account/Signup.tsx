@@ -72,7 +72,7 @@ const Signup = () => {
 		rules.nick.test(nick) &&
 		password.length >= 6 &&
 		password.length <= 30 &&
-		(isAgent ? company.trim().length >= 2 && !errors.businessNo : fullName.trim().length >= 2) &&
+		(isAgent ? company.trim().length >= 2 && rules.businessNo.test(businessNo) : fullName.trim().length >= 2) &&
 		!Object.values(errors).some(Boolean);
 
 	/** HANDLERS **/
@@ -108,7 +108,7 @@ const Signup = () => {
 		const input: MemberInput = { memberNick: nick, memberPassword: password, memberPhone: phoneDigits, memberType };
 		if (isAgent) {
 			input.agentCompany = company.trim();
-			if (businessNo) input.agentBusinessNo = businessNo;
+			input.agentBusinessNo = businessNo; // required for dealers
 			(Object.keys(contacts) as ContactKey[]).forEach((k) => {
 				if (contacts[k].trim()) input[k] = contacts[k].trim();
 			});
