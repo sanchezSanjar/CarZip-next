@@ -1,16 +1,21 @@
 import React from 'react';
+import { Notice } from '../../types/notice/notice';
 
-// placeholder until the terms are published by an admin (getNotices, category TERMS)
-const Terms = () => {
+/** terms of use and privacy texts published by admins */
+const Terms = ({ items }: { items: Notice[] }) => {
+	if (!items.length) return <p className="muted">The terms are being prepared.</p>;
 	return (
-		<div className="sidecard">
-			<h3>Terms of use</h3>
-			<p style={{ whiteSpace: 'pre-line', color: 'var(--ink-2)', lineHeight: 1.7 }}>
-				{`CarZip is a marketplace. Cars are listed and sold by independent, verified dealers.
-CarZip is not a party to any sale and does not handle payments.
-For cars marked for export, the dealer is fully responsible for the export.`}
-			</p>
-		</div>
+		<>
+			{items.map((t) => (
+				<div key={t._id} className="sidecard">
+					<h3>{t.noticeTitle}</h3>
+					<p className="muted" style={{ fontSize: 13, marginBottom: 10 }}>
+						Updated {new Date(t.updatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+					</p>
+					<p style={{ whiteSpace: 'pre-line', color: 'var(--ink-2)', lineHeight: 1.7 }}>{t.noticeContent}</p>
+				</div>
+			))}
+		</>
 	);
 };
 
