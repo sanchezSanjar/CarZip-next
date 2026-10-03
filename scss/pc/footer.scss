@@ -2,7 +2,7 @@
 #footer.footer-container { background: var(--asphalt); color: #B9C1C8; margin-top: 72px; padding: 56px 48px 24px; font-size: 14px; }
 #footer .main { flex-direction: row; gap: 56px; max-width: 1344px; width: 100%; margin: 0 auto; }
 #footer .left { width: 380px; flex: none; gap: 26px; }
-#footer .footer-box span { display: block; font-size: 12.5px; text-transform: uppercase; letter-spacing: .06em; color: #8E98A1; }
+#footer .footer-box > span { display: block; font-size: 12.5px; text-transform: uppercase; letter-spacing: .06em; color: #8E98A1; }
 #footer .footer-box p { color: #fff; font-weight: 600; margin: 4px 0; }
 #footer .footer-box .about { color: #B9C1C8; font-weight: 400; line-height: 1.65; margin-top: 14px; }
 #footer .logo { height: 38px; width: auto; }
@@ -19,3 +19,7 @@
 #footer .export-note { border: 1px solid #3A434D; border-radius: 12px; padding: 16px 18px; line-height: 1.6; font-size: 13.5px; }
 #footer .export-note b { color: #fff; }
 #footer .second { flex-direction: row; justify-content: space-between; flex-wrap: wrap; gap: 12px; max-width: 1344px; width: 100%; margin: 44px auto 0; padding-top: 20px; border-top: 1px solid #3A434D; font-size: 13px; color: #8E98A1; }
+#footer .office-map { display: flex; align-items: center; gap: 22px; margin-top: 12px; }
+#footer .office-map .map { margin-top: 0; }
+#footer .map-links { flex-direction: column; }
+#footer .map-link { background: #2A3139; border-color: #3A434D; color: #fff; }

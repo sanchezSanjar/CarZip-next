@@ -128,3 +128,13 @@ select.field { appearance: auto; }
 /* the side menu styles every link as a spread-out row; the logo is a link too, so keep it together */
 .sidenav a.logo { justify-content: flex-start; padding: 0; margin: 0 8px 30px; }
 .sidenav a.logo:hover { background: none; }
+
+/* Naver Map / Kakao Map buttons */
+.map-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.map-link { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px 0 6px; border-radius: 9px; background: #fff; border: 1px solid var(--line); color: var(--asphalt); font-size: 13.5px; font-weight: 700; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.map-link:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(30, 36, 43, .12); }
+.map-link .mark { width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; font-family: 'Archivo'; font-weight: 900; font-size: 14px; }
+.map-link .mark svg { width: 15px; height: 15px; fill: currentColor; }
+.map-link.naver .mark { background: #03C75A; color: #fff; }
+.map-link.kakao .mark { background: #FEE500; color: #3C1E1E; }
+.map-links.compact .map-link { padding: 0 6px; }

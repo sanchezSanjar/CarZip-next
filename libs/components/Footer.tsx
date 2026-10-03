@@ -4,6 +4,7 @@ import { Box, Stack } from '@mui/material';
 import { CarLocation } from '../enums/car.enum';
 import { enumLabel } from '../utils';
 import { jejuX, jejuY, outline, px } from './homepage/KoreaMap';
+import MapLinks from './common/MapLinks';
 
 const columns = [
 	{
@@ -27,10 +28,12 @@ const columns = [
 	},
 	{
 		title: 'Discover',
-		links: [CarLocation.SEOUL, CarLocation.BUSAN, CarLocation.INCHEON, CarLocation.DAEGU, CarLocation.JEJU].map((l) => ({
-			href: `/car?location=${l}`,
-			label: enumLabel(l),
-		})),
+		links: [CarLocation.SEOUL, CarLocation.BUSAN, CarLocation.INCHEON, CarLocation.DAEGU, CarLocation.JEJU].map(
+			(l) => ({
+				href: `/car?location=${l}`,
+				label: enumLabel(l),
+			}),
+		),
 	},
 	{
 		title: 'For dealers',
@@ -44,6 +47,7 @@ const columns = [
 
 // the office pin (Gangnam, Seoul) on the same drawn map of Korea as the welcome page
 const [officeX, officeY] = px(127.04, 37.5);
+const OFFICE_ADDRESS = 'Teheran-ro, Gangnam-gu, Seoul';
 
 const Footer = () => {
 	return (
@@ -54,8 +58,8 @@ const Footer = () => {
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src="/img/logo/carzip-logo-white.svg" alt="CarZip" className="logo" />
 						<p className="about">
-							Used cars from verified dealers, all over Korea. Cars are listed and sold by independent dealers; CarZip is a marketplace and not a party
-							to any sale.
+							Used cars from verified dealers, all over Korea. Cars are listed and sold by independent dealers; CarZip
+							is a marketplace and not a party to any sale.
 						</p>
 					</Box>
 					<Box className="footer-box">
@@ -65,13 +69,16 @@ const Footer = () => {
 					</Box>
 					<Box className="footer-box">
 						<span>Office</span>
-						<p>Teheran-ro, Gangnam-gu, Seoul</p>
-						<svg className="map" viewBox="60 0 330 420" role="img" aria-label="CarZip office in Seoul">
-							<path d={outline} className="land" />
-							<ellipse cx={jejuX} cy={jejuY} rx="26" ry="11" className="land" />
-							<circle cx={officeX} cy={officeY} r="16" className="pulse" />
-							<circle cx={officeX} cy={officeY} r="7" className="pin" />
-						</svg>
+						<p>{OFFICE_ADDRESS}</p>
+						<div className="office-map">
+							<svg className="map" viewBox="60 0 330 420" role="img" aria-label="CarZip office in Seoul">
+								<path d={outline} className="land" />
+								<ellipse cx={jejuX} cy={jejuY} rx="26" ry="11" className="land" />
+								<circle cx={officeX} cy={officeY} r="16" className="pulse" />
+								<circle cx={officeX} cy={officeY} r="7" className="pin" />
+							</svg>
+							<MapLinks query={OFFICE_ADDRESS} />
+						</div>
 					</Box>
 				</Stack>
 				<Stack className="right">
@@ -88,7 +95,8 @@ const Footer = () => {
 						))}
 					</Box>
 					<Box className="export-note">
-						<b>Buying for export?</b> The dealer is fully responsible for the export: paperwork, deregistration, customs, shipping and payment.
+						<b>Buying for export?</b> The dealer is fully responsible for the export: paperwork, deregistration,
+						customs, shipping and payment.
 					</Box>
 				</Stack>
 			</Stack>
