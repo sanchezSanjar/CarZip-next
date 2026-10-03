@@ -8,6 +8,7 @@ import HeaderFilter from '../libs/components/homepage/HeaderFilter';
 import Filter from '../libs/components/homepage/Filter';
 import CarCard from '../libs/components/common/CarCard';
 import { GET_CARS } from '../apollo/user/query';
+import { useLikeCar } from '../libs/hooks/useLikeCar';
 import { sortOptions } from '../libs/config';
 import { Cars } from '../libs/types/car/car';
 import { CarsInquiry, CarsSearch } from '../libs/types/car/car.input';
@@ -28,6 +29,7 @@ const Home: NextPage = () => {
 	const [loadingMore, setLoadingMore] = useState(false);
 	const [search, setSearch] = useState<CarsSearch>({});
 	const [resetKey, setResetKey] = useState(0); // redraws the filter panels after "clear all"
+	const likeCarHandler = useLikeCar();
 
 	// a cursor belongs to its sort: changing the sort starts again from the first page
 	const input: CarsInquiry = {
@@ -135,7 +137,7 @@ const Home: NextPage = () => {
 					) : (
 						<div className="grid3">
 							{cars.map((car) => (
-								<CarCard key={car._id} car={car} />
+								<CarCard key={car._id} car={car} likeCarHandler={likeCarHandler} />
 							))}
 						</div>
 					)}
