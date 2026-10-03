@@ -24,6 +24,7 @@ import { BoardArticles } from '../../libs/types/board-article/board-article';
 import { Member } from '../../libs/types/member/member';
 import { dealerName } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
+import ArticleThumb from '../../libs/components/common/ArticleThumb';
 import { useAddressReady } from '../../libs/hooks/useAddressReady';
 import { withTranslations } from '../../libs/i18n';
 import { useTranslation } from 'next-i18next/pages';
@@ -227,6 +228,7 @@ const AgentDetail: NextPage = () => {
 						<div className="card">
 							{articles.map((a) => (
 								<div key={a._id} className="post">
+									<ArticleThumb id={a._id} image={a.articleImage} category={a.articleCategory} />
 									<div>
 										<span className="cat">{t(`enum.${a.articleCategory}`)}</span>
 										<Link href={`/community/detail?id=${a._id}`} style={{ color: 'inherit' }}>

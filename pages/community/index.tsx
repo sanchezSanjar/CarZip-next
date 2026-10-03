@@ -12,6 +12,7 @@ import { Direction } from '../../libs/enums/common.enum';
 import { BoardArticles } from '../../libs/types/board-article/board-article';
 import { dealerName } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
+import ArticleThumb from '../../libs/components/common/ArticleThumb';
 import { withTranslations } from '../../libs/i18n';
 import { useTranslation } from 'next-i18next/pages';
 import { useLocaleFormat } from '../../libs/hooks/useLocaleFormat';
@@ -100,6 +101,7 @@ const Community: NextPage = () => {
 					<div className="card" style={{ opacity: loading && articles.length ? 0.6 : 1 }}>
 						{articles.map((a) => (
 							<div key={a._id} className="post">
+								<ArticleThumb id={a._id} image={a.articleImage} category={a.articleCategory} />
 								<div>
 									<span className="cat">{t(`enum.${a.articleCategory}`)}</span>
 									<Link href={`/community/detail?id=${a._id}`} style={{ color: 'inherit' }}>
