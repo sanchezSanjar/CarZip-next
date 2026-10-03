@@ -13,9 +13,10 @@ import { useLikeCar } from '../../libs/hooks/useLikeCar';
 import { sortOptions } from '../../libs/config';
 import { Cars } from '../../libs/types/car/car';
 import { CarsInquiry, CarsSearch } from '../../libs/types/car/car.input';
-import { CarBrand, CarFuelType, CarLocation, CarSort, CarType } from '../../libs/enums/car.enum';
+import { CarSort } from '../../libs/enums/car.enum';
 import { Direction } from '../../libs/enums/common.enum';
 import { useAddressReady } from '../../libs/hooks/useAddressReady';
+import { queryToSearch, searchToQuery } from '../../libs/carSearchQuery';
 
 const PAGE_SIZE = 9;
 
@@ -25,37 +26,28 @@ const cleanSearch = (search: CarsSearch): CarsSearch =>
 		Object.entries(search).filter(([, v]) => v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0)),
 	) as CarsSearch;
 
-/** /car?text=Sorento&brand=KIA&location=BUSAN&type=SUV&fuel=HYBRID&testDrive=1 : links from the welcome page open the search already filtered */
-const searchFromQuery = (query: Record<string, string | string[] | undefined>): CarsSearch => {
-	const one = (key: string) => (typeof query[key] === 'string' ? (query[key] as string) : undefined);
-	const brand = one('brand');
-	const location = one('location');
-	const text = one('text')?.trim();
-	const type = one('type');
-	const fuel = one('fuel');
-	return cleanSearch({
-		testDrive: one('testDrive') === '1' ? true : undefined,
-		typeList: type && Object.values(CarType).includes(type as CarType) ? [type as CarType] : undefined,
-		fuelList: fuel && Object.values(CarFuelType).includes(fuel as CarFuelType) ? [fuel as CarFuelType] : undefined,
-		text: text && text.length >= 2 ? text.slice(0, 50) : undefined,
-		brandList: brand && Object.values(CarBrand).includes(brand as CarBrand) ? [brand as CarBrand] : undefined,
-		locationList: location && Object.values(CarLocation).includes(location as CarLocation) ? [location as CarLocation] : undefined,
-	});
-};
-
+/** the search lives in the address (see libs/carSearchQuery), so reloading, Back and shared links keep it */
 const CarList: NextPage = () => {
 	const router = useRouter();
 	const addressReady = useAddressReady();
-	// the page is built before the address is known: wait, then start from its filters
 	if (!addressReady) return null;
-	return <CarSearch key={router.asPath} initialSearch={searchFromQuery(router.query)} />;
+	const { search, sortIndex } = queryToSearch(router.query);
+	const go = (next: CarsSearch, nextSort: number) =>
+		router.push({ pathname: '/car', query: searchToQuery(cleanSearch(next), nextSort) }, undefined, { shallow: true, scroll: false }).then();
+	return <CarSearch search={search} sortIndex={sortIndex} go={go} />;
 };
 
-const CarSearch = ({ initialSearch }: { initialSearch: CarsSearch }) => {
+interface CarSearchProps {
+	search: CarsSearch;
+	sortIndex: number;
+	go: (search: CarsSearch, sortIndex: number) => void;
+}
+
+const CarSearch = ({ search, sortIndex, go }: CarSearchProps) => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-	const [sortIndex, setSortIndex] = useState(0);
 	const [loadingMore, setLoadingMore] = useState(false);
-	const [search, setSearch] = useState<CarsSearch>(initialSearch);
+	const setSearch = (next: CarsSearch) => go(next, sortIndex);
+	const setSortIndex = (i: number) => go(search, i);
 	const [resetKey, setResetKey] = useState(0); // redraws the filter panels after "clear all"
 	const [filtersOpen, setFiltersOpen] = useState(false); // phones: the filter panel opens on demand
 	const likeCarHandler = useLikeCar();

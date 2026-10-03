@@ -58,8 +58,11 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 	const [showAllBrands, setShowAllBrands] = useState(false);
 	const [showAllOptions, setShowAllOptions] = useState(false);
 	const [currency, setCurrency] = useState<'KRW' | 'USD'>(search.priceUsdRange ? 'USD' : 'KRW');
-	const [priceMin, setPriceMin] = useState('');
-	const [priceMax, setPriceMax] = useState('');
+	// the price boxes start from the search (a shared link like ?price=1000-3000 fills them)
+	const startRange = search.priceUsdRange ?? search.priceRange;
+	const startScale = search.priceUsdRange ? 1 : 10000;
+	const [priceMin, setPriceMin] = useState(startRange?.start !== undefined ? String(startRange.start / startScale) : '');
+	const [priceMax, setPriceMax] = useState(startRange?.end !== undefined ? String(startRange.end / startScale) : '');
 	const [mileage, setMileage] = useState(search.mileageRange?.end ?? MAX_MILEAGE);
 
 	/** APOLLO REQUESTS **/
