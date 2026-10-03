@@ -45,7 +45,8 @@ const AgentList: NextPage = () => {
 			</div>
 			<div className="dgrid">
 				{agents.map((agent, i) => {
-					const cars = sampleCars.filter((c) => c.memberId === agent._id).concat(sampleCars).slice(0, 3);
+					const own = sampleCars.filter((c) => c.memberId === agent._id);
+					const cars = own.concat(sampleCars.filter((c) => !own.includes(c))).slice(0, 3); // no car twice
 					return (
 						<div key={agent._id} className="dcard">
 							<div className="top">
