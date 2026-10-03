@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
-import { GET_MEMBER_FOLLOWERS, GET_MEMBER_FOLLOWINGS } from '../../../apollo/user/query';
+import { GET_MEMBER_FOLLOWERS, GET_MEMBER_FOLLOWINGS, GET_MY_BLOCKS } from '../../../apollo/user/query';
 import { BLOCK_MEMBER, SUBSCRIBE, UNSUBSCRIBE } from '../../../apollo/user/mutation';
 import { MemberType } from '../../enums/member.enum';
 import { Followers, Followings } from '../../types/follow/follow';
@@ -39,7 +39,8 @@ const MyFollows = () => {
 		variables: { input: { page: tab === 'followings' ? page : 1, limit: LIMIT, search: { followerId: user._id } } },
 		skip: !user._id,
 	});
-	const refetchQueries = [GET_MEMBER_FOLLOWERS, GET_MEMBER_FOLLOWINGS];
+	// a block also ends that person's follow, so the follower list and the blocked list both change
+	const refetchQueries = [GET_MEMBER_FOLLOWERS, GET_MEMBER_FOLLOWINGS, GET_MY_BLOCKS];
 	const [subscribe] = useMutation(SUBSCRIBE, { refetchQueries });
 	const [unsubscribe] = useMutation(UNSUBSCRIBE, { refetchQueries });
 	const [blockMember] = useMutation(BLOCK_MEMBER, { refetchQueries });
