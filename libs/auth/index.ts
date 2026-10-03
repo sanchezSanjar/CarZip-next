@@ -4,7 +4,7 @@ import { initializeApollo } from '../../apollo/client';
 import { emptyUser, userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
 import { sweetMixinErrorAlert } from '../sweetAlert';
-import { LOGIN, REQUEST_OTP, SIGN_UP, VERIFY_OTP } from '../../apollo/user/mutation';
+import { LOGIN, REQUEST_OTP, RESET_PASSWORD, SIGN_UP, VERIFY_OTP } from '../../apollo/user/mutation';
 import { MemberType } from '../enums/member.enum';
 import { OtpPurpose } from '../enums/otp.enum';
 import { Member } from '../types/member/member';
@@ -71,28 +71,40 @@ const requestJwtToken = async ({
 	}
 };
 
-/** step 1 of signup: text a 6-digit code to the phone */
-export const requestSignupCode = async (phone: string): Promise<void> => {
+/** texts a 6-digit code to the phone (signup, forgot password, change phone) */
+export const requestOtp = async (phone: string, purpose: OtpPurpose): Promise<string> => {
 	const apolloClient = initializeApollo();
-	await apolloClient.mutate({
+	const result = await apolloClient.mutate<{ requestOtp: string }>({
 		mutation: REQUEST_OTP,
-		variables: { input: { otpPhone: phone, otpPurpose: OtpPurpose.SIGNUP } },
+		variables: { input: { otpPhone: phone, otpPurpose: purpose } },
 		fetchPolicy: 'no-cache',
 	});
+	return result.data?.requestOtp ?? '';
 };
 
-/** step 2 of signup: check the code. Signup must follow within 15 minutes */
-export const verifySignupCode = async (phone: string, code: string): Promise<void> => {
+/** checks the code. For RESET_PASSWORD it returns a resetToken (valid 10 minutes) */
+export const verifyOtp = async (phone: string, purpose: OtpPurpose, code: string): Promise<string | undefined> => {
+	const apolloClient = initializeApollo();
+	const result = await apolloClient.mutate<{ verifyOtp: { message: string; resetToken?: string } }>({
+		mutation: VERIFY_OTP,
+		variables: { input: { otpPhone: phone, otpPurpose: purpose, otpCode: code } },
+		fetchPolicy: 'no-cache',
+	});
+	return result.data?.verifyOtp.resetToken ?? undefined;
+};
+
+/** sets a new password with the resetToken from verifyOtp. Every old login stops working */
+export const resetPassword = async (resetToken: string, newPassword: string): Promise<void> => {
 	const apolloClient = initializeApollo();
 	await apolloClient.mutate({
-		mutation: VERIFY_OTP,
-		variables: { input: { otpPhone: phone, otpPurpose: OtpPurpose.SIGNUP, otpCode: code } },
+		mutation: RESET_PASSWORD,
+		variables: { input: { resetToken, newPassword } },
 		fetchPolicy: 'no-cache',
 	});
 };
 
 /**
- * step 3 of signup. A USER is logged in right away.
+ * last step of signup (after verifyOtp with SIGNUP). A USER is logged in right away.
  * An AGENT gets no token: the account stays PENDING until an admin approves it.
  */
 export const signUp = async (input: MemberInput): Promise<Member> => {
