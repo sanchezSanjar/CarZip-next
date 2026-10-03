@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useReactiveVar } from '@apollo/client/react';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
+import { GET_UNREAD_NOTIFICATION_COUNT } from '../../apollo/user/query';
 import { Menu, MenuItem } from '@mui/material';
 import { userVar } from '../../apollo/store';
 import { getJwtToken, logOut, updateUserInfo } from '../auth';
@@ -25,6 +26,15 @@ const Top = () => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+	/** APOLLO REQUESTS **/
+	// notifications don't arrive live yet: ask for the unread count every minute
+	const { data: unreadData } = useQuery<{ getUnreadNotificationCount: number }>(GET_UNREAD_NOTIFICATION_COUNT, {
+		skip: !user._id,
+		pollInterval: 60000,
+		fetchPolicy: 'cache-and-network',
+	});
+	const unread = unreadData?.getUnreadNotificationCount ?? 0;
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -57,8 +67,9 @@ const Top = () => {
 								Admin
 							</Link>
 						)}
-						<Link href="/mypage?category=notifications" style={{ fontSize: 14, color: 'var(--muted)' }}>
+						<Link href="/mypage?category=notifications" className="notif-link">
 							Notifications
+							{unread > 0 && <span className="badge num">{unread > 99 ? '99+' : unread}</span>}
 						</Link>
 						{user.memberType !== MemberType.ADMIN && (
 							<Link href="/mypage" className="btn dark sm">
