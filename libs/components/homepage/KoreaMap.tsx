@@ -21,7 +21,7 @@ export const [jejuX, jejuY] = px(126.55, 33.38);
 // cities close to each other put their label on opposite sides
 const labelLeft = new Set<CarLocation>([CarLocation.INCHEON, CarLocation.DAEGU, CarLocation.GWANGJU]);
 
-const cities: Record<CarLocation, [number, number]> = {
+export const cities: Record<CarLocation, [number, number]> = {
 	[CarLocation.SEOUL]: [126.98, 37.57],
 	[CarLocation.INCHEON]: [126.62, 37.46],
 	[CarLocation.DAEJON]: [127.38, 36.35],

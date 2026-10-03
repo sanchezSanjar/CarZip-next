@@ -10,6 +10,7 @@ import Heart from '../../libs/components/common/Heart';
 import FollowButton from '../../libs/components/common/FollowButton';
 import CommentSection from '../../libs/components/common/CommentSection';
 import ContactList from '../../libs/components/car/ContactList';
+import LocationCard, { cityOf } from '../../libs/components/common/LocationCard';
 import { userVar } from '../../apollo/store';
 import { GET_BOARD_ARTICLES, GET_CARS, GET_MEMBER } from '../../apollo/user/query';
 import { BLOCK_MEMBER, LIKE_TARGET_MEMBER, UNBLOCK_MEMBER } from '../../apollo/user/mutation';
@@ -34,7 +35,11 @@ const AgentDetail: NextPage = () => {
 	const likeCarHandler = useLikeCar();
 
 	/** APOLLO REQUESTS **/
-	const { data: memberData, loading: memberLoading, error } = useQuery<{ getMember: Member }>(GET_MEMBER, {
+	const {
+		data: memberData,
+		loading: memberLoading,
+		error,
+	} = useQuery<{ getMember: Member }>(GET_MEMBER, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: agentId },
 		skip: !agentId,
@@ -125,9 +130,14 @@ const AgentDetail: NextPage = () => {
 							<span>
 								<b className="num">{agent.memberFollowers}</b> followers
 							</span>
-							<span>On CarZip since {new Date(agent.createdAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</span>
+							<span>
+								On CarZip since{' '}
+								{new Date(agent.createdAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+							</span>
 						</div>
-						{agent.memberDesc && <p style={{ marginTop: 12, color: 'var(--ink-2)', maxWidth: '70ch' }}>{agent.memberDesc}</p>}
+						{agent.memberDesc && (
+							<p style={{ marginTop: 12, color: 'var(--ink-2)', maxWidth: '70ch' }}>{agent.memberDesc}</p>
+						)}
 					</div>
 					<div style={{ display: 'flex', gap: 8 }}>
 						<button className="btn ghost" onClick={like}>
@@ -158,19 +168,29 @@ const AgentDetail: NextPage = () => {
 				</div>
 			</div>
 
+			<div className="agent-info-row">
+				<div className="offer">
+					<div style={{ flex: 1 }}>
+						<h3>Selling your own car?</h3>
+						<p>{dealerName(agent)} can list and sell it for you. Contact them to agree the fee.</p>
+					</div>
+					{agent.contactPhone && (
+						<a className="btn dark" href={`tel:${agent.contactPhone}`}>
+							Call the dealer
+						</a>
+					)}
+				</div>
+				{agent.memberAddress && (
+					<LocationCard
+						title="Visit the lot"
+						address={agent.memberAddress}
+						city={cityOf(agent.memberAddress) ?? cars[0]?.carLocation}
+					/>
+				)}
+			</div>
+
 			{tab === 'cars' && (
 				<>
-					<div className="offer">
-						<div style={{ flex: 1 }}>
-							<h3>Selling your own car?</h3>
-							<p>{dealerName(agent)} can list and sell it for you. Contact them to agree the fee.</p>
-						</div>
-						{agent.contactPhone && (
-							<a className="btn dark" href={`tel:${agent.contactPhone}`}>
-								Call the dealer
-							</a>
-						)}
-					</div>
 					{cars.length ? (
 						<div className="grid4">
 							{cars.map((car) => (
@@ -231,7 +251,12 @@ const AgentDetail: NextPage = () => {
 
 			{tab === 'comments' && (
 				<div className="wrap" style={{ maxWidth: 860 }}>
-					<CommentSection group={CommentGroup.MEMBER} refId={agent._id} ownerId={agent._id} placeholder={`Ask ${dealerName(agent)} something`} />
+					<CommentSection
+						group={CommentGroup.MEMBER}
+						refId={agent._id}
+						ownerId={agent._id}
+						placeholder={`Ask ${dealerName(agent)} something`}
+					/>
 				</div>
 			)}
 		</>

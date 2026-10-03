@@ -17,3 +17,7 @@
 .offer p { color: var(--muted); font-size: 14px; }
 .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; padding: 24px 48px 48px; }
 .grid4 .car-card .photo { height: 170px; }
+
+// under the dealer header: "selling your own car?" and where the lot is
+.agent-info-row { display: grid; grid-template-columns: 1fr 460px; gap: 20px; margin: 28px 48px 0; align-items: stretch; }
+.agent-info-row .offer { margin: 0; }
