@@ -102,7 +102,7 @@ const Footer = () => {
 			</Stack>
 			<Stack className="second">
 				<span>© {new Date().getFullYear()} CarZip. All rights reserved.</span>
-				<span>Demo project: all dealers, cars and people on this site are fictional.</span>
+				<span>Demo project: all dealers, cars and people on this site are fictional, and the car photos are AI-generated.</span>
 			</Stack>
 		</Stack>
 	);
