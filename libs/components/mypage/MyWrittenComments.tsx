@@ -20,8 +20,11 @@ const linkOf = (c: Comment) =>
 			? `/community/detail?id=${c.commentRefId}`
 			: `/agent/detail?id=${c.commentRefId}`;
 
-/** every comment I wrote (on cars, articles and dealer pages), newest first, each linking back to where it is */
-const MyWrittenComments = () => {
+/**
+ * every comment I wrote (on cars, articles and dealer pages), newest first, each linking back to where it is.
+ * withHeader: shown on its own (buyers), with the page title; dealers see it as a tab of Comments
+ */
+const MyWrittenComments = ({ withHeader = false }: { withHeader?: boolean }) => {
 	const { t } = useTranslation('common');
 	const fmt = useLocaleFormat();
 	const [page, setPage] = useState(1);
@@ -38,6 +41,14 @@ const MyWrittenComments = () => {
 
 	return (
 		<>
+			{withHeader && (
+				<div className="main-head">
+					<div>
+						<h1>{t('menu.myComments')}</h1>
+						<p>{t('cm.mineSub')}</p>
+					</div>
+				</div>
+			)}
 			{rows.length ? (
 				<div className="block" style={{ opacity: loading ? 0.6 : 1 }}>
 					{rows.map((c) => {

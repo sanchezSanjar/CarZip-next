@@ -28,6 +28,7 @@ export const userMenu = [
 	{ category: 'myFavorites', label: 'menu.favorites' },
 	{ category: 'recentlyVisited', label: 'menu.recent' },
 	{ category: 'follows', label: 'menu.following' },
+	{ category: 'comments', label: 'menu.myComments' },
 	{ category: 'myProfile', label: 'menu.profile' },
 	{ category: 'notifications', label: 'menu.notifications' },
 ];
