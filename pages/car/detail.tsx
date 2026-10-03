@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { useQuery, useReactiveVar } from '@apollo/client/react';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import CarPhoto from '../../libs/components/common/CarPhoto';
+import ZoomPhoto from '../../libs/components/common/ZoomPhoto';
 import Heart from '../../libs/components/common/Heart';
 import Verified from '../../libs/components/common/Verified';
 import ContactList from '../../libs/components/car/ContactList';
@@ -96,7 +97,11 @@ const CarDetail: NextPage = () => {
 			<div className="detail">
 				<div>
 					<div className="gallery">
-						<CarPhoto image={photos[photoIndex]} type={car.carType} color={car.carColor} />
+						{photos[photoIndex] ? (
+							<ZoomPhoto image={photos[photoIndex]} />
+						) : (
+							<CarPhoto type={car.carType} color={car.carColor} />
+						)}
 						<div className="thumbs">
 							{photos.slice(0, 5).map((p, i) => (
 								<div key={i} onClick={() => setPhotoIndex(i)} style={{ cursor: 'pointer' }}>
