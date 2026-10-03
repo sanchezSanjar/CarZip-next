@@ -2,13 +2,17 @@ import React, { useState } from 'react';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useReactiveVar } from '@apollo/client/react';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import CarPhoto from '../../libs/components/common/CarPhoto';
 import Heart from '../../libs/components/common/Heart';
 import Verified from '../../libs/components/common/Verified';
 import ContactList from '../../libs/components/car/ContactList';
-import { sampleCars, sampleComments } from '../../libs/sampleData';
+import CarCard from '../../libs/components/common/CarCard';
+import { sampleComments } from '../../libs/sampleData';
+import { GET_CAR, GET_CARS, GET_MEMBER } from '../../apollo/user/query';
+import { Car, Cars } from '../../libs/types/car/car';
+import { Member } from '../../libs/types/member/member';
 import { userVar } from '../../apollo/store';
 import { CarMarket, CarOption } from '../../libs/enums/car.enum';
 import { MemberType } from '../../libs/enums/member.enum';
@@ -17,9 +21,49 @@ import { colorHex, dealerName, enumLabel, formatManwon, formatNumber, formatUsd,
 const CarDetail: NextPage = () => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
-	const car = sampleCars.find((c) => c._id === router.query.id) ?? sampleCars[0];
+	const carId = typeof router.query.id === 'string' ? router.query.id : '';
 	const [photoIndex, setPhotoIndex] = useState(0);
 	const [comment, setComment] = useState('');
+
+	/** APOLLO REQUESTS **/
+	const { data: getCarData, loading: getCarLoading, error: getCarError } = useQuery<{ getCar: Car }>(GET_CAR, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: carId },
+		skip: !carId,
+	});
+	const car = getCarData?.getCar;
+	const dealerId = car?.memberId ?? '';
+
+	const { data: getMemberData } = useQuery<{ getMember: Member }>(GET_MEMBER, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: dealerId },
+		skip: !dealerId,
+	});
+	const dealer = getMemberData?.getMember;
+
+	const { data: dealerCarsData } = useQuery<{ getCars: Cars }>(GET_CARS, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { limit: 4, search: { agentId: dealerId } } },
+		skip: !dealerId,
+	});
+	const moreCars = (dealerCarsData?.getCars.list ?? []).filter((c) => c._id !== carId).slice(0, 3);
+
+	if (!router.isReady || (getCarLoading && !car)) {
+		return <div className="wrap muted">Loading the car…</div>;
+	}
+	if (getCarError || !car) {
+		return (
+			<div className="wrap">
+				<div className="empty">
+					<h3>This car isn&apos;t available</h3>
+					<p>It may have been sold or removed by the dealer.</p>
+					<Link href="/" className="btn dark">
+						Browse cars
+					</Link>
+				</div>
+			</div>
+		);
+	}
 
 	const photos = car.carImages.length ? car.carImages : ['', '', '', '', ''];
 	const age = Math.max(1, new Date().getFullYear() - car.carYear);
@@ -241,11 +285,16 @@ const CarDetail: NextPage = () => {
 						</div>
 						<div className="agent-stats">
 							<span>
-								<b className="num">42</b> cars for sale
+								<b className="num">{dealer?.memberCars ?? '–'}</b> cars for sale
 							</span>
 							<span>
-								<b className="num">318</b> followers
+								<b className="num">{dealer?.memberFollowers ?? '–'}</b> followers
 							</span>
+							{dealer && (
+								<span>
+									Since <b>{new Date(dealer.createdAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</b>
+								</span>
+							)}
 						</div>
 						<ContactList dealer={car.agentData} />
 						<p className="note">Payment and fees are agreed directly with the dealer. CarZip does not handle money.</p>
@@ -273,6 +322,23 @@ const CarDetail: NextPage = () => {
 					)}
 				</aside>
 			</div>
+			{moreCars.length > 0 && (
+				<div style={{ padding: '0 48px 56px' }}>
+					<div className="section" style={{ marginTop: 0 }}>
+						<h2>
+							More from {dealerName(car.agentData)}
+							<Link href={`/agent/detail?id=${dealerId}`} style={{ fontSize: 14, fontWeight: 600, marginLeft: 'auto' }}>
+								See all
+							</Link>
+						</h2>
+					</div>
+					<div className="grid3">
+						{moreCars.map((c) => (
+							<CarCard key={c._id} car={c} />
+						))}
+					</div>
+				</div>
+			)}
 		</>
 	);
 };
