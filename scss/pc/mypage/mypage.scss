@@ -122,3 +122,13 @@
 .type b { font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
 
 .carcell b, td.num, .pill, .rolepill, .cat, td .btn { white-space: nowrap; }
+
+/* dealer comments: own cars and articles on the left, the chosen thread on the right */
+.comments-wrap { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
+.ctarget { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line-2); cursor: pointer; font-size: 14px; }
+.ctarget:last-child { border-bottom: 0; }
+.ctarget b { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctarget .num { font-weight: 800; color: var(--muted); }
+.ctarget:hover { background: var(--paper); }
+.ctarget.on { background: var(--road-tint); box-shadow: inset 3px 0 0 var(--road); }
+.ctarget.on .num { color: var(--road); }
