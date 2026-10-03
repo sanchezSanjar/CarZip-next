@@ -6,7 +6,6 @@ import { useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
 import { getJwtToken, updateUserInfo } from '../../auth';
 import { MemberType } from '../../enums/member.enum';
-import {  } from '../../utils';
 import { Logo } from '../Top';
 import Avatar from '../common/Avatar';
 import { useMyImage } from '../../hooks/useMyImage';

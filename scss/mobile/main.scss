@@ -1,0 +1,18 @@
+// phone layout: every rule here applies only to narrow screens (768px and below)
+
+/* header: logo + menu button, links in a drawer */
+.mobile-nav { height: 60px; padding: 0 16px; gap: 12px; position: sticky; top: 0; z-index: 50; }
+.mobile-nav .logo { font-size: 22px; }
+.mobile-nav .right { gap: 10px; }
+.menu-btn { width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 10px; background: #fff; display: grid; place-content: center; gap: 4px; cursor: pointer; }
+.menu-btn span { display: block; width: 18px; height: 2px; border-radius: 1px; background: var(--asphalt); }
+.mobile-drawer { width: 280px; padding: 20px 16px; display: flex; flex-direction: column; gap: 4px; font-family: 'Pretendard', sans-serif; }
+.mobile-drawer .who { display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--paper); border-radius: 12px; margin-bottom: 12px; }
+.mobile-drawer .who .avatar { width: 40px; height: 40px; }
+.mobile-drawer .who b { display: block; }
+.mobile-drawer .who span { font-size: 13px; color: var(--muted); }
+.mobile-drawer .auth-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.mobile-drawer a { padding: 13px 12px; border-radius: 10px; color: var(--asphalt); font-weight: 600; font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.mobile-drawer a.on { background: var(--road-tint); color: var(--road); }
+.mobile-drawer hr { border: 0; border-top: 1px solid var(--line); margin: 10px 0; }
+.mobile-drawer .badge, .mobile-nav .badge { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--signal); color: var(--asphalt); font-size: 12px; font-weight: 800; display: inline-grid; place-items: center; }
