@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { sampleCars } from '../../sampleData';
+import { useMutation, useQuery } from '@apollo/client/react';
+import { GET_AGENT_CARS } from '../../../apollo/user/query';
+import { CONFIRM_CAR_LISTING, UPDATE_CAR } from '../../../apollo/user/mutation';
 import { CarStatus } from '../../enums/car.enum';
-import { formatCarPrice, formatNumber } from '../../utils';
+import { CarsPage } from '../../types/car/car';
+import { getErrorMessage } from '../../auth';
+import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
+import { formatCarPrice, formatNumber, timeAgo } from '../../utils';
 import CarPhoto from '../common/CarPhoto';
 import Pager from '../common/Pager';
+
+const LIMIT = 10;
+const STALE_DAYS = 30; // the backend asks "still for sale?" after 30 days without an edit or confirmation
 
 const statusPill: Record<CarStatus, { cls: string; label: string }> = {
 	[CarStatus.ACTIVE]: { cls: 'active', label: 'For sale' },
@@ -12,28 +20,69 @@ const statusPill: Record<CarStatus, { cls: string; label: string }> = {
 	[CarStatus.SOLD]: { cls: 'sold', label: 'Sold' },
 	[CarStatus.DELETE]: { cls: 'rej', label: 'Deleted' },
 };
-
-const tabs = [
-	{ status: '', label: 'All' },
+const tabs: { status?: CarStatus; label: string }[] = [
+	{ label: 'All' },
 	{ status: CarStatus.ACTIVE, label: 'For sale' },
 	{ status: CarStatus.HOLD, label: 'On hold' },
 	{ status: CarStatus.SOLD, label: 'Sold' },
 ];
 
-// sample: a few of the design's cars in different states
-const myCars = sampleCars.slice(0, 6).map((c, i) => ({
-	...c,
-	carStatus: i === 3 ? CarStatus.HOLD : i === 5 ? CarStatus.SOLD : CarStatus.ACTIVE,
-}));
+/** how many cars a tab has: a one-row query that only reads the total */
+const useTabCount = (status?: CarStatus) => {
+	const { data } = useQuery<{ getAgentCars: CarsPage }>(GET_AGENT_CARS, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { page: 1, limit: 1, ...(status ? { search: { carStatus: status } } : {}) } },
+	});
+	return data?.getAgentCars.metaCounter?.[0]?.total ?? 0;
+};
 
-/** dealer: every own car in any status, with the actions each status allows */
+/** dealer: own cars in any status (deleted ones are gone), with the actions each status allows */
 const MyCars = () => {
-	const [status, setStatus] = useState<CarStatus | ''>('');
+	const [status, setStatus] = useState<CarStatus | undefined>();
 	const [page, setPage] = useState(1);
-	const cars = myCars.filter((c) => !status || c.carStatus === status);
+	const [now] = useState(() => Date.now()); // read the clock once, not on every redraw
+	const counts = [useTabCount(), useTabCount(CarStatus.ACTIVE), useTabCount(CarStatus.HOLD), useTabCount(CarStatus.SOLD)];
 
-	const deals = (c: (typeof myCars)[number]) =>
-		['Sale', c.carRent && 'rent', c.carBarter && 'barter'].filter(Boolean).join(', ');
+	/** APOLLO REQUESTS **/
+	const { data, loading, refetch } = useQuery<{ getAgentCars: CarsPage }>(GET_AGENT_CARS, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { page, limit: LIMIT, ...(status ? { search: { carStatus: status } } : {}) } },
+		notifyOnNetworkStatusChange: true,
+	});
+	const [updateCar] = useMutation(UPDATE_CAR, { refetchQueries: [GET_AGENT_CARS] });
+	const [confirmCarListing] = useMutation(CONFIRM_CAR_LISTING);
+	const cars = data?.getAgentCars.list ?? [];
+	const total = data?.getAgentCars.metaCounter?.[0]?.total ?? 0;
+
+	/** HANDLERS **/
+	const changeStatus = async (carId: string, title: string, next: CarStatus) => {
+		const questions: Partial<Record<CarStatus, [string, string]>> = {
+			[CarStatus.SOLD]: [`Mark "${title}" as sold? It leaves the search, open test drives are cancelled and the buyers are notified. This can't be undone.`, 'Mark as sold'],
+			[CarStatus.HOLD]: [`Pause "${title}"? It is hidden from search and open test drives are cancelled.`, 'Pause listing'],
+			[CarStatus.DELETE]: [`Delete "${title}"? Open test drives are cancelled. This can't be undone.`, 'Delete'],
+		};
+		const q = questions[next];
+		if (q && !(await sweetConfirmAlert(q[0], q[1], next === CarStatus.DELETE))) return;
+		try {
+			await updateCar({ variables: { input: { _id: carId, carStatus: next } } });
+			await sweetTopSuccessAlert(next === CarStatus.ACTIVE ? 'Back on sale' : 'Saved', 1200);
+		} catch (err) {
+			await sweetMixinErrorAlert(getErrorMessage(err));
+		}
+	};
+
+	const stillForSale = async (carId: string) => {
+		try {
+			await confirmCarListing({ variables: { input: carId } });
+			await refetch();
+			await sweetTopSuccessAlert('Thanks, the listing is confirmed', 1200);
+		} catch (err) {
+			await sweetMixinErrorAlert(getErrorMessage(err));
+		}
+	};
+
+	const isStale = (lastTouched?: Date) => !!lastTouched && now - new Date(lastTouched).getTime() > STALE_DAYS * 86400000;
+	const deals = (c: (typeof cars)[number]) => ['Sale', c.carRent && 'rent', c.carBarter && 'barter'].filter(Boolean).join(', ');
 
 	return (
 		<>
@@ -48,21 +97,21 @@ const MyCars = () => {
 			</div>
 			<div className="bar" style={{ marginTop: 0 }}>
 				<div className="tabs2">
-					{tabs.map((t) => (
-						<span key={t.label} className={`chip ${status === t.status ? 'on' : ''}`} onClick={() => setStatus(t.status as CarStatus | '')}>
-							{t.label}{' '}
-							<span className="num">{myCars.filter((c) => !t.status || c.carStatus === t.status).length}</span>
+					{tabs.map((t, i) => (
+						<span
+							key={t.label}
+							className={`chip ${status === t.status ? 'on' : ''}`}
+							onClick={() => {
+								setStatus(t.status);
+								setPage(1);
+							}}
+						>
+							{t.label} <span className="num">{counts[i]}</span>
 						</span>
 					))}
 				</div>
-				<div className="grow" />
-				<select className="field" style={{ width: 190, fontWeight: 600 }}>
-					<option value="CREATED_AT">Newest</option>
-					<option value="VIEWS">Most viewed</option>
-					<option value="LIKES">Most liked</option>
-				</select>
 			</div>
-			<div className="block">
+			<div className="block" style={{ opacity: loading && cars.length ? 0.6 : 1 }}>
 				<table>
 					<thead>
 						<tr>
@@ -76,53 +125,67 @@ const MyCars = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{cars.map((c) => (
-							<tr key={c._id}>
-								<td>
-									<div className="carcell">
-										<CarPhoto image={c.carImages[0]} type={c.carType} color={c.carColor} className="thumb" />
-										<div>
-											<b>{c.carTitle}</b>
-											<small>
-												{c.carYear}, {formatNumber(c.carMileage)} km
-											</small>
+						{cars.map((c) => {
+							const heldByAdmin = c.carStatus === CarStatus.HOLD && !!c.carHoldReason;
+							return (
+								<tr key={c._id}>
+									<td>
+										<div className="carcell">
+											<CarPhoto image={c.carImages[0]} type={c.carType} color={c.carColor} className="thumb" />
+											<div>
+												<Link href={`/car/detail?id=${c._id}`} style={{ color: 'inherit' }}>
+													<b>{c.carTitle}</b>
+												</Link>
+												<small>{heldByAdmin ? `Held by admin: ${c.carHoldReason}` : `${c.carYear}, ${formatNumber(c.carMileage)} km · listed ${timeAgo(c.createdAt)}`}</small>
+											</div>
 										</div>
-									</div>
-								</td>
-								<td className="num" style={{ fontWeight: 700 }}>
-									{formatCarPrice(c)}
-								</td>
-								<td>{deals(c)}</td>
-								<td>
-									<span className={`pill ${statusPill[c.carStatus].cls}`}>{statusPill[c.carStatus].label}</span>
-								</td>
-								<td className="num">{formatNumber(c.carViews)}</td>
-								<td className="num">{c.carLikes}</td>
-								<td>
-									<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
-										{c.carStatus === CarStatus.ACTIVE && (
-											<>
-												<button className="btn ghost sm">Edit</button>
-												<button className="btn ghost sm">Mark as sold</button>
-												<button className="btn ghost sm">Hold</button>
-											</>
-										)}
-										{c.carStatus === CarStatus.HOLD && <button className="btn dark sm">Put back on sale</button>}
-										{c.carStatus === CarStatus.SOLD && (
-											<Link href={`/car/detail?id=${c._id}`} className="btn ghost sm">
-												View
-											</Link>
-										)}
-										{c.carStatus !== CarStatus.SOLD && <button className="btn danger sm">Delete</button>}
-									</div>
-								</td>
-							</tr>
-						))}
+									</td>
+									<td className="num" style={{ fontWeight: 700 }}>
+										{formatCarPrice(c)}
+									</td>
+									<td>{deals(c)}</td>
+									<td>
+										<span className={`pill ${statusPill[c.carStatus].cls}`}>{heldByAdmin ? 'Held by admin' : statusPill[c.carStatus].label}</span>
+									</td>
+									<td className="num">{formatNumber(c.carViews)}</td>
+									<td className="num">{c.carLikes}</td>
+									<td>
+										<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
+											{c.carStatus === CarStatus.ACTIVE && isStale(c.carConfirmedAt ?? c.updatedAt) && (
+												<button className="btn good sm" onClick={() => stillForSale(c._id)}>
+													Still for sale
+												</button>
+											)}
+											{c.carStatus === CarStatus.ACTIVE && (
+												<>
+													<button className="btn ghost sm" onClick={() => changeStatus(c._id, c.carTitle, CarStatus.SOLD)}>
+														Mark as sold
+													</button>
+													<button className="btn ghost sm" onClick={() => changeStatus(c._id, c.carTitle, CarStatus.HOLD)}>
+														Hold
+													</button>
+												</>
+											)}
+											{c.carStatus === CarStatus.HOLD && !heldByAdmin && (
+												<button className="btn dark sm" onClick={() => changeStatus(c._id, c.carTitle, CarStatus.ACTIVE)}>
+													Put back on sale
+												</button>
+											)}
+											{c.carStatus !== CarStatus.SOLD && (
+												<button className="btn danger sm" onClick={() => changeStatus(c._id, c.carTitle, CarStatus.DELETE)}>
+													Delete
+												</button>
+											)}
+										</div>
+									</td>
+								</tr>
+							);
+						})}
 					</tbody>
 				</table>
-				{!cars.length && (
+				{!loading && !cars.length && (
 					<div className="empty" style={{ margin: 18 }}>
-						<h3>No cars here</h3>
+						<h3>{status ? 'No cars here' : 'You have no cars yet'}</h3>
 						<p>Cars you list show up in this table.</p>
 						<Link href="/mypage?category=addCar" className="btn ghost">
 							List a car
@@ -130,7 +193,7 @@ const MyCars = () => {
 					</div>
 				)}
 			</div>
-			<Pager page={page} total={1} onChange={setPage} />
+			<Pager page={page} total={Math.ceil(total / LIMIT)} onChange={setPage} />
 		</>
 	);
 };
