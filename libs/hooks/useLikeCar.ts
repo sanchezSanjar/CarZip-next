@@ -6,6 +6,7 @@ import { LIKE_TARGET_CAR } from '../../apollo/user/mutation';
 import { getErrorMessage } from '../auth';
 import { sweetLoginConfirmAlert, sweetMixinErrorAlert } from '../sweetAlert';
 import { MeLiked } from '../types/like/like';
+import { useTranslation } from 'next-i18next/pages';
 
 const CAR_LIKED = gql`
 	fragment CarLiked on Car {
@@ -23,12 +24,13 @@ const CAR_LIKED = gql`
  */
 export const useLikeCar = () => {
 	const router = useRouter();
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 	const [likeTargetCar] = useMutation(LIKE_TARGET_CAR);
 
 	return async (carId: string) => {
 		if (!user._id) {
-			if (await sweetLoginConfirmAlert('Log in to save cars to your favourites.')) await router.push('/account/join?mode=login');
+			if (await sweetLoginConfirmAlert(t('follow.likePrompt'), t('follow.logIn'))) await router.push('/account/join?mode=login');
 			return;
 		}
 		try {

@@ -7,6 +7,7 @@ import { SUBSCRIBE, UNSUBSCRIBE } from '../../../apollo/user/mutation';
 import { Member } from '../../types/member/member';
 import { getErrorMessage } from '../../auth';
 import { sweetLoginConfirmAlert, sweetMixinErrorAlert } from '../../sweetAlert';
+import { useTranslation } from 'next-i18next/pages';
 
 interface FollowButtonProps {
 	dealerId: string;
@@ -16,6 +17,7 @@ interface FollowButtonProps {
 /** follow / unfollow a dealer. Only dealers can be followed, never yourself; guests are asked to log in */
 const FollowButton = ({ dealerId, className = 'btn ghost sm' }: FollowButtonProps) => {
 	const router = useRouter();
+	const { t } = useTranslation('common');
 	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
@@ -34,7 +36,7 @@ const FollowButton = ({ dealerId, className = 'btn ghost sm' }: FollowButtonProp
 	/** HANDLERS **/
 	const toggle = async () => {
 		if (!user._id) {
-			if (await sweetLoginConfirmAlert('Log in to follow dealers and see their new cars first.')) await router.push('/account/join?mode=login');
+			if (await sweetLoginConfirmAlert(t('follow.logInPrompt'), t('follow.logIn'))) await router.push('/account/join?mode=login');
 			return;
 		}
 		try {
@@ -47,7 +49,7 @@ const FollowButton = ({ dealerId, className = 'btn ghost sm' }: FollowButtonProp
 
 	return (
 		<button className={following ? 'btn ghost sm' : className} onClick={toggle} disabled={subscribing || unsubscribing}>
-			{following ? '✓ Following' : 'Follow'}
+			{following ? t('follow.following') : t('follow.follow')}
 		</button>
 	);
 };

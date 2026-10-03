@@ -14,15 +14,15 @@ export const Messages = {
 	error5: 'Only jpeg, png and webp images are allowed!',
 };
 
-// "Sort by" menu of the browse page
+// "Sort by" menu of the browse page (labels are translation keys)
 export const sortOptions = [
-	{ label: 'Newest first', sort: 'CREATED_AT', direction: 'DESC' },
-	{ label: 'Lowest price (KRW)', sort: 'PRICE', direction: 'ASC' },
-	{ label: 'Highest price (KRW)', sort: 'PRICE', direction: 'DESC' },
-	{ label: 'Lowest price (USD, export)', sort: 'PRICE_USD', direction: 'ASC' },
-	{ label: 'Lowest mileage', sort: 'MILEAGE', direction: 'ASC' },
-	{ label: 'Newest year', sort: 'YEAR', direction: 'DESC' },
-	{ label: 'Oldest year', sort: 'YEAR', direction: 'ASC' },
-	{ label: 'Most liked', sort: 'LIKES', direction: 'DESC' },
-	{ label: 'Most viewed', sort: 'VIEWS', direction: 'DESC' },
+	{ label: 'sort.newest', sort: 'CREATED_AT', direction: 'DESC' },
+	{ label: 'sort.priceLow', sort: 'PRICE', direction: 'ASC' },
+	{ label: 'sort.priceHigh', sort: 'PRICE', direction: 'DESC' },
+	{ label: 'sort.usdLow', sort: 'PRICE_USD', direction: 'ASC' },
+	{ label: 'sort.mileage', sort: 'MILEAGE', direction: 'ASC' },
+	{ label: 'sort.yearNew', sort: 'YEAR', direction: 'DESC' },
+	{ label: 'sort.yearOld', sort: 'YEAR', direction: 'ASC' },
+	{ label: 'sort.likes', sort: 'LIKES', direction: 'DESC' },
+	{ label: 'sort.views', sort: 'VIEWS', direction: 'DESC' },
 ];

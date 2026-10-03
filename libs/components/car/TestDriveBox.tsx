@@ -6,6 +6,7 @@ import { userVar } from '../../../apollo/store';
 import { REQUEST_TEST_DRIVE } from '../../../apollo/user/mutation';
 import { getErrorMessage } from '../../auth';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
+import { useTranslation } from 'next-i18next/pages';
 
 const MAX_DAYS = 60;
 
@@ -14,6 +15,7 @@ const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart
 
 /** a buyer asks the dealer for a test drive. The dealer confirms or declines; both get notified */
 const TestDriveBox = ({ carId }: { carId: string }) => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [range] = useState(() => {
@@ -47,10 +49,10 @@ const TestDriveBox = ({ carId }: { carId: string }) => {
 	if (sent) {
 		return (
 			<div className="panel td">
-				<h3>Request sent</h3>
-				<div className="sub">The dealer will confirm or decline. You get a notification either way.</div>
+				<h3>{t('td.sent')}</h3>
+				<div className="sub">{t('td.sentText')}</div>
 				<Link href="/mypage?category=testDrives" className="btn dark" style={{ width: '100%' }}>
-					See my test drives
+					{t('td.seeMine')}
 				</Link>
 			</div>
 		);
@@ -58,21 +60,21 @@ const TestDriveBox = ({ carId }: { carId: string }) => {
 
 	return (
 		<form className="panel td" onSubmit={send}>
-			<h3>Book a test drive</h3>
-			<div className="sub">Pick a day in the next {MAX_DAYS} days. The dealer confirms or declines.</div>
+			<h3>{t('td.title')}</h3>
+			<div className="sub">{t('td.sub', { days: MAX_DAYS })}</div>
 			<div className="two">
 				<input className="field" type="date" required min={range.min} max={range.max} value={date} onChange={(e) => setDate(e.target.value)} />
 				<input className="field" type="time" required step={1800} value={time} onChange={(e) => setTime(e.target.value)} />
 			</div>
 			<textarea
 				className="field ta2"
-				placeholder="Message to the dealer (optional)"
+				placeholder={t('td.message')}
 				maxLength={300}
 				value={message}
 				onChange={(e) => setMessage(e.target.value)}
 			/>
 			<button className="btn primary" style={{ width: '100%' }} disabled={loading}>
-				{user._id ? (loading ? 'Sending…' : 'Request test drive') : 'Log in to book a test drive'}
+				{user._id ? (loading ? t('td.sending') : t('td.request')) : t('td.logIn')}
 			</button>
 		</form>
 	);

@@ -18,6 +18,7 @@ import { Direction } from '../../libs/enums/common.enum';
 import { useAddressReady } from '../../libs/hooks/useAddressReady';
 import { queryToSearch, searchToQuery } from '../../libs/carSearchQuery';
 import { withTranslations } from '../../libs/i18n';
+import { useTranslation } from 'next-i18next/pages';
 
 const PAGE_SIZE = 9;
 
@@ -45,6 +46,7 @@ interface CarSearchProps {
 }
 
 const CarSearch = ({ search, sortIndex, go }: CarSearchProps) => {
+	const { t } = useTranslation('common');
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [loadingMore, setLoadingMore] = useState(false);
 	const setSearch = (next: CarsSearch) => go(next, sortIndex);
@@ -107,19 +109,19 @@ const CarSearch = ({ search, sortIndex, go }: CarSearchProps) => {
 				<div className={`filter-wrap ${filtersOpen ? 'open' : ''}`}>
 					<Filter key={`f${resetKey}`} search={search} setSearch={setSearch} />
 					<button className="btn primary filter-done" onClick={() => setFiltersOpen(false)}>
-						Show cars
+						{t('search.showCars')}
 					</button>
 				</div>
 				<main>
 					<div className="results-head">
-						<h2>{getCarsLoading && !cars.length ? 'Loading cars…' : `${cars.length} cars${nextCursor ? '+' : ''} for sale`}</h2>
+						<h2>{getCarsLoading && !cars.length ? t('search.loading') : t(nextCursor ? 'search.forSaleMore' : 'search.forSale', { count: cars.length })}</h2>
 						<button className="btn ghost sm filter-toggle" onClick={() => setFiltersOpen(true)}>
-							Filters{Object.keys(input.search ?? {}).length ? ` (${Object.keys(input.search ?? {}).length})` : ''}
+							{t('search.filters')}{Object.keys(input.search ?? {}).length ? ` (${Object.keys(input.search ?? {}).length})` : ''}
 						</button>
 						<div className="sort">
-							Sort by
+							{t('search.sortBy')}
 							<div className="field" role="button" style={{ cursor: 'pointer' }} onClick={(e) => setAnchorEl(e.currentTarget)}>
-								{sortOptions[sortIndex].label} <span>▾</span>
+								{t(sortOptions[sortIndex].label)} <span>▾</span>
 							</div>
 							<Menu anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
 								{sortOptions.map((o, i) => (
@@ -131,7 +133,7 @@ const CarSearch = ({ search, sortIndex, go }: CarSearchProps) => {
 											setAnchorEl(null);
 										}}
 									>
-										{o.label}
+										{t(o.label)}
 									</MenuItem>
 								))}
 							</Menu>
@@ -142,7 +144,7 @@ const CarSearch = ({ search, sortIndex, go }: CarSearchProps) => {
 						<div className="banner err" style={{ marginBottom: 20 }}>
 							<span className="i">!</span>
 							<div>
-								<b>Couldn&apos;t load cars</b>
+								<b>{t('search.loadError')}</b>
 								{getCarsError.message}
 							</div>
 						</div>
@@ -150,18 +152,18 @@ const CarSearch = ({ search, sortIndex, go }: CarSearchProps) => {
 
 					{!getCarsLoading && !getCarsError && !cars.length && filtered ? (
 						<div className="empty">
-							<h3>No cars match all these filters</h3>
-							<p>Try removing a filter or widening the price range.</p>
+							<h3>{t('search.noMatch')}</h3>
+							<p>{t('search.noMatchText')}</p>
 							<button className="btn dark" onClick={clearAllHandler}>
-								Clear all filters
+								{t('search.clearAll')}
 							</button>
 						</div>
 					) : !getCarsLoading && !getCarsError && !cars.length ? (
 						<div className="empty">
-							<h3>No cars for sale yet</h3>
-							<p>Verified dealers&apos; listings will appear here. Are you a dealer?</p>
+							<h3>{t('search.noCars')}</h3>
+							<p>{t('search.noCarsText')}</p>
 							<Link href="/account/join?mode=signup&type=AGENT" className="btn dark">
-								List your cars on CarZip
+								{t('search.listYours')}
 							</Link>
 						</div>
 					) : (
@@ -175,9 +177,9 @@ const CarSearch = ({ search, sortIndex, go }: CarSearchProps) => {
 					{nextCursor && (
 						<div className="more">
 							<button className="btn ghost" style={{ width: 260 }} onClick={showMoreHandler} disabled={loadingMore}>
-								{loadingMore ? 'Loading…' : 'Show more cars'}
+								{loadingMore ? t('search.loadingMore') : t('search.showMore')}
 							</button>
-							Showing {cars.length}
+							{t('search.showing', { count: cars.length })}
 						</div>
 					)}
 				</main>

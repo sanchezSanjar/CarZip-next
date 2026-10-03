@@ -8,9 +8,11 @@ import { CommentGroup } from '../../enums/comment.enum';
 import { Comments } from '../../types/comment/comment';
 import { getErrorMessage } from '../../auth';
 import { sweetLoginConfirmAlert, sweetMixinErrorAlert } from '../../sweetAlert';
-import { dealerName, timeAgo } from '../../utils';
+import { dealerName } from '../../utils';
 import Avatar from './Avatar';
 import { useMyImage } from '../../hooks/useMyImage';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
 const PAGE = 10;
 
@@ -22,8 +24,10 @@ interface CommentSectionProps {
 }
 
 /** comments under a car or an article: read, write, edit your own. Only admins delete */
-const CommentSection = ({ group, refId, ownerId, placeholder = 'Write a comment' }: CommentSectionProps) => {
+const CommentSection = ({ group, refId, ownerId, placeholder }: CommentSectionProps) => {
 	const router = useRouter();
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const user = useReactiveVar(userVar);
 	const myImage = useMyImage();
 	const [limit, setLimit] = useState(PAGE);
@@ -49,7 +53,7 @@ const CommentSection = ({ group, refId, ownerId, placeholder = 'Write a comment'
 	const post = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!user._id) {
-			if (await sweetLoginConfirmAlert('Log in to write a comment.')) await router.push('/account/join?mode=login');
+			if (await sweetLoginConfirmAlert(t('comments.logInPrompt'), t('follow.logIn'))) await router.push('/account/join?mode=login');
 			return;
 		}
 		if (!text.trim()) return;
@@ -77,21 +81,21 @@ const CommentSection = ({ group, refId, ownerId, placeholder = 'Write a comment'
 	return (
 		<div className="section">
 			<h2>
-				Comments <span className="num">{total}</span>
+				{t('comments.title')} <span className="num">{total}</span>
 			</h2>
 			<form className="comment-box" onSubmit={post}>
 				<Avatar image={myImage} dealer={user.memberType === 'AGENT'} />
 				<textarea
 					className="ta"
 					style={{ border: 0, outline: 'none', resize: 'none', fontFamily: 'inherit' }}
-					placeholder={user._id ? placeholder : 'Log in to write a comment'}
+					placeholder={user._id ? placeholder ?? t('comments.write') : t('comments.logInToWrite')}
 					maxLength={500}
 					value={text}
 					disabled={!user._id}
 					onChange={(e) => setText(e.target.value)}
 				/>
 				<button className="btn dark sm" disabled={sending || (!!user._id && !text.trim())}>
-					{user._id ? 'Post comment' : 'Log in to comment'}
+					{user._id ? t('comments.post') : t('comments.logIn')}
 				</button>
 			</form>
 			{comments.map((c) => {
@@ -103,10 +107,10 @@ const CommentSection = ({ group, refId, ownerId, placeholder = 'Write a comment'
 						<Avatar image={c.memberData?.memberImage} dealer={dealer} />
 						<div style={{ flex: 1 }}>
 							<div className="who">
-								{dealerName(c.memberData)} {isOwner ? <span className="role">{dealer ? 'Dealer' : 'Author'}</span> : dealer && <span className="role">Dealer</span>}{' '}
+								{dealerName(c.memberData)} {isOwner ? <span className="role">{dealer ? t('comments.dealer') : t('comments.author')}</span> : dealer && <span className="role">{t('comments.dealer')}</span>}{' '}
 								<small>
-									{timeAgo(c.createdAt)}
-									{c.updatedAt !== c.createdAt && ' · edited'}
+									{fmt.timeAgo(c.createdAt)}
+									{c.updatedAt !== c.createdAt && ` · ${t('comments.edited')}`}
 								</small>
 								{mine && editingId !== c._id && (
 									<a
@@ -116,7 +120,7 @@ const CommentSection = ({ group, refId, ownerId, placeholder = 'Write a comment'
 											setEditText(c.commentContent);
 										}}
 									>
-										Edit
+										{t('comments.edit')}
 									</a>
 								)}
 							</div>
@@ -124,10 +128,10 @@ const CommentSection = ({ group, refId, ownerId, placeholder = 'Write a comment'
 								<div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
 									<input className="field" maxLength={500} value={editText} onChange={(e) => setEditText(e.target.value)} />
 									<button className="btn dark sm" onClick={() => saveEdit(c._id)}>
-										Save
+										{t('comments.save')}
 									</button>
 									<button className="btn ghost sm" onClick={() => setEditingId(null)}>
-										Cancel
+										{t('comments.cancel')}
 									</button>
 								</div>
 							) : (
@@ -139,7 +143,7 @@ const CommentSection = ({ group, refId, ownerId, placeholder = 'Write a comment'
 			})}
 			{comments.length < total && (
 				<button className="btn ghost" style={{ marginTop: 14 }} onClick={() => setLimit(limit + PAGE)}>
-					Show more comments
+					{t('comments.showMore')}
 				</button>
 			)}
 		</div>

@@ -22,13 +22,17 @@ import { useLikeCar } from '../../libs/hooks/useLikeCar';
 import { sweetTopSuccessAlert } from '../../libs/sweetAlert';
 import { CarMarket, CarOption, CarStatus } from '../../libs/enums/car.enum';
 import { MemberType } from '../../libs/enums/member.enum';
-import { colorHex, dealerName, enumLabel, formatManwon, formatNumber, formatUsd, marketLabel, timeAgo } from '../../libs/utils';
+import { colorHex, dealerName } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
 import { useAddressReady } from '../../libs/hooks/useAddressReady';
 import { withTranslations } from '../../libs/i18n';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../libs/hooks/useLocaleFormat';
 
 const CarDetail: NextPage = () => {
 	const router = useRouter();
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const addressReady = useAddressReady();
 	const user = useReactiveVar(userVar);
 	const carId = typeof router.query.id === 'string' ? router.query.id : '';
@@ -59,16 +63,16 @@ const CarDetail: NextPage = () => {
 	const moreCars = (dealerCarsData?.getCars.list ?? []).filter((c) => c._id !== carId).slice(0, 3);
 
 	if (!addressReady || (getCarLoading && !car)) {
-		return <div className="wrap muted">Loading the car…</div>;
+		return <div className="wrap muted">{t('detail.loading')}</div>;
 	}
 	if (getCarError || !car) {
 		return (
 			<div className="wrap">
 				<div className="empty">
-					<h3>This car isn&apos;t available</h3>
-					<p>It may have been sold or removed by the dealer.</p>
+					<h3>{t('detail.notAvailable')}</h3>
+					<p>{t('detail.notAvailableText')}</p>
 					<Link href="/car" className="btn dark">
-						Browse cars
+						{t('detail.browseCars')}
 					</Link>
 				</div>
 			</div>
@@ -85,9 +89,9 @@ const CarDetail: NextPage = () => {
 		<>
 			<div className="crumbs">
 				<Link href="/car" style={{ color: 'inherit' }}>
-					Buy a car
+					{t('nav.buyCar')}
 				</Link>{' '}
-				/ {enumLabel(car.carBrand)} / <b>{car.carModel}</b>
+				/ {t(`enum.${car.carBrand}`)} / <b>{car.carModel}</b>
 			</div>
 			<div className="detail">
 				<div>
@@ -104,30 +108,15 @@ const CarDetail: NextPage = () => {
 					<div className="dtitle">
 						<h1>{car.carTitle}</h1>
 						<div className="meta">
-							<span>Listed {timeAgo(car.createdAt)}</span>
-							<span>
-								<b className="num" style={{ color: 'var(--asphalt)' }}>
-									{formatNumber(car.carViews)}
-								</b>{' '}
-								views
-							</span>
-							<span>
-								<b className="num" style={{ color: 'var(--asphalt)' }}>
-									{car.carLikes}
-								</b>{' '}
-								likes
-							</span>
-							<span>
-								<b className="num" style={{ color: 'var(--asphalt)' }}>
-									{car.carComments}
-								</b>{' '}
-								comments
-							</span>
+							<span>{t('detail.listed', { when: fmt.timeAgo(car.createdAt) })}</span>
+							<span>{t('count.views', { count: car.carViews })}</span>
+							<span>{t('count.likes', { count: car.carLikes })}</span>
+							<span>{t('count.comments', { count: car.carComments })}</span>
 						</div>
 					</div>
 					<div className="odo-wrap">
 						<div className="l">
-							<b>Mileage</b>as reported by the dealer
+							<b>{t('detail.mileage')}</b>{t('detail.reported')}
 						</div>
 						<div className="odo">
 							{odometer.map((d, i) => (
@@ -138,125 +127,125 @@ const CarDetail: NextPage = () => {
 							<em>km</em>
 						</div>
 						<div className="avg">
-							<b className="num">{formatNumber(perYear)} km / year</b>
-							{perYear < 15000 ? 'below' : 'above'} the 15,000 km average
+							<b className="num">{t('detail.perYear', { km: fmt.number(perYear) })}</b>
+							{perYear < 15000 ? t('detail.below') : t('detail.above')}
 						</div>
 					</div>
 					<div className="specgrid">
 						<div>
-							<small>Year</small>
+							<small>{t('detail.year')}</small>
 							<b className="num">{car.carYear}</b>
 						</div>
 						<div>
-							<small>Fuel</small>
-							<b>{enumLabel(car.carFuelType)}</b>
+							<small>{t('detail.fuel')}</small>
+							<b>{t(`enum.${car.carFuelType}`)}</b>
 						</div>
 						<div>
-							<small>Transmission</small>
-							<b>{enumLabel(car.carTransmission)}</b>
+							<small>{t('detail.transmission')}</small>
+							<b>{t(`enum.${car.carTransmission}`)}</b>
 						</div>
 						<div>
-							<small>Color</small>
+							<small>{t('detail.color')}</small>
 							<b>
 								<i className="sw" style={{ width: 16, height: 16, background: colorHex[car.carColor] }} />
-								{enumLabel(car.carColor)}
+								{t(`enum.${car.carColor}`)}
 							</b>
 						</div>
 						<div>
-							<small>Condition</small>
-							<b>{enumLabel(car.carCondition)}</b>
+							<small>{t('detail.condition')}</small>
+							<b>{t(`enum.${car.carCondition}`)}</b>
 						</div>
 						<div>
-							<small>Body type</small>
-							<b>{enumLabel(car.carType)}</b>
+							<small>{t('detail.bodyType')}</small>
+							<b>{t(`enum.${car.carType}`)}</b>
 						</div>
 						<div>
-							<small>Location</small>
-							<b>{enumLabel(car.carLocation)}</b>
+							<small>{t('detail.location')}</small>
+							<b>{t(`enum.${car.carLocation}`)}</b>
 						</div>
 						<div>
-							<small>Viewing address</small>
+							<small>{t('detail.address')}</small>
 							<b>{car.carAddress}</b>
 						</div>
 					</div>
 					{car.carOptions.length > 0 && (
 						<div className="section">
 							<h2>
-								Features{' '}
+								{t('detail.features')}{' '}
 								<span>
-									{car.carOptions.length} of {Object.values(CarOption).length}
+									{t('detail.featuresOf', { count: car.carOptions.length, total: Object.values(CarOption).length })}
 								</span>
 							</h2>
 							<div className="opts">
 								{car.carOptions.map((o) => (
-									<div key={o}>{enumLabel(o)}</div>
+									<div key={o}>{t(`enum.${o}`)}</div>
 								))}
 							</div>
 						</div>
 					)}
 					{car.carDesc && (
 						<div className="section">
-							<h2>From the dealer</h2>
+							<h2>{t('detail.fromDealer')}</h2>
 							<p className="desc">{car.carDesc}</p>
 						</div>
 					)}
-					<CommentSection group={CommentGroup.CAR} refId={car._id} ownerId={car.memberId} placeholder="Ask the dealer something about this car" />
+					<CommentSection group={CommentGroup.CAR} refId={car._id} ownerId={car.memberId} placeholder={t('detail.askDealer')} />
 				</div>
 				<aside className="side">
 					<div className="panel">
 						{car.carMarket !== CarMarket.EXPORT ? (
 							<>
-								<div style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 6 }}>Price</div>
+								<div style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 6 }}>{t('detail.price')}</div>
 								<div className="bigprice">
-									{formatManwon(car.carPrice)}
-									<small>만원</small>
+									{fmt.krw(car.carPrice).value}
+									<small>{fmt.krw(car.carPrice).unit}</small>
 								</div>
 								{car.carMarket === CarMarket.BOTH && (
 									<div className="usdline">
-										<span>Export price</span>
-										<b className="num">{formatUsd(car.carPriceUsd)}</b>
+										<span>{t('detail.exportPrice')}</span>
+										<b className="num">{fmt.usd(car.carPriceUsd)}</b>
 									</div>
 								)}
 							</>
 						) : (
 							<>
-								<div style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 6 }}>Export price</div>
-								<div className="bigprice">{formatUsd(car.carPriceUsd)}</div>
+								<div style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 6 }}>{t('detail.exportPrice')}</div>
+								<div className="bigprice">{fmt.usd(car.carPriceUsd)}</div>
 							</>
 						)}
 						<div className="deals">
 							<div className="deal">
-								<span>Sold for</span>
-								<b>{marketLabel[car.carMarket]}</b>
+								<span>{t('detail.soldFor')}</span>
+								<b>{t(`enum.${car.carMarket}`)}</b>
 							</div>
 							<div className="deal">
-								<span>Rent</span>
+								<span>{t('detail.rent')}</span>
 								{car.carRent ? (
 									<b>
-										<span className="num">{formatNumber(car.carRentPrice)}</span>원 per day
+										{t('detail.perDay', { price: fmt.number(car.carRentPrice) })}
 									</b>
 								) : (
 									<span className="no">Not offered</span>
 								)}
 							</div>
 							<div className="deal">
-								<span>Barter</span>
-								{car.carBarter ? <b>Open to offers</b> : <span className="no">Not offered</span>}
+								<span>{t('detail.barter')}</span>
+								{car.carBarter ? <b>{t('detail.openToOffers')}</b> : <span className="no">{t('detail.notOffered')}</span>}
 							</div>
 						</div>
 						<div className="acts">
 							<button className="btn ghost" onClick={() => likeCarHandler(car._id)}>
-								<Heart filled={!!car.meLiked?.[0]?.myFavorite} /> {car.meLiked?.[0]?.myFavorite ? 'Liked' : 'Like'}{' '}
+								<Heart filled={!!car.meLiked?.[0]?.myFavorite} /> {car.meLiked?.[0]?.myFavorite ? t('detail.liked') : t('detail.like')}{' '}
 								<span className="num">{car.carLikes}</span>
 							</button>
 							<button
 								className="btn ghost"
 								onClick={async () => {
 									await navigator.clipboard.writeText(window.location.href);
-									await sweetTopSuccessAlert('Link copied', 1000);
+									await sweetTopSuccessAlert(t('detail.linkCopied'), 1000);
 								}}
 							>
-								Share
+								{t('detail.share')}
 							</button>
 						</div>
 					</div>
@@ -275,26 +264,24 @@ const CarDetail: NextPage = () => {
 						</div>
 						<div className="agent-stats">
 							<span>
-								<b className="num">{dealer?.memberCars ?? '–'}</b> cars for sale
+								{t('count.carsForSale', { count: dealer?.memberCars ?? 0 })}
 							</span>
 							<span>
-								<b className="num">{dealer?.memberFollowers ?? '–'}</b> followers
+								{t('count.followers', { count: dealer?.memberFollowers ?? 0 })}
 							</span>
 							{dealer && (
 								<span>
-									Since <b>{new Date(dealer.createdAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</b>
+									{t('detail.since')} <b>{fmt.date(dealer.createdAt, { month: 'short', year: 'numeric' })}</b>
 								</span>
 							)}
 						</div>
 						<ContactList dealer={car.agentData} />
-						<p className="note">Payment and fees are agreed directly with the dealer. CarZip does not handle money.</p>
+						<p className="note">{t('detail.paymentNote')}</p>
 					</div>
-					<LocationCard title="Where to see the car" address={car.carAddress} city={car.carLocation} />
+					<LocationCard title={t('detail.whereToSee')} address={car.carAddress} city={car.carLocation} />
 					{car.carMarket !== CarMarket.DOMESTIC && (
 						<div className="exportnote">
-							<b>Buying for export?</b>The dealer is fully responsible for the export: deregistration (말소등록), export
-							paperwork, customs, shipping and payment. CarZip is only a marketplace and is not part of the deal. The USD price
-							is set by the dealer, not converted by CarZip.
+							<b>{t('detail.exportTitle')}</b>{t('detail.exportText')}
 						</div>
 					)}
 					{car.carTestDrive && car.carStatus === CarStatus.ACTIVE && (!user._id || user.memberType === MemberType.USER) && (
@@ -306,9 +293,9 @@ const CarDetail: NextPage = () => {
 				<div style={{ padding: '0 48px 56px' }}>
 					<div className="section" style={{ marginTop: 0 }}>
 						<h2>
-							More from {dealerName(car.agentData)}
+							{t('detail.moreFrom', { name: dealerName(car.agentData) })}
 							<Link href={`/agent/detail?id=${dealerId}`} style={{ fontSize: 14, fontWeight: 600, marginLeft: 'auto' }}>
-								See all
+								{t('detail.seeAll')}
 							</Link>
 						</h2>
 					</div>

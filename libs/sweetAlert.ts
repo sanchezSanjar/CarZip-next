@@ -45,14 +45,14 @@ export const sweetConfirmAlert = (msg: string, confirmText = 'Confirm', danger =
 	});
 };
 
-export const sweetLoginConfirmAlert = (msg: string) => {
+export const sweetLoginConfirmAlert = (msg: string, confirmText = 'Log in') => {
 	return new Promise<boolean>(async (resolve) => {
 		await Swal.fire({
 			text: msg,
 			showCancelButton: true,
 			showConfirmButton: true,
 			confirmButtonColor: colors.signal,
-			confirmButtonText: 'Log in',
+			confirmButtonText: confirmText,
 			cancelButtonColor: '#9AA1A8',
 		}).then((response) => resolve(response?.isConfirmed ?? false));
 	});

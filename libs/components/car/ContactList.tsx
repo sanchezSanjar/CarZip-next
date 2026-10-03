@@ -1,9 +1,11 @@
 import React from 'react';
 import { AgentPublic } from '../../types/member/member';
 import { sweetTopSuccessAlert } from '../../sweetAlert';
+import { useTranslation } from 'next-i18next/pages';
 
 /** the dealer's public contacts: buyers reach the dealer outside CarZip */
 const ContactList = ({ dealer, bar = false }: { dealer?: AgentPublic; bar?: boolean }) => {
+	const { t } = useTranslation('common');
 	if (!dealer) return null;
 	const kakao = dealer.contactKakao;
 	const telegram = dealer.contactTelegram;
@@ -17,7 +19,7 @@ const ContactList = ({ dealer, bar = false }: { dealer?: AgentPublic; bar?: bool
 					<span className="ic" style={{ background: 'var(--signal)', color: 'var(--asphalt)' }}>
 						☎
 					</span>
-					<b>Call</b>
+					<b>{t('detail.call')}</b>
 					<span className="v num">{dealer.contactPhone}</span>
 				</a>
 			)}
@@ -26,10 +28,10 @@ const ContactList = ({ dealer, bar = false }: { dealer?: AgentPublic; bar?: bool
 				<button
 					type="button"
 					className="contact"
-					title="Copy KakaoTalk ID"
+					title={t('detail.copyKakao')}
 					onClick={async () => {
 						await navigator.clipboard.writeText(kakao);
-						await sweetTopSuccessAlert(`KakaoTalk ID "${kakao}" copied`, 1500);
+						await sweetTopSuccessAlert(t('detail.kakaoCopied', { id: kakao }), 1500);
 					}}
 				>
 					<span className="ic" style={{ background: '#FEE500' }}>

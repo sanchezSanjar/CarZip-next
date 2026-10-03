@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CarBrand, CarLocation } from '../../enums/car.enum';
 import { CarsSearch } from '../../types/car/car.input';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
-import { enumLabel } from '../../utils';
+import { useTranslation } from 'next-i18next/pages';
 
 interface HeaderFilterProps {
 	search: CarsSearch;
@@ -11,37 +11,38 @@ interface HeaderFilterProps {
 
 /** dark search bar on top of the browse page: text, one brand and one city */
 const HeaderFilter = ({ search, setSearch }: HeaderFilterProps) => {
+	const { t } = useTranslation('common');
 	const [text, setText] = useState(search.text ?? '');
 
 	/** HANDLERS **/
 	const searchHandler = async (e: React.FormEvent) => {
 		e.preventDefault();
-		const t = text.trim();
-		if (t && (t.length < 2 || t.length > 50)) return sweetMixinErrorAlert('Type 2 to 50 characters to search');
-		setSearch({ ...search, text: t || undefined });
+		const typed = text.trim();
+		if (typed && (typed.length < 2 || typed.length > 50)) return sweetMixinErrorAlert(t('search.textRule'));
+		setSearch({ ...search, text: typed || undefined });
 	};
 
 	return (
 		<div className="searchbar">
-			<h1>Used cars from verified dealers</h1>
-			<p>Every listing is posted by a dealer checked by CarZip. Contact them directly.</p>
+			<h1>{t('search.title')}</h1>
+			<p>{t('search.subtitle')}</p>
 			<form className="row" onSubmit={searchHandler}>
 				<input
 					className="field"
 					value={text}
 					maxLength={50}
 					onChange={(e) => setText(e.target.value)}
-					placeholder="Search a model, e.g. Sorento, GV70, Model 3"
+					placeholder={t('home.searchPlaceholder')}
 				/>
 				<select
 					className="field"
 					value={search.brandList?.length === 1 ? search.brandList[0] : ''}
 					onChange={(e) => setSearch({ ...search, brandList: e.target.value ? [e.target.value as CarBrand] : undefined, modelList: undefined })}
 				>
-					<option value="">All brands</option>
+					<option value="">{t('home.allBrands')}</option>
 					{Object.values(CarBrand).map((b) => (
 						<option key={b} value={b}>
-							{enumLabel(b)}
+							{t(`enum.${b}`)}
 						</option>
 					))}
 				</select>
@@ -50,14 +51,14 @@ const HeaderFilter = ({ search, setSearch }: HeaderFilterProps) => {
 					value={search.locationList?.length === 1 ? search.locationList[0] : ''}
 					onChange={(e) => setSearch({ ...search, locationList: e.target.value ? [e.target.value as CarLocation] : undefined })}
 				>
-					<option value="">All of Korea</option>
+					<option value="">{t('search.allKorea')}</option>
 					{Object.values(CarLocation).map((l) => (
 						<option key={l} value={l}>
-							{enumLabel(l)}
+							{t(`enum.${l}`)}
 						</option>
 					))}
 				</select>
-				<button className="btn primary">Search</button>
+				<button className="btn primary">{t('search.search')}</button>
 			</form>
 		</div>
 	);

@@ -5,7 +5,9 @@ import { CarBrand, CarColor, CarFuelType, CarLocation, CarMarket, CarOption } fr
 import { CarCatalogBrand } from '../../types/car/car';
 import { CarsSearch } from '../../types/car/car.input';
 import { carYears } from '../../config';
-import { colorHex, enumLabel } from '../../utils';
+import { colorHex } from '../../utils';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
 const popularBrands = [
 	CarBrand.HYUNDAI,
@@ -30,14 +32,14 @@ const popularOptions = [
 	CarOption.AROUND_VIEW,
 ];
 const dealTypes = [
-	{ key: 'testDrive', label: 'Can test drive' },
-	{ key: 'rent', label: 'Available for rent' },
-	{ key: 'barter', label: 'Open to barter' },
+	{ key: 'testDrive', label: 'filter.canTestDrive' },
+	{ key: 'rent', label: 'filter.forRent' },
+	{ key: 'barter', label: 'filter.barter' },
 ] as const;
 const markets = [
-	{ value: undefined, label: 'All' },
-	{ value: CarMarket.DOMESTIC, label: 'Korea' },
-	{ value: CarMarket.EXPORT, label: 'Export' },
+	{ value: undefined, label: 'filter.all' },
+	{ value: CarMarket.DOMESTIC, label: 'filter.korea' },
+	{ value: CarMarket.EXPORT, label: 'filter.export' },
 ];
 const MAX_MILEAGE = 200000; // slider at the end = any mileage
 
@@ -55,12 +57,15 @@ const toNumber = (v: string) => (v.trim() === '' ? undefined : Number(v.replace(
 
 /** left filter panel of the browse page: every change goes straight into the getCars search */
 const Filter = ({ search, setSearch }: FilterProps) => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
+	const krwScale = fmt.locale === 'kr' ? 10000 : 1_000_000; // 만원, or millions of won
 	const [showAllBrands, setShowAllBrands] = useState(false);
 	const [showAllOptions, setShowAllOptions] = useState(false);
 	const [currency, setCurrency] = useState<'KRW' | 'USD'>(search.priceUsdRange ? 'USD' : 'KRW');
 	// the price boxes start from the search (a shared link like ?price=1000-3000 fills them)
 	const startRange = search.priceUsdRange ?? search.priceRange;
-	const startScale = search.priceUsdRange ? 1 : 10000;
+	const startScale = search.priceUsdRange ? 1 : krwScale;
 	const [priceMin, setPriceMin] = useState(startRange?.start !== undefined ? String(startRange.start / startScale) : '');
 	const [priceMax, setPriceMax] = useState(startRange?.end !== undefined ? String(startRange.end / startScale) : '');
 	const [mileage, setMileage] = useState(search.mileageRange?.end ?? MAX_MILEAGE);
@@ -75,7 +80,7 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 
 	const applyPrice = (min = priceMin, max = priceMax, cur = currency) => {
 		// KRW is typed in 만원 (x 10,000); USD as is
-		const scale = cur === 'KRW' ? 10000 : 1;
+		const scale = cur === 'KRW' ? krwScale : 1;
 		const start = toNumber(min);
 		const end = toNumber(max);
 		const range = start === undefined && end === undefined ? undefined : { start: start === undefined ? undefined : start * scale, end: end === undefined ? undefined : end * scale };
@@ -99,30 +104,30 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 	return (
 		<aside className="filters">
 			<div className="fgroup">
-				<h4>Sold for</h4>
+				<h4>{t('filter.soldFor')}</h4>
 				<div className="seg">
 					{markets.map((m) => (
 						<span key={m.label} className={search.market === m.value ? 'on' : ''} onClick={() => update({ market: m.value })}>
-							{m.label}
+							{t(m.label)}
 						</span>
 					))}
 				</div>
 				<div className="hint" style={{ marginTop: 6 }}>
-					Export includes cars sold both in Korea and abroad.
+					{t('filter.exportHint')}
 				</div>
 			</div>
 			<div className="fgroup">
-				<h4>Deal type</h4>
+				<h4>{t('filter.dealType')}</h4>
 				{dealTypes.map((d) => (
 					<div key={d.key} className="toggle-row">
-						{d.label}
+						{t(d.label)}
 						<div className={`tog ${search[d.key] ? 'on' : ''}`} onClick={() => update({ [d.key]: search[d.key] ? undefined : true })} />
 					</div>
 				))}
 			</div>
 			<div className="fgroup">
 				<h4>
-					Brand <span>popular in Korea</span>
+					{t('filter.brand')} <span>{t('filter.popularKorea')}</span>
 				</h4>
 				<div className="bgrid">
 					{(showAllBrands ? Object.values(CarBrand) : popularBrands).map((b) => (
@@ -131,7 +136,7 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 							className={`btile ${brands.includes(b) ? 'on' : ''}`}
 							onClick={() => update({ brandList: toggle(search.brandList, b), modelList: undefined })}
 						>
-							<b>{enumLabel(b)}</b>
+							<b>{t(`enum.${b}`)}</b>
 						</span>
 					))}
 				</div>
@@ -139,11 +144,11 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 					style={{ fontSize: 13.5, fontWeight: 600, display: 'block', marginTop: 8, cursor: 'pointer' }}
 					onClick={() => setShowAllBrands(!showAllBrands)}
 				>
-					{showAllBrands ? 'Show popular brands' : `Show all ${Object.values(CarBrand).length} brands`}
+					{showAllBrands ? t('filter.showPopular') : t('filter.showAllBrands', { count: Object.values(CarBrand).length })}
 				</a>
 			</div>
 			<div className="fgroup">
-				<h4>Model</h4>
+				<h4>{t('filter.model')}</h4>
 				<select
 					className="field"
 					style={{ height: 40 }}
@@ -151,7 +156,7 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 					value={search.modelList?.[0] ?? ''}
 					onChange={(e) => update({ modelList: e.target.value ? [e.target.value] : undefined })}
 				>
-					<option value="">{brands.length ? 'Any model' : 'Pick a brand to see its models'}</option>
+					<option value="">{brands.length ? t('filter.anyModel') : t('filter.pickBrand')}</option>
 					{models.map((m) => (
 						<option key={m} value={m}>
 							{m}
@@ -161,7 +166,7 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 			</div>
 			<div className="fgroup">
 				<h4>
-					Price
+					{t('filter.price')}
 					<span className="seg sm">
 						{(['KRW', 'USD'] as const).map((c) => (
 							<span
@@ -181,7 +186,7 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 					<input
 						className="field"
 						inputMode="numeric"
-						placeholder={currency === 'KRW' ? 'Min 만원' : 'Min $'}
+						placeholder={currency === 'KRW' ? t('filter.minKrw') : t('filter.minUsd')}
 						value={priceMin}
 						onChange={(e) => setPriceMin(e.target.value.replace(/\D/g, ''))}
 						onBlur={() => applyPrice()}
@@ -190,7 +195,7 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 					<input
 						className="field"
 						inputMode="numeric"
-						placeholder={currency === 'KRW' ? 'Max 만원' : 'Max $'}
+						placeholder={currency === 'KRW' ? t('filter.maxKrw') : t('filter.maxUsd')}
 						value={priceMax}
 						onChange={(e) => setPriceMax(e.target.value.replace(/\D/g, ''))}
 						onBlur={() => applyPrice()}
@@ -198,12 +203,12 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 					/>
 				</div>
 				<div className="hint" style={{ marginTop: 6 }}>
-					{currency === 'KRW' ? 'Hides export-only cars.' : 'USD shows export prices only.'}
+					{currency === 'KRW' ? t('filter.hidesExport') : t('filter.usdHint')}
 				</div>
 			</div>
 			<div className="fgroup">
 				<h4>
-					Mileage <span className="num">{mileage >= MAX_MILEAGE ? 'any' : `up to ${mileage.toLocaleString('en-US')} km`}</span>
+					{t('filter.mileage')} <span className="num">{mileage >= MAX_MILEAGE ? t('filter.anyMileage') : t('filter.upTo', { km: fmt.number(mileage) })}</span>
 				</h4>
 				<input
 					type="range"
@@ -219,16 +224,16 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 				/>
 			</div>
 			<div className="fgroup">
-				<h4>Year</h4>
+				<h4>{t('filter.year')}</h4>
 				<div className="range">
 					<select className="field" value={search.yearRange?.start ?? ''} onChange={(e) => setYear('start', e.target.value)}>
-						<option value="">From</option>
+						<option value="">{t('filter.from')}</option>
 						{carYears.map((y) => (
 							<option key={y}>{y}</option>
 						))}
 					</select>
 					<select className="field" value={search.yearRange?.end ?? ''} onChange={(e) => setYear('end', e.target.value)}>
-						<option value="">To</option>
+						<option value="">{t('filter.to')}</option>
 						{carYears.map((y) => (
 							<option key={y}>{y}</option>
 						))}
@@ -236,48 +241,48 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 				</div>
 			</div>
 			<div className="fgroup">
-				<h4>Fuel</h4>
+				<h4>{t('filter.fuel')}</h4>
 				<div className="chips">
 					{Object.values(CarFuelType).map((f) => (
 						<span key={f} className={`chip ${search.fuelList?.includes(f) ? 'on' : ''}`} onClick={() => update({ fuelList: toggle(search.fuelList, f) })}>
-							{enumLabel(f)}
+							{t(`enum.${f}`)}
 						</span>
 					))}
 				</div>
 			</div>
 			<div className="fgroup">
-				<h4>Color</h4>
+				<h4>{t('filter.color')}</h4>
 				<div className="swgrid">
 					{Object.values(CarColor)
 						.filter((c) => c !== CarColor.OTHER)
 						.map((c) => (
 							<span key={c} className="swl" onClick={() => update({ colorList: toggle(search.colorList, c) })}>
 								<i className={`sw ${search.colorList?.includes(c) ? 'on' : ''}`} style={{ background: colorHex[c] }} />
-								{enumLabel(c)}
+								{t(`enum.${c}`)}
 							</span>
 						))}
 				</div>
 			</div>
 			<div className="fgroup">
 				<h4>
-					Features <span>must have all</span>
+					{t('filter.features')} <span>{t('filter.mustHaveAll')}</span>
 				</h4>
 				<div className="chips">
 					{(showAllOptions ? Object.values(CarOption) : popularOptions).map((o) => (
 						<span key={o} className={`chip ${search.optionList?.includes(o) ? 'on' : ''}`} onClick={() => update({ optionList: toggle(search.optionList, o) })}>
-							{enumLabel(o)}
+							{t(`enum.${o}`)}
 						</span>
 					))}
 					<a
 						style={{ fontSize: 13.5, fontWeight: 600, alignSelf: 'center', cursor: 'pointer' }}
 						onClick={() => setShowAllOptions(!showAllOptions)}
 					>
-						{showAllOptions ? 'Show less' : `+${Object.values(CarOption).length - popularOptions.length} more`}
+						{showAllOptions ? t('filter.showLess') : t('filter.more', { count: Object.values(CarOption).length - popularOptions.length })}
 					</a>
 				</div>
 			</div>
 			<div className="fgroup">
-				<h4>Location</h4>
+				<h4>{t('filter.location')}</h4>
 				<div className="chips">
 					{Object.values(CarLocation).map((l) => (
 						<span
@@ -285,13 +290,13 @@ const Filter = ({ search, setSearch }: FilterProps) => {
 							className={`chip ${search.locationList?.includes(l) ? 'on' : ''}`}
 							onClick={() => update({ locationList: toggle(search.locationList, l) })}
 						>
-							{enumLabel(l)}
+							{t(`enum.${l}`)}
 						</span>
 					))}
 				</div>
 			</div>
 			<button className="btn ghost" style={{ width: '100%', marginTop: 8 }} onClick={clearAll}>
-				Clear all filters
+				{t('search.clearAll')}
 			</button>
 		</aside>
 	);

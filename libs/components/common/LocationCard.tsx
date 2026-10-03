@@ -3,6 +3,7 @@ import { CarLocation } from '../../enums/car.enum';
 import { enumLabel } from '../../utils';
 import { cities, jejuX, jejuY, outline, px } from '../homepage/KoreaMap';
 import MapLinks from './MapLinks';
+import { useTranslation } from 'next-i18next/pages';
 
 /** the city an address mentions ("Yangcheon-gu, Seoul" -> SEOUL), if any */
 export const cityOf = (address?: string | null): CarLocation | undefined =>
@@ -16,6 +17,7 @@ interface LocationCardProps {
 
 /** where to go: the address, a small map of Korea with the city pinned, and links to Naver / Kakao Map */
 const LocationCard = ({ title, address, city }: LocationCardProps) => {
+	const { t } = useTranslation('common');
 	const pin = city ? px(...cities[city]) : null;
 	// the map services find a place better with the city in the search
 	const query = city && !address.toUpperCase().includes(city) ? `${address}, ${enumLabel(city)}` : address;
@@ -24,7 +26,7 @@ const LocationCard = ({ title, address, city }: LocationCardProps) => {
 		<div className="panel location-card">
 			<h3>{title}</h3>
 			<div className="loc-body">
-				<svg className="loc-map" viewBox="60 0 330 420" role="img" aria-label={city ? `Map of Korea, ${enumLabel(city)} marked` : 'Map of Korea'}>
+				<svg className="loc-map" viewBox="60 0 330 420" role="img" aria-label={city ? t('detail.mapMarked', { city: t(`enum.${city}`) }) : t('detail.mapOfKorea')}>
 					<path d={outline} className="land" />
 					<ellipse cx={jejuX} cy={jejuY} rx="26" ry="11" className="land" />
 					{pin && (
@@ -36,7 +38,7 @@ const LocationCard = ({ title, address, city }: LocationCardProps) => {
 				</svg>
 				<div className="loc-text">
 					<b>{address}</b>
-					{city && <span className="muted">{enumLabel(city)}</span>}
+					{city && <span className="muted">{t(`enum.${city}`)}</span>}
 					<MapLinks query={query} />
 				</div>
 			</div>
