@@ -14,6 +14,8 @@ import { GET_CAR, GET_CARS, GET_MEMBER } from '../../apollo/user/query';
 import { Car, Cars } from '../../libs/types/car/car';
 import { Member } from '../../libs/types/member/member';
 import { userVar } from '../../apollo/store';
+import { useLikeCar } from '../../libs/hooks/useLikeCar';
+import { sweetTopSuccessAlert } from '../../libs/sweetAlert';
 import { CarMarket, CarOption } from '../../libs/enums/car.enum';
 import { MemberType } from '../../libs/enums/member.enum';
 import { colorHex, dealerName, enumLabel, formatManwon, formatNumber, formatUsd, initial, marketLabel, timeAgo } from '../../libs/utils';
@@ -24,6 +26,7 @@ const CarDetail: NextPage = () => {
 	const carId = typeof router.query.id === 'string' ? router.query.id : '';
 	const [photoIndex, setPhotoIndex] = useState(0);
 	const [comment, setComment] = useState('');
+	const likeCarHandler = useLikeCar();
 
 	/** APOLLO REQUESTS **/
 	const { data: getCarData, loading: getCarLoading, error: getCarError } = useQuery<{ getCar: Car }>(GET_CAR, {
@@ -264,10 +267,19 @@ const CarDetail: NextPage = () => {
 							</div>
 						</div>
 						<div className="acts">
-							<button className="btn ghost">
-								<Heart filled={!!car.meLiked?.[0]?.myFavorite} /> Like <span className="num">{car.carLikes}</span>
+							<button className="btn ghost" onClick={() => likeCarHandler(car._id)}>
+								<Heart filled={!!car.meLiked?.[0]?.myFavorite} /> {car.meLiked?.[0]?.myFavorite ? 'Liked' : 'Like'}{' '}
+								<span className="num">{car.carLikes}</span>
 							</button>
-							<button className="btn ghost">Share</button>
+							<button
+								className="btn ghost"
+								onClick={async () => {
+									await navigator.clipboard.writeText(window.location.href);
+									await sweetTopSuccessAlert('Link copied', 1000);
+								}}
+							>
+								Share
+							</button>
 						</div>
 					</div>
 					<div className="panel">
