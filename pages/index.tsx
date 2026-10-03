@@ -5,6 +5,7 @@ import Hero from '../libs/components/homepage/Hero';
 import TopAgents from '../libs/components/homepage/TopAgents';
 import QuickBrowse from '../libs/components/homepage/QuickBrowse';
 import ValueCards from '../libs/components/homepage/ValueCards';
+import TopCars from '../libs/components/homepage/TopCars';
 import { useCarStats } from '../libs/hooks/useCarStats';
 
 /** welcome page: first impression, then the way into the car search */
@@ -17,6 +18,7 @@ const Home: NextPage = () => {
 			<QuickBrowse count={count} total={cars.length} />
 			<ValueCards />
 			<TopAgents />
+			<TopCars />
 		</>
 	);
 };
