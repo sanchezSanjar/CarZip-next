@@ -1,22 +1,58 @@
 import React, { useState } from 'react';
 import { NextPage } from 'next';
 import Link from 'next/link';
-import { useReactiveVar } from '@apollo/client/react';
+import { useQuery, useReactiveVar } from '@apollo/client/react';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import Pager from '../../libs/components/common/Pager';
-import { sampleArticles } from '../../libs/sampleData';
+import { GET_BOARD_ARTICLES } from '../../apollo/user/query';
 import { userVar } from '../../apollo/store';
 import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
 import { MemberType } from '../../libs/enums/member.enum';
+import { Direction } from '../../libs/enums/common.enum';
+import { BoardArticles } from '../../libs/types/board-article/board-article';
 import { dealerName, enumLabel, formatNumber, initial, timeAgo } from '../../libs/utils';
+
+const LIMIT = 8;
+const sorts = [
+	{ value: 'createdAt', label: 'Newest' },
+	{ value: 'articleViews', label: 'Most viewed' },
+	{ value: 'articleLikes', label: 'Most liked' },
+	{ value: 'articleComments', label: 'Most comments' },
+];
 
 const Community: NextPage = () => {
 	const user = useReactiveVar(userVar);
 	const [category, setCategory] = useState<BoardArticleCategory | ''>('');
+	const [text, setText] = useState('');
+	const [search, setSearch] = useState('');
+	const [sort, setSort] = useState('createdAt');
 	const [page, setPage] = useState(1);
-	const articles = sampleArticles.filter((a) => !category || a.articleCategory === category);
-	const mostRead = [...sampleArticles].sort((a, b) => b.articleViews - a.articleViews).slice(0, 4);
 	const canWrite = user.memberType === MemberType.AGENT || user.memberType === MemberType.ADMIN;
+
+	/** APOLLO REQUESTS **/
+	const filters = { ...(category ? { articleCategory: category } : {}), ...(search ? { text: search } : {}) };
+	const { data, loading } = useQuery<{ getBoardArticles: BoardArticles }>(GET_BOARD_ARTICLES, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { page, limit: LIMIT, sort, direction: Direction.DESC, ...(Object.keys(filters).length ? { search: filters } : {}) } },
+	});
+	const { data: topData } = useQuery<{ getBoardArticles: BoardArticles }>(GET_BOARD_ARTICLES, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { page: 1, limit: 5, sort: 'articleViews', direction: Direction.DESC } },
+	});
+	const articles = data?.getBoardArticles.list ?? [];
+	const total = data?.getBoardArticles.metaCounter?.[0]?.total ?? 0;
+	const mostRead = topData?.getBoardArticles.list ?? [];
+
+	/** HANDLERS **/
+	const pick = (c: BoardArticleCategory | '') => {
+		setCategory(c);
+		setPage(1);
+	};
+	const searchHandler = (e: React.FormEvent) => {
+		e.preventDefault();
+		setSearch(text.trim());
+		setPage(1);
+	};
 
 	return (
 		<div className="wrap">
@@ -24,49 +60,69 @@ const Community: NextPage = () => {
 			<p className="page-sub">Advice and news from dealers. Everyone can read and comment; dealers write the articles.</p>
 			<div className="bar">
 				<div className="tabs2">
-					<span className={`chip ${category === '' ? 'on' : ''}`} onClick={() => setCategory('')}>
+					<span className={`chip ${category === '' ? 'on' : ''}`} onClick={() => pick('')}>
 						All
 					</span>
 					{Object.values(BoardArticleCategory).map((c) => (
-						<span key={c} className={`chip ${category === c ? 'on' : ''}`} onClick={() => setCategory(c)}>
+						<span key={c} className={`chip ${category === c ? 'on' : ''}`} onClick={() => pick(c)}>
 							{enumLabel(c)}
 						</span>
 					))}
 				</div>
 				<div className="grow" />
-				<input className="field" style={{ width: 260 }} placeholder="Search articles" />
-				<select className="field" style={{ width: 170, fontWeight: 600 }}>
-					<option value="createdAt">Newest</option>
-					<option value="articleViews">Most viewed</option>
-					<option value="articleLikes">Most liked</option>
-					<option value="articleComments">Most comments</option>
+				<form onSubmit={searchHandler} style={{ display: 'flex', gap: 8 }}>
+					<input className="field" style={{ width: 240 }} placeholder="Search articles" value={text} onChange={(e) => setText(e.target.value)} />
+				</form>
+				<select
+					className="field"
+					style={{ width: 170, fontWeight: 600 }}
+					value={sort}
+					onChange={(e) => {
+						setSort(e.target.value);
+						setPage(1);
+					}}
+				>
+					{sorts.map((s) => (
+						<option key={s.value} value={s.value}>
+							{s.label}
+						</option>
+					))}
 				</select>
 			</div>
 			<div className="board">
-				<div className="card">
-					{articles.map((a) => (
-						<div key={a._id} className="post">
-							<div>
-								<span className="cat">{enumLabel(a.articleCategory)}</span>
-								<Link href={`/community/detail?id=${a._id}`} style={{ color: 'inherit' }}>
-									<h3>{a.articleTitle}</h3>
-								</Link>
-								<p>{a.articleContent}</p>
-								<div className="by">
-									<div className={`avatar ${a.memberData?.agentCompany ? '' : 'user'}`}>{initial(dealerName(a.memberData))}</div>
-									{dealerName(a.memberData)} {a.memberData?.agentCompany && <span className="role">Dealer</span>}
-									<span>{timeAgo(a.createdAt)}</span>
+				<div>
+					<div className="card" style={{ opacity: loading && articles.length ? 0.6 : 1 }}>
+						{articles.map((a) => (
+							<div key={a._id} className="post">
+								<div>
+									<span className="cat">{enumLabel(a.articleCategory)}</span>
+									<Link href={`/community/detail?id=${a._id}`} style={{ color: 'inherit' }}>
+										<h3>{a.articleTitle}</h3>
+									</Link>
+									<p>{a.articleContent}</p>
+									<div className="by">
+										<div className={`avatar ${a.memberData?.agentCompany ? '' : 'user'}`}>{initial(dealerName(a.memberData))}</div>
+										{dealerName(a.memberData)} {a.memberData?.agentCompany && <span className="role">Dealer</span>}
+										<span>{timeAgo(a.createdAt)}</span>
+									</div>
+								</div>
+								<div className="st">
+									<b>{formatNumber(a.articleViews)}</b> views
+									<br />
+									<b>{a.articleLikes}</b> likes
+									<br />
+									<b>{a.articleComments}</b> comments
 								</div>
 							</div>
-							<div className="st">
-								<b>{formatNumber(a.articleViews)}</b> views
-								<br />
-								<b>{a.articleLikes}</b> likes
-								<br />
-								<b>{a.articleComments}</b> comments
+						))}
+						{!loading && !articles.length && (
+							<div className="empty" style={{ border: 0 }}>
+								<h3>No articles found</h3>
+								<p>{search ? 'Try other words.' : 'Nothing in this category yet.'}</p>
 							</div>
-						</div>
-					))}
+						)}
+					</div>
+					<Pager page={page} total={Math.ceil(total / LIMIT)} onChange={setPage} />
 				</div>
 				<aside>
 					{canWrite ? (
@@ -89,7 +145,7 @@ const Community: NextPage = () => {
 						</div>
 					)}
 					<div className="sidecard">
-						<h3>Most read this week</h3>
+						<h3>Most read</h3>
 						{mostRead.map((a, i) => (
 							<div key={a._id} className="toprow">
 								<span className="n">{i + 1}</span>
@@ -102,7 +158,6 @@ const Community: NextPage = () => {
 					</div>
 				</aside>
 			</div>
-			<Pager page={page} total={4} onChange={setPage} />
 		</div>
 	);
 };
