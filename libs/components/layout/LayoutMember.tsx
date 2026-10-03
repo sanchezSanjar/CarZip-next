@@ -9,6 +9,7 @@ import { MemberType } from '../../enums/member.enum';
 import { Logo } from '../Top';
 import Avatar from '../common/Avatar';
 import { useMyImage } from '../../hooks/useMyImage';
+import Chat from '../Chat';
 import { useTranslation } from 'next-i18next/pages';
 
 export const agentMenu = [
@@ -85,6 +86,7 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 						<Component {...props} />
 					</div>
 				</div>
+				<Chat />
 			</>
 		);
 	};

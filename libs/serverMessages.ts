@@ -37,6 +37,10 @@ const keys: Record<string, string> = {
 	'You already have an open test drive for this car.': 'errors.tdAlreadyOpen',
 	'You have too many open test-drive requests. Wait for answers or cancel some.': 'errors.tdTooMany',
 	'This car is no longer on sale.': 'errors.tdCarNotActive',
+	// live chat
+	'Log in to send messages.': 'errors.chatLogIn',
+	'You are sending messages too fast. Please slow down.': 'errors.chatTooFast',
+	'A message must be text of 1 to 500 characters.': 'errors.chatLength',
 };
 
 /** the message in the visitor's language when we know it; anything else (admin-only messages) stays as the API wrote it */

@@ -2,6 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 import Top from '../Top';
 import Footer from '../Footer';
+import Chat from '../Chat';
 import { useTranslation } from 'next-i18next/pages';
 
 /** public pages: top navigation, page, footer; the tab title is a translation key like 'title.dealers' */
@@ -19,6 +20,7 @@ const withLayoutBasic = <P extends object>(Component: React.ComponentType<P>, ti
 						<Component {...props} />
 					</div>
 					<Footer />
+					<Chat />
 				</div>
 			</>
 		);

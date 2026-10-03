@@ -209,6 +209,19 @@
 		"verified": "Tasdiqlangan diler",
 		"yourCar": "Sizning avtomobilingiz"
 	},
+	"chat": {
+		"blocked": "Hisobingiz chatdan foydalana olmaydi.",
+		"close": "Chatni yopish",
+		"connecting": "Ulanmoqda…",
+		"empty": "Hozircha xabarlar yo'q. Salom bering!",
+		"guest": "Mehmon",
+		"guestNote": "Hamma o'qiy oladi. Xabar yozish uchun kiring.",
+		"online": "{{count}} kishi onlayn",
+		"placeholder": "Xabar yozing",
+		"reconnecting": "Aloqa uzildi. Qayta ulanmoqda…",
+		"send": "Yuborish",
+		"title": "Jonli chat"
+	},
 	"cm": {
 		"article": "Maqola",
 		"dealerPage": "Diler sahifasi",
@@ -462,6 +475,9 @@
 	},
 	"errors": {
 		"blocked": "Hisobingiz bloklangan. Yordam xizmatiga murojaat qiling.",
+		"chatLength": "Xabar 1 dan 500 tagacha belgidan iborat bo'lishi kerak.",
+		"chatLogIn": "Xabar yuborish uchun kiring.",
+		"chatTooFast": "Juda tez yozyapsiz. Biroz kuting.",
 		"commentBlocked": "Bu yerda izoh yoza olmaysiz (egasi sizni bloklagan).",
 		"followBlocked": "Bu dilerga obuna bo'la olmaysiz (diler sizni bloklagan).",
 		"imageFormat": "jpg, jpeg, png yoki webp rasm yuklang!",

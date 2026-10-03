@@ -209,6 +209,19 @@
 		"verified": "Verified dealer",
 		"yourCar": "Your car"
 	},
+	"chat": {
+		"blocked": "Your account can't use the chat.",
+		"close": "Close the chat",
+		"connecting": "Connecting…",
+		"empty": "No messages yet. Say hello!",
+		"guest": "Guest",
+		"guestNote": "Everyone can read. Log in to send messages.",
+		"online": "{{count}} online",
+		"placeholder": "Write a message",
+		"reconnecting": "Connection lost. Reconnecting…",
+		"send": "Send",
+		"title": "Live chat"
+	},
 	"cm": {
 		"article": "Article",
 		"dealerPage": "Dealer page",
@@ -462,6 +475,9 @@
 	},
 	"errors": {
 		"blocked": "Your account has been blocked. Contact support.",
+		"chatLength": "A message must be 1 to 500 characters.",
+		"chatLogIn": "Log in to send messages.",
+		"chatTooFast": "You are sending messages too fast. Please slow down.",
 		"commentBlocked": "You are not allowed to comment here (blocked by the owner).",
 		"followBlocked": "You are not allowed to follow this agent (blocked by the agent).",
 		"imageFormat": "Please provide jpg, jpeg, png or webp images!",

@@ -17,6 +17,7 @@ import { getJwtToken } from '../libs/auth';
 import '../scss/app.scss';
 import '../scss/pc/main.scss';
 import '../scss/theme.scss';
+import '../scss/chat.scss';
 import '../scss/mobile/main.scss';
 
 const App = ({ Component, pageProps }: AppProps) => {

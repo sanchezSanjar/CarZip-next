@@ -209,6 +209,19 @@
 		"verified": "인증 딜러",
 		"yourCar": "내 차량"
 	},
+	"chat": {
+		"blocked": "이 계정은 채팅을 이용할 수 없습니다.",
+		"close": "채팅 닫기",
+		"connecting": "연결 중…",
+		"empty": "아직 메시지가 없습니다. 먼저 인사해 보세요!",
+		"guest": "손님",
+		"guestNote": "누구나 읽을 수 있어요. 메시지를 보내려면 로그인하세요.",
+		"online": "{{count}}명 접속 중",
+		"placeholder": "메시지를 입력하세요",
+		"reconnecting": "연결이 끊겼습니다. 다시 연결하는 중…",
+		"send": "보내기",
+		"title": "실시간 채팅"
+	},
 	"cm": {
 		"article": "게시글",
 		"dealerPage": "딜러 페이지",
@@ -462,6 +475,9 @@
 	},
 	"errors": {
 		"blocked": "계정이 차단되었습니다. 고객센터에 문의하세요.",
+		"chatLength": "메시지는 1~500자여야 합니다.",
+		"chatLogIn": "메시지를 보내려면 로그인하세요.",
+		"chatTooFast": "메시지를 너무 빨리 보내고 있어요. 잠시 후 다시 보내세요.",
 		"commentBlocked": "작성자가 차단하여 댓글을 쓸 수 없습니다.",
 		"followBlocked": "딜러가 차단하여 팔로우할 수 없습니다.",
 		"imageFormat": "jpg, jpeg, png, webp 이미지만 올릴 수 있습니다!",
