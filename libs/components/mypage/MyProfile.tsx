@@ -12,6 +12,7 @@ import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
 import { uploadImages } from '../../upload';
 import { dealerName, initial } from '../../utils';
 import Verified from '../common/Verified';
+import ChangePassword from './ChangePassword';
 
 const contactFields = [
 	{ key: 'contactPhone', icon: '☎', bg: 'var(--asphalt)', color: '#fff', placeholder: 'Shop phone' },
@@ -205,6 +206,7 @@ const ProfileForm = ({ member }: { member: Member }) => {
 								Login phone<small className="num">{member.memberPhone}</small>
 							</div>
 						</div>
+						<ChangePassword />
 						{isAgent && (
 							<div className="acc-row">
 								<div>
