@@ -60,3 +60,16 @@
 
 /* car rankings: the dealer page's 4-column grid without its page padding */
 .grid4.home-cars { padding: 0; transition: opacity .2s; }
+
+/* from the community */
+.article-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.article-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; color: var(--asphalt); display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s; }
+.article-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(30, 36, 43, .1); }
+.article-img { height: 180px; background: linear-gradient(135deg, var(--road), var(--asphalt)); display: grid; place-items: center; color: #fff; font-family: 'Archivo'; font-weight: 800; font-size: 22px; }
+.article-img img { width: 100%; height: 100%; object-fit: cover; }
+.article-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.article-body .cat { align-self: flex-start; }
+.article-body h3 { font-size: 17px; font-weight: 800; line-height: 1.35; }
+.article-body p { color: var(--muted); font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.article-body .by { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: auto; padding-top: 8px; }
+.article-body .by .avatar { width: 24px; height: 24px; font-size: 11px; border-radius: 6px; }
