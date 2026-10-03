@@ -1,23 +1,84 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useReactiveVar } from '@apollo/client/react';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import Heart from '../../libs/components/common/Heart';
 import CarCard from '../../libs/components/common/CarCard';
-import CarPhoto from '../../libs/components/common/CarPhoto';
-import { sampleArticles, sampleCars } from '../../libs/sampleData';
+import FollowButton from '../../libs/components/common/FollowButton';
+import CommentSection from '../../libs/components/common/CommentSection';
 import { userVar } from '../../apollo/store';
-import { CarColor, CarType } from '../../libs/enums/car.enum';
+import { GET_BOARD_ARTICLE, GET_BOARD_ARTICLES, GET_CARS } from '../../apollo/user/query';
+import { LIKE_TARGET_BOARD_ARTICLE } from '../../apollo/user/mutation';
+import { getErrorMessage } from '../../libs/auth';
+import { sweetLoginConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../libs/sweetAlert';
+import { CommentGroup } from '../../libs/enums/comment.enum';
+import { BoardArticle, BoardArticles } from '../../libs/types/board-article/board-article';
+import { Cars } from '../../libs/types/car/car';
 import { dealerName, enumLabel, formatNumber, initial, timeAgo } from '../../libs/utils';
 
 const ArticleDetail: NextPage = () => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
-	const article = sampleArticles.find((a) => a._id === router.query.id) ?? sampleArticles[0];
-	const more = sampleArticles.filter((a) => a.memberId === article.memberId && a._id !== article._id);
-	const [comment, setComment] = useState('');
+	const articleId = typeof router.query.id === 'string' ? router.query.id : '';
+
+	/** APOLLO REQUESTS **/
+	const { data, loading, error } = useQuery<{ getBoardArticle: BoardArticle }>(GET_BOARD_ARTICLE, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: articleId },
+		skip: !articleId,
+	});
+	const article = data?.getBoardArticle;
+	const authorId = article?.memberId ?? '';
+	const isDealer = !!article?.memberData?.agentCompany;
+	const { data: moreData } = useQuery<{ getBoardArticles: BoardArticles }>(GET_BOARD_ARTICLES, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { page: 1, limit: 4, sort: 'createdAt', search: { memberId: authorId } } },
+		skip: !authorId,
+	});
+	const { data: carsData } = useQuery<{ getCars: Cars }>(GET_CARS, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { limit: 1, sort: 'LIKES', search: { agentId: authorId } } },
+		skip: !authorId || !isDealer,
+	});
+	const [likeArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
+	const more = (moreData?.getBoardArticles.list ?? []).filter((a) => a._id !== articleId).slice(0, 3);
+	const dealerCar = carsData?.getCars.list[0];
+
+	if (!router.isReady || (loading && !article)) return <div className="wrap muted">Loading the article…</div>;
+	if (error || !article) {
+		return (
+			<div className="wrap">
+				<div className="empty">
+					<h3>This article isn&apos;t available</h3>
+					<p>It may have been removed.</p>
+					<Link href="/community" className="btn dark">
+						Back to Community
+					</Link>
+				</div>
+			</div>
+		);
+	}
+
+	/** HANDLERS **/
+	const liked = !!article.meLiked?.[0]?.myFavorite;
+	const like = async () => {
+		if (!user._id) {
+			if (await sweetLoginConfirmAlert('Log in to like articles.')) await router.push('/account/join?mode=login');
+			return;
+		}
+		try {
+			// the API returns the new count; the "liked" flag is refreshed with the article
+			await likeArticle({ variables: { input: article._id }, refetchQueries: [GET_BOARD_ARTICLE] });
+		} catch (err) {
+			await sweetMixinErrorAlert(getErrorMessage(err));
+		}
+	};
+	const share = async () => {
+		await navigator.clipboard.writeText(window.location.href);
+		await sweetTopSuccessAlert('Link copied', 1000);
+	};
 
 	return (
 		<div className="wrap" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 40 }}>
@@ -30,53 +91,50 @@ const ArticleDetail: NextPage = () => {
 				</div>
 				<h1>{article.articleTitle}</h1>
 				<div className="authorbar">
-					<div className="avatar" style={{ width: 42, height: 42, fontSize: 17 }}>
-						{initial(dealerName(article.memberData))}
-					</div>
+					{article.memberData?.memberImage ? (
+						// eslint-disable-next-line @next/next/no-img-element
+						<img className="avatar" src={article.memberData.memberImage} alt="" style={{ width: 42, height: 42, objectFit: 'cover' }} />
+					) : (
+						<div className="avatar" style={{ width: 42, height: 42, fontSize: 17 }}>
+							{initial(dealerName(article.memberData))}
+						</div>
+					)}
 					<div>
-						<b>{dealerName(article.memberData)}</b> {article.memberData?.agentCompany && <span className="role">Dealer</span>}
+						{isDealer ? (
+							<Link href={`/agent/detail?id=${authorId}`} style={{ color: 'inherit' }}>
+								<b>{dealerName(article.memberData)}</b>
+							</Link>
+						) : (
+							<b>{dealerName(article.memberData)}</b>
+						)}{' '}
+						{isDealer && <span className="role">Dealer</span>}
 						<div className="muted" style={{ fontSize: 13 }}>
 							{timeAgo(article.createdAt)}, {formatNumber(article.articleViews)} views
 						</div>
 					</div>
-					<button className="btn dark sm" style={{ marginLeft: 'auto' }}>
-						Follow
-					</button>
-				</div>
-				<div className="content">
-					{/* plain text from the API: React escapes it, line breaks are kept by CSS */}
-					<p style={{ whiteSpace: 'pre-line' }}>{article.articleContent}</p>
-					{article.articleImage ? (
-						<CarPhoto image={article.articleImage} />
-					) : (
-						<CarPhoto type={CarType.SUV} color={CarColor.GRAY} />
+					{isDealer && (
+						<span style={{ marginLeft: 'auto' }}>
+							<FollowButton dealerId={authorId} className="btn dark sm" />
+						</span>
 					)}
 				</div>
+				<div className="content">
+					{article.articleImage && (
+						// eslint-disable-next-line @next/next/no-img-element
+						<img src={article.articleImage} alt="" style={{ width: '100%', borderRadius: 12, margin: '0 0 22px' }} />
+					)}
+					{/* plain text from the API: React escapes it, CSS keeps the line breaks */}
+					<p style={{ whiteSpace: 'pre-line' }}>{article.articleContent}</p>
+				</div>
 				<div className="reactbar">
-					<button className="btn ghost">
-						<Heart filled={!!article.meLiked?.[0]?.myFavorite} /> Like <span className="num">{article.articleLikes}</span>
+					<button className="btn ghost" onClick={like}>
+						<Heart filled={liked} /> {liked ? 'Liked' : 'Like'} <span className="num">{article.articleLikes}</span>
 					</button>
-					<button className="btn ghost">Share</button>
+					<button className="btn ghost" onClick={share}>
+						Share
+					</button>
 				</div>
-				<div className="section">
-					<h2>
-						Comments <span className="num">{article.articleComments}</span>
-					</h2>
-					<div className="comment-box">
-						<div className="avatar user">{initial(user.memberNick || 'G')}</div>
-						<textarea
-							className="ta"
-							style={{ border: 0, outline: 'none', resize: 'none', fontFamily: 'inherit' }}
-							placeholder={user._id ? 'Write a comment' : 'Log in to write a comment'}
-							value={comment}
-							disabled={!user._id}
-							onChange={(e) => setComment(e.target.value)}
-						/>
-						<button className="btn dark sm" disabled={!user._id || !comment.trim()}>
-							Post comment
-						</button>
-					</div>
-				</div>
+				<CommentSection group={CommentGroup.ARTICLE} refId={article._id} ownerId={authorId} />
 			</div>
 			<aside>
 				{more.length > 0 && (
@@ -87,11 +145,17 @@ const ArticleDetail: NextPage = () => {
 								<Link href={`/community/detail?id=${a._id}`} style={{ color: 'inherit' }}>
 									{a.articleTitle}
 								</Link>
+								<small>{new Date(a.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</small>
 							</div>
 						))}
 					</div>
 				)}
-				<CarCard car={sampleCars[0]} />
+				{dealerCar && (
+					<>
+						<h3 style={{ fontSize: 15, fontWeight: 800, margin: '4px 0 10px' }}>For sale by {dealerName(article.memberData)}</h3>
+						<CarCard car={dealerCar} />
+					</>
+				)}
 			</aside>
 		</div>
 	);
