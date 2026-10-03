@@ -8,7 +8,7 @@
 .menu-btn span { display: block; width: 18px; height: 2px; border-radius: 1px; background: var(--asphalt); }
 .mobile-drawer { width: 280px; padding: 20px 16px; display: flex; flex-direction: column; gap: 4px; font-family: 'Pretendard', sans-serif; }
 .mobile-drawer .who { display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--paper); border-radius: 12px; margin-bottom: 12px; }
-.mobile-drawer .who .avatar { width: 40px; height: 40px; }
+.mobile-drawer .who .avatar { width: 52px; height: 52px; }
 .mobile-drawer .who b { display: block; }
 .mobile-drawer .who span { font-size: 13px; color: var(--muted); }
 .mobile-drawer .auth-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
@@ -119,6 +119,7 @@
 	/* ---------- community and help ---------- */
 	.board, .article-layout, .helpgrid { grid-template-columns: 1fr; }
 	.post { grid-template-columns: 1fr; gap: 8px; }
+	.post-thumb { width: 100%; aspect-ratio: 16 / 9; }
 	.post .st { text-align: left; display: flex; gap: 14px; }
 	.post .st br { display: none; }
 	.article h1 { font-size: 26px; }

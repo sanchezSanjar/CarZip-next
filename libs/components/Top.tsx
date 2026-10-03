@@ -179,7 +179,7 @@ const Top = () => {
 			<Logo />
 			<div className="links">
 				{links.map((l) => (
-					<Link key={l.href} href={l.href} className={l.match(router.pathname) ? 'on' : ''} style={{ color: 'inherit' }}>
+					<Link key={l.href} href={l.href} className={l.match(router.pathname) ? 'on' : ''}>
 						{t(l.label)}
 					</Link>
 				))}

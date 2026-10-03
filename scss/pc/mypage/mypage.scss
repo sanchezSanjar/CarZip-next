@@ -4,7 +4,10 @@
 .sidenav { background: var(--asphalt); color: #C9D0D6; padding: 24px 16px; }
 .sidenav .logo { color: #fff; margin: 0 8px 30px; }
 .sidenav .who { display: flex; gap: 10px; align-items: center; padding: 12px; background: #2A3139; border-radius: 12px; margin-bottom: 22px; }
-.sidenav .who .avatar { background: var(--signal); color: var(--asphalt); }
+.sidenav .who { gap: 12px; padding: 14px; }
+.sidenav .who .avatar { background: var(--signal); color: var(--asphalt); width: 56px; height: 56px; border-radius: 14px; }
+.sidenav .who .avatar.user { border-radius: 50%; }
+.sidenav a:not(.on):hover { background: #2A3139; color: #fff; }
 .sidenav .who b { color: #fff; display: block; font-size: 14px; }
 .sidenav .who span { font-size: 12.5px; }
 .sidenav a { display: flex; justify-content: space-between; align-items: center; color: #C9D0D6; padding: 11px 12px; border-radius: 9px; font-weight: 600; font-size: 14.5px; }
@@ -135,6 +138,8 @@
 .mycomment { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--line-2); }
 .mycomment:last-child { border-bottom: 0; }
 .mycomment .thumb, .mycomment .avatar { flex: none; }
+.mycomment .avatar { width: 42px; height: 42px; margin: 0 11px; } /* lines up with the 64px photos */
+.mycomment > .cat { width: 64px; text-align: center; }
 .mycomment .body { flex: 1; min-width: 0; }
 .mycomment .body small { display: block; color: var(--muted); font-size: 13px; }
 .mycomment .body p { margin: 4px 0; white-space: pre-line; overflow-wrap: anywhere; }

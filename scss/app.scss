@@ -97,7 +97,18 @@ tr:last-child td { border-bottom: 0; }
 .car-card .badges span.mk { background: var(--asphalt); color: #fff; }
 
 /* ---------- app additions (real elements instead of the design's drawings) ---------- */
-.nav .links a { color: inherit; }
+.nav .links a { color: inherit; transition: color 0.2s ease; }
+/* top menu: everything you can click changes color on hover */
+.nav .links a:hover, .notif-link:hover { color: var(--road); }
+.nav .btn { transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
+.nav .btn.ghost:hover { border-color: var(--road); color: var(--road); }
+.nav .btn.dark:hover { background: var(--road); }
+.nav .btn.primary:hover { background: #E3941A; }
+.lang-btn:hover { color: var(--road); }
+/* my photo in the top bar: bigger, with a ring on hover */
+.nav .right > .avatar { width: 40px; height: 40px; border-radius: 10px; transition: box-shadow 0.2s ease; }
+.nav .right > .avatar.user { border-radius: 50%; }
+.nav .right > .avatar:hover { box-shadow: 0 0 0 3px var(--road-tint), 0 0 0 4px var(--road); }
 .nav .logo, .sidenav .logo { text-decoration: none; }
 .sidenav .logo { color: #fff; }
 .sidenav a:not(.on):hover { background: #2A3139; }
@@ -106,7 +117,11 @@ tr:last-child td { border-bottom: 0; }
 .chip, .btile, .type, .tog, .seg span, .swl, .helpnav a, .tabs span { cursor: pointer; user-select: none; }
 .photo.real { place-items: stretch; }
 .photo.real::after { display: none; }
-.photo.real img { width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 1; }
+.photo.real img { width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 1; transition: transform 0.4s ease; }
+/* car photos zoom in a little on hover (the frame stays put, the photo grows inside it) */
+.car-card:hover .photo.real img, .gallery .photo.real:hover img { transform: scale(1.07); }
+.photo svg.car { transition: transform 0.4s ease; }
+.car-card:hover .photo svg.car { transform: scale(1.05); }
 
 input.field, select.field, textarea.field {
 	width: 100%; color: var(--asphalt); font-family: 'Pretendard', sans-serif; outline: none;
@@ -120,7 +135,7 @@ select.field { appearance: auto; }
 .otp input:focus { border-color: var(--road); box-shadow: 0 0 0 3px var(--road-tint); }
 #pc-wrap { min-height: 100vh; display: flex; flex-direction: column; }
 #pc-wrap #main { flex: 1; }
-.notif-link { font-size: 14px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.notif-link { font-size: 14px; color: var(--muted); transition: color 0.2s ease; display: inline-flex; align-items: center; gap: 6px; }
 .notif-link .badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--signal); color: var(--asphalt); font-size: 12px; font-weight: 800; display: inline-grid; place-items: center; }
 
 /* avatars: a photo, or a person silhouette when there is none */
