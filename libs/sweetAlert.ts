@@ -88,3 +88,19 @@ export const sweetErrorAlert = async (msg: string, duration: number = 3000) => {
 		timer: duration,
 	});
 };
+
+/** asks for a short text (e.g. a moderation reason); returns null when cancelled */
+export const sweetPromptAlert = async (msg: string, placeholder: string, min = 5, max = 300): Promise<string | null> => {
+	const result = await Swal.fire({
+		text: msg,
+		input: 'textarea',
+		inputPlaceholder: placeholder,
+		inputAttributes: { maxlength: String(max) },
+		showCancelButton: true,
+		confirmButtonText: 'Confirm',
+		confirmButtonColor: colors.stop,
+		cancelButtonColor: '#9AA1A8',
+		inputValidator: (value) => (value.trim().length < min ? `Write at least ${min} characters` : null),
+	});
+	return result.isConfirmed ? String(result.value).trim() : null;
+};
