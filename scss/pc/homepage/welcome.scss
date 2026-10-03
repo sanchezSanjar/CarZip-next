@@ -17,3 +17,27 @@
 
 @keyframes hero-drift { from { transform: scale(1.08) translate(-1.5%, -1%); } to { transform: scale(1.14) translate(1.5%, 1%); } }
 @media (prefers-reduced-motion: reduce) { .hero-media { animation: none; } }
+
+/* sections below the hero */
+.home-section { padding: 56px 48px 8px; max-width: 1440px; margin: 0 auto; }
+.home-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 22px; gap: 20px; }
+.home-head h2 { font-family: 'Archivo'; font-stretch: 116%; font-weight: 800; font-size: 30px; letter-spacing: -.015em; }
+.home-head p { color: var(--muted); margin-top: 4px; }
+
+/* top dealers carousel */
+.agent-carousel { overflow: hidden; border-radius: 16px; }
+.agent-track { display: flex; transition: transform .6s cubic-bezier(.4, 0, .2, 1); }
+.agent-page { flex: 0 0 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.agent-tile { position: relative; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px 20px 20px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; color: var(--asphalt); transition: transform .2s, box-shadow .2s; }
+.agent-tile:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(30, 36, 43, .1); }
+.agent-tile > b { font-size: 17px; margin-top: 8px; }
+.agent-tile .muted { font-size: 13.5px; }
+.agent-tile .rankno { position: absolute; top: 14px; left: 16px; margin: 0; }
+.agent-logo { width: 84px; height: 84px; border-radius: 20px; object-fit: cover; }
+.agent-logo.sq { background: var(--asphalt); color: var(--signal); display: grid; place-items: center; font-family: 'Archivo'; font-weight: 900; font-size: 34px; }
+.agent-nums { display: grid; grid-template-columns: 1fr 1fr; width: 100%; margin-top: 12px; border-top: 1px solid var(--line-2); padding-top: 12px; font-size: 12.5px; color: var(--muted); }
+.agent-nums b { display: block; font-size: 20px; color: var(--asphalt); font-weight: 800; }
+.dots { display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
+.dots button { width: 9px; height: 9px; border-radius: 5px; border: 0; background: var(--line); cursor: pointer; padding: 0; transition: width .3s, background .3s; }
+.dots button.on { width: 26px; background: var(--asphalt); }
+@media (prefers-reduced-motion: reduce) { .agent-track { transition: none; } }
