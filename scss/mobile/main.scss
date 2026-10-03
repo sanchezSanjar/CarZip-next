@@ -156,6 +156,7 @@
 	/* wide tables scroll sideways inside their card */
 	.block { overflow-x: auto; }
 	.block table { min-width: 680px; }
+	.block .rowacts { flex-wrap: nowrap; } /* the table scrolls sideways here, so buttons stay on one line */
 	.block-head { flex-direction: column; align-items: flex-start; gap: 10px; }
 	.block-head .chips, .ftabs { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; }
 	.block-head .chips .chip, .ftabs .chip { flex: none; }
