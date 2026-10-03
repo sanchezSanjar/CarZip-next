@@ -5,6 +5,7 @@ import withLayoutMember from '../../libs/components/layout/LayoutMember';
 import TestDrives from '../../libs/components/mypage/TestDrives';
 import MyCars from '../../libs/components/mypage/MyCars';
 import AddNewCar from '../../libs/components/mypage/AddNewCar';
+import MyFavorites from '../../libs/components/mypage/MyFavorites';
 
 /** /mypage?category=... : one section of the dealer's or buyer's own pages */
 const MyPage: NextPage = () => {
@@ -18,6 +19,8 @@ const MyPage: NextPage = () => {
 			{category === 'testDrives' && <TestDrives />}
 			{category === 'myCars' && <MyCars />}
 			{category === 'addCar' && <AddNewCar />}
+			{category === 'myFavorites' && <MyFavorites />}
+			{category === 'recentlyVisited' && <MyFavorites visited />}
 		</>
 	);
 };
