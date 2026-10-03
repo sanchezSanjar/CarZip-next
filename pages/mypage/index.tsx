@@ -7,6 +7,7 @@ import MyCars from '../../libs/components/mypage/MyCars';
 import AddNewCar from '../../libs/components/mypage/AddNewCar';
 import MyFavorites from '../../libs/components/mypage/MyFavorites';
 import MyArticles from '../../libs/components/mypage/MyArticles';
+import MyFollows from '../../libs/components/mypage/MyFollows';
 
 /** /mypage?category=... : one section of the dealer's or buyer's own pages */
 const MyPage: NextPage = () => {
@@ -23,6 +24,7 @@ const MyPage: NextPage = () => {
 			{category === 'myFavorites' && <MyFavorites />}
 			{category === 'recentlyVisited' && <MyFavorites visited />}
 			{category === 'myArticles' && <MyArticles />}
+			{category === 'follows' && <MyFollows />}
 		</>
 	);
 };
