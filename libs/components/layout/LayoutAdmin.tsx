@@ -15,7 +15,7 @@ const withLayoutAdmin = <P extends object>(Component: React.ComponentType<P>) =>
 	const LayoutAdmin = (props: P) => {
 		const router = useRouter();
 		const user = useReactiveVar(userVar);
-	const myImage = useMyImage();
+		const myImage = useMyImage();
 
 		/** LIFECYCLES **/
 		useEffect(() => {
@@ -44,7 +44,9 @@ const withLayoutAdmin = <P extends object>(Component: React.ComponentType<P>) =>
 								<span>CarZip team</span>
 							</div>
 						</div>
-						<AdminMenuList />
+						<div className="menu-row">
+							<AdminMenuList />
+						</div>
 					</div>
 					<div className="main">
 						<Component {...props} />

@@ -36,7 +36,7 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 	const LayoutMember = (props: P) => {
 		const router = useRouter();
 		const user = useReactiveVar(userVar);
-	const myImage = useMyImage();
+		const myImage = useMyImage();
 		const isAgent = user.memberType === MemberType.AGENT;
 		const menu = isAgent ? agentMenu : userMenu;
 		const raw = (router.query.category as string) ?? 'testDrives';
@@ -65,12 +65,18 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 								<span>{isAgent ? 'Verified dealer' : 'Buyer'}</span>
 							</div>
 						</div>
-						{menu.map((m) => (
-							<Link key={m.category} href={`/mypage?category=${m.category}`} className={category === m.category ? 'on' : ''}>
-								{m.label}
-							</Link>
-						))}
-						<Link href="/">Back to CarZip</Link>
+						<div className="menu-row">
+							{menu.map((m) => (
+								<Link
+									key={m.category}
+									href={`/mypage?category=${m.category}`}
+									className={category === m.category ? 'on' : ''}
+								>
+									{m.label}
+								</Link>
+							))}
+							<Link href="/">Back to CarZip</Link>
+						</div>
 					</div>
 					<div className="main">
 						<Component {...props} />

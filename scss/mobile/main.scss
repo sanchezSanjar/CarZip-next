@@ -133,3 +133,44 @@
 	.otp { gap: 6px; }
 	.otp input { width: 44px; height: 54px; font-size: 24px; }
 }
+
+/* ---------- dashboards (my page, admin) ---------- */
+@media (max-width: 768px) {
+	.dash { grid-template-columns: 1fr; min-height: 0; }
+	.dash > *, .review > *, .twocol > *, .comments-wrap > *, .ed-grid > *, .prof > * { min-width: 0; }
+	/* the side menu becomes a top bar: logo + who, then a row of menu items that scrolls sideways */
+	.sidenav { padding: 12px 16px 10px; position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+	.sidenav a.logo { margin: 0; font-size: 20px; }
+	.sidenav .who { margin: 0 0 0 auto; padding: 6px 10px; gap: 8px; }
+	.sidenav .who .avatar { width: 28px; height: 28px; }
+	.sidenav .who > div > span { display: none; } /* hide the caption, keep the avatar */
+	.sidenav .menu-row { display: flex; gap: 6px; overflow-x: auto; width: 100%; padding-bottom: 2px; scrollbar-width: none; }
+	.sidenav .menu-row a { flex: none; padding: 8px 12px; font-size: 13.5px; white-space: nowrap; }
+	.sidenav .menu-row a em { margin-left: 6px; }
+	.main { padding: 20px 16px 32px; min-width: 0; }
+	.main-head { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+	.main-head h1 { font-size: 24px; }
+	.kpis { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; }
+	.kpi b { font-size: 24px; }
+	/* wide tables scroll sideways inside their card */
+	.block { overflow-x: auto; }
+	.block table { min-width: 680px; }
+	.block-head { flex-direction: column; align-items: flex-start; gap: 10px; }
+	.block-head .chips, .ftabs { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; }
+	.block-head .chips .chip, .ftabs .chip { flex: none; }
+	.review, .twocol, .comments-wrap, .ed-grid, .prof, .guides-wrap { grid-template-columns: 1fr !important; }
+	.photo-card { padding: 18px; }
+	.formsec { padding: 18px 16px; }
+	.upgrid { grid-template-columns: repeat(3, 1fr); }
+	.upslot { height: 88px; }
+	div[style*='repeat(7, 1fr)'] { grid-template-columns: repeat(3, 1fr) !important; }
+	div[style*='repeat(3, 1fr)'] { grid-template-columns: 1fr !important; }
+	.optgrid { grid-template-columns: repeat(2, 1fr); }
+	.stickybar { margin: 0 -16px -32px; padding: 12px 16px; flex-wrap: wrap; }
+	.stickybar .t { width: 100%; font-size: 13px; }
+	.stickybar .btn { width: 100%; }
+	.savebar { flex-wrap: wrap; }
+	.notif { padding: 14px 12px; gap: 10px; }
+	.search-in { width: 100% !important; }
+	.mini-list .row { flex-wrap: wrap; }
+}
