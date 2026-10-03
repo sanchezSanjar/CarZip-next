@@ -24,11 +24,13 @@ import { BoardArticles } from '../../libs/types/board-article/board-article';
 import { Member } from '../../libs/types/member/member';
 import { dealerName, enumLabel, formatNumber, timeAgo } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
+import { useAddressReady } from '../../libs/hooks/useAddressReady';
 
 const CARS_PAGE = 8;
 
 const AgentDetail: NextPage = () => {
 	const router = useRouter();
+	const addressReady = useAddressReady();
 	const user = useReactiveVar(userVar);
 	const agentId = typeof router.query.id === 'string' ? router.query.id : '';
 	const [tab, setTab] = useState<'cars' | 'articles' | 'comments'>('cars');
@@ -63,7 +65,7 @@ const AgentDetail: NextPage = () => {
 	const nextCursor = carsData?.getCars.nextCursor;
 	const articles = articlesData?.getBoardArticles.list ?? [];
 
-	if (!router.isReady || (memberLoading && !agent)) return <div className="wrap muted">Loading the dealer…</div>;
+	if (!addressReady || (memberLoading && !agent)) return <div className="wrap muted">Loading the dealer…</div>;
 	if (error || !agent || agent.memberType !== MemberType.AGENT) {
 		return (
 			<div className="wrap">

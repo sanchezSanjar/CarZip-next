@@ -18,9 +18,11 @@ import { BoardArticle, BoardArticles } from '../../libs/types/board-article/boar
 import { Cars } from '../../libs/types/car/car';
 import { dealerName, enumLabel, formatNumber, timeAgo } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
+import { useAddressReady } from '../../libs/hooks/useAddressReady';
 
 const ArticleDetail: NextPage = () => {
 	const router = useRouter();
+	const addressReady = useAddressReady();
 	const user = useReactiveVar(userVar);
 	const articleId = typeof router.query.id === 'string' ? router.query.id : '';
 
@@ -47,7 +49,7 @@ const ArticleDetail: NextPage = () => {
 	const more = (moreData?.getBoardArticles.list ?? []).filter((a) => a._id !== articleId).slice(0, 3);
 	const dealerCar = carsData?.getCars.list[0];
 
-	if (!router.isReady || (loading && !article)) return <div className="wrap muted">Loading the article…</div>;
+	if (!addressReady || (loading && !article)) return <div className="wrap muted">Loading the article…</div>;
 	if (error || !article) {
 		return (
 			<div className="wrap">
@@ -82,7 +84,7 @@ const ArticleDetail: NextPage = () => {
 	};
 
 	return (
-		<div className="wrap" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 40 }}>
+		<div className="wrap article-layout">
 			<div className="article">
 				<div className="crumbs" style={{ padding: 0 }}>
 					<Link href="/community" style={{ color: 'inherit' }}>

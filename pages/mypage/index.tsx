@@ -13,13 +13,15 @@ import MyComments from '../../libs/components/mypage/MyComments';
 import MyBlocks from '../../libs/components/mypage/MyBlocks';
 import MyProfile from '../../libs/components/mypage/MyProfile';
 import MyNotifications from '../../libs/components/mypage/MyNotifications';
+import { useAddressReady } from '../../libs/hooks/useAddressReady';
 
 /** /mypage?category=... : one section of the dealer's or buyer's own pages */
 const MyPage: NextPage = () => {
 	const router = useRouter();
+	const addressReady = useAddressReady();
 	const category = typeof router.query.category === 'string' ? router.query.category : 'testDrives';
 
-	if (!router.isReady) return null;
+	if (!addressReady) return null;
 
 	return (
 		<>

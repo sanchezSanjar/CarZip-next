@@ -24,9 +24,11 @@ import { CarMarket, CarOption, CarStatus } from '../../libs/enums/car.enum';
 import { MemberType } from '../../libs/enums/member.enum';
 import { colorHex, dealerName, enumLabel, formatManwon, formatNumber, formatUsd, marketLabel, timeAgo } from '../../libs/utils';
 import Avatar from '../../libs/components/common/Avatar';
+import { useAddressReady } from '../../libs/hooks/useAddressReady';
 
 const CarDetail: NextPage = () => {
 	const router = useRouter();
+	const addressReady = useAddressReady();
 	const user = useReactiveVar(userVar);
 	const carId = typeof router.query.id === 'string' ? router.query.id : '';
 	const [photoIndex, setPhotoIndex] = useState(0);
@@ -55,7 +57,7 @@ const CarDetail: NextPage = () => {
 	});
 	const moreCars = (dealerCarsData?.getCars.list ?? []).filter((c) => c._id !== carId).slice(0, 3);
 
-	if (!router.isReady || (getCarLoading && !car)) {
+	if (!addressReady || (getCarLoading && !car)) {
 		return <div className="wrap muted">Loading the car…</div>;
 	}
 	if (getCarError || !car) {
