@@ -220,14 +220,6 @@ const Top = () => {
 						</div>
 						<Menu anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
 							<MenuItem disabled>{user.memberNick}</MenuItem>
-							<MenuItem
-								onClick={() => {
-									setAnchorEl(null);
-									router.push('/mypage').then();
-								}}
-							>
-								{t('nav.myPage')}
-							</MenuItem>
 							<MenuItem onClick={logOutHandler}>{t('nav.logOut')}</MenuItem>
 						</Menu>
 					</>

@@ -97,11 +97,104 @@ input.field:focus, select.field:focus, textarea.field:focus { outline: none; bor
 
 // background: two soft color glows (brand blue and warm amber) drifting slowly behind every page
 body::before, body::after { content: ''; position: fixed; z-index: -1; pointer-events: none; width: 70vmax; height: 70vmax; border-radius: 50%; }
-body::before { top: -30vmax; left: -20vmax; background: radial-gradient(circle, rgba(49, 130, 246, 0.28) 0%, rgba(49, 130, 246, 0) 62%); animation: glow-a 28s ease-in-out infinite alternate; }
-body::after { bottom: -35vmax; right: -20vmax; background: radial-gradient(circle, rgba(245, 166, 35, 0.24) 0%, rgba(245, 166, 35, 0) 62%); animation: glow-b 34s ease-in-out infinite alternate; }
-@keyframes glow-a { to { transform: translate(28vw, 30vh) scale(1.2); } }
-@keyframes glow-b { to { transform: translate(-30vw, -26vh) scale(1.15); } }
+body::before { top: -30vmax; left: -20vmax; background: radial-gradient(circle, rgba(49, 130, 246, 0.42) 0%, rgba(49, 130, 246, 0) 62%); animation: glow-a 18s ease-in-out infinite alternate; }
+body::after { bottom: -35vmax; right: -20vmax; background: radial-gradient(circle, rgba(245, 166, 35, 0.36) 0%, rgba(245, 166, 35, 0) 62%); animation: glow-b 22s ease-in-out infinite alternate; }
+@keyframes glow-a { 50% { transform: translate(40vw, 10vh) scale(1.1); } to { transform: translate(18vw, 45vh) scale(1.3); } }
+@keyframes glow-b { 50% { transform: translate(-38vw, -8vh) scale(1.2); } to { transform: translate(-16vw, -40vh) scale(1.05); } }
 // people who ask their device for less motion get still glows
 @media (prefers-reduced-motion: reduce) { body::before, body::after { animation: none; } }
 // the light search band lets the glow show through
 .searchbar { background: linear-gradient(180deg, rgba(232, 243, 255, 0.85) 0%, rgba(245, 247, 250, 0) 100%); }
+
+// sections and cards fade up the first time they scroll into view (useScrollReveal)
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); transition-delay: var(--reveal-delay, 0ms); }
+.reveal.in { opacity: 1; transform: none; }
+.car-card.reveal.in:hover { transform: translateY(-3px); transition-delay: 0ms; }
+
+// welcome page: numbers that count up under the search
+.hero-stats { display: flex; justify-content: center; gap: 14px; margin-top: 28px; flex-wrap: wrap; }
+.hero-stats > div { min-width: 150px; padding: 12px 20px; border-radius: 14px; background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.18); backdrop-filter: blur(8px); color: #C9D0D6; font-size: 13.5px; }
+.hero-stats b { display: block; color: #fff; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+
+// car page: the odometer digits roll into place
+.odo span { --cell: 66px; position: relative; overflow: hidden; display: block; line-height: 1; }
+.odo span i { display: flex; flex-direction: column; font-style: normal; transform: translateY(calc(var(--d) * -1 * var(--cell))); animation: odo-roll 1.6s cubic-bezier(0.15, 0.85, 0.25, 1) both; animation-delay: calc(var(--i) * 0.12s + 0.2s); }
+.odo span i b { height: var(--cell); display: grid; place-items: center; font-weight: 700; }
+@keyframes odo-roll { from { transform: translateY(0); } }
+
+// car cards: how many photos the car has
+.car-card .photo-count { position: absolute; right: 10px; bottom: 10px; z-index: 2; display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 8px; background: rgba(25, 31, 40, 0.62); color: #fff; font-size: 12px; font-weight: 700; backdrop-filter: blur(4px); }
+.car-card .photo-count svg { width: 13px; height: 13px; fill: currentColor; }
+
+// shimmering placeholders while the first cars load
+.skeleton-card { padding-bottom: 18px; }
+.sk { border-radius: 8px; background: linear-gradient(90deg, #EEF1F4 0%, #F7F9FB 50%, #EEF1F4 100%); background-size: 200% 100%; animation: sk-shine 1.3s ease-in-out infinite; }
+.sk-photo { height: 200px; border-radius: 0; margin-bottom: 16px; }
+.sk-line { height: 14px; margin: 10px 18px 0; }
+.sk-price { height: 26px; width: 38%; margin: 18px 18px 0; }
+@keyframes sk-shine { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+	.reveal { opacity: 1; transform: none; transition: none; }
+	.odo span i, .sk { animation: none; }
+}
+
+// a third, smaller glow (soft green) crossing the middle of the page
+html::after { content: ''; position: fixed; z-index: -1; pointer-events: none; top: 30vh; left: 30vw; width: 46vmax; height: 46vmax; border-radius: 50%; background: radial-gradient(circle, rgba(14, 159, 110, 0.18) 0%, rgba(14, 159, 110, 0) 62%); animation: glow-c 26s ease-in-out infinite alternate; }
+@keyframes glow-c { 33% { transform: translate(-25vw, 20vh) scale(1.2); } 66% { transform: translate(20vw, -15vh) scale(0.9); } to { transform: translate(-10vw, -25vh) scale(1.1); } }
+@media (prefers-reduced-motion: reduce) { html::after { animation: none; } }
+
+// sliders (Top dealers, Popular right now): arrows on both sides, dots below
+.carousel { position: relative; }
+.carousel-viewport { overflow: hidden; margin: -8px -6px -16px; padding: 8px 6px 16px; } // room for card shadows and the hover lift
+.carousel-track { display: flex; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+.carousel-slide { flex: 0 0 100%; min-width: 0; padding: 0 6px; }
+.carousel-arrow { position: absolute; top: calc(50% - 40px); z-index: 5; width: 48px; height: 48px; border-radius: 50%; border: 0; background: #fff; box-shadow: var(--shadow-md); display: grid; place-items: center; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease; }
+.carousel-arrow.prev { left: -24px; }
+.carousel-arrow.next { right: -24px; }
+.carousel-arrow svg { width: 22px; height: 22px; fill: none; stroke: var(--asphalt); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.carousel-arrow:hover { background: var(--brand); transform: scale(1.06); }
+.carousel-arrow:hover svg { stroke: #fff; }
+.carousel .dots { margin-top: 20px; }
+@media (prefers-reduced-motion: reduce) { .carousel-track { transition: none; } }
+
+// why-CarZip cards on photos: dark fade at the bottom, white text
+.value-card.has-photo { position: relative; overflow: hidden; min-height: 260px; display: flex; flex-direction: column; justify-content: flex-end; border: 0; color: #fff; background-size: cover; background-position: center; box-shadow: var(--shadow-md); transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.value-card.has-photo::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(25, 31, 40, 0.05) 0%, rgba(25, 31, 40, 0.55) 45%, rgba(25, 31, 40, 0.9) 100%); }
+.value-card.has-photo > * { position: relative; }
+.value-card.has-photo h3 { color: #fff; }
+.value-card.has-photo p { color: rgba(255, 255, 255, 0.82); }
+.value-card.has-photo .value-ic { background: rgba(255, 255, 255, 0.92) !important; }
+.value-card.has-photo.in:hover { transform: translateY(-4px); }
+
+// log in / sign up: photo panel on the left, form on the right
+.auth-split { display: grid; grid-template-columns: minmax(360px, 0.9fr) minmax(0, 1.1fr); min-height: calc(100vh - 72px); }
+.auth-split.wide { grid-template-columns: minmax(340px, 0.75fr) minmax(0, 1.25fr); }
+.auth-visual { position: relative; overflow: hidden; display: flex; align-items: flex-end; padding: 56px 52px; color: #fff; }
+.auth-photo { position: absolute; inset: 0; background: url('/img/home/auth.webp') center / cover; animation: auth-zoom 24s ease-in-out infinite alternate; }
+.auth-visual::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(25, 31, 40, 0.1) 0%, rgba(25, 31, 40, 0.6) 50%, rgba(25, 31, 40, 0.92) 100%); }
+.auth-copy { position: relative; z-index: 1; max-width: 440px; }
+.auth-copy h2 { font-size: 34px; font-weight: 800; line-height: 1.15; letter-spacing: -0.03em; }
+.auth-copy p { margin-top: 12px; color: rgba(255, 255, 255, 0.82); font-size: 15.5px; line-height: 1.6; }
+.auth-copy ul { list-style: none; margin-top: 24px; display: grid; gap: 12px; }
+.auth-copy li { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.auth-copy li::before { content: '\2713'; width: 24px; height: 24px; border-radius: 50%; background: var(--brand); display: grid; place-items: center; font-size: 13px; flex: none; }
+@keyframes auth-zoom { from { transform: scale(1); } to { transform: scale(1.1); } }
+.auth-main { display: flex; justify-content: center; align-items: flex-start; padding: 56px 40px 64px; }
+.auth-main > * { width: 100%; max-width: 460px; }
+.auth-split.wide .auth-main > * { max-width: 720px; }
+.authcard, .formcard { border: 0; border-radius: 24px; padding: 36px; box-shadow: var(--shadow-md); }
+.authcard h1, .formcard h1 { font-size: 30px; letter-spacing: -0.03em; }
+.authcard .field, .formcard .field { height: 50px; }
+.authcard .btn.primary, .formcard .btn.primary { height: 52px; font-size: 16px; }
+.stepper span.now { background: var(--brand); }
+.type { border-radius: 16px; cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease; }
+.type.on { border-color: var(--brand); background: var(--road-tint); box-shadow: inset 0 0 0 1px var(--brand); }
+.radio.on { border-color: var(--brand); }
+.cfield { border-radius: 12px; }
+@media (prefers-reduced-motion: reduce) { .auth-photo { animation: none; } }
+
+// article editor: a clearly lighter placeholder, and a note saying what blocks "Publish"
+.editor .titlein::placeholder { color: #B0B8C1; font-weight: 700; }
+.pub { align-items: center; }
+.pub-hint { margin-right: auto; font-size: 13.5px; font-weight: 600; color: var(--hold); }

@@ -84,7 +84,7 @@
 	.dtitle h1 { font-size: 24px; }
 	.dtitle .meta { flex-wrap: wrap; gap: 6px 14px; }
 	.odo-wrap { flex-wrap: wrap; gap: 14px; padding: 18px; }
-	.odo span { width: 34px; height: 48px; font-size: 28px; }
+	.odo span { width: 34px; height: 48px; font-size: 28px; --cell: 48px; }
 	.odo-wrap .avg { margin-left: 0; text-align: left; }
 	.specgrid { grid-template-columns: repeat(2, 1fr); }
 	.specgrid div { border-right: 1px solid var(--line-2) !important; border-bottom: 1px solid var(--line-2) !important; }
@@ -129,6 +129,14 @@
 
 	/* ---------- log in, sign up ---------- */
 	.auth { grid-template-columns: 1fr !important; padding: 24px 16px 40px; }
+	.auth-split, .auth-split.wide { grid-template-columns: 1fr; min-height: 0; }
+	.auth-visual { display: none; }
+	.auth-main { padding: 24px 16px 40px; }
+	.carousel-arrow { width: 38px; height: 38px; top: calc(50% - 32px); }
+	.carousel-arrow.prev { left: -6px; }
+	.carousel-arrow.next { right: -6px; }
+	.carousel .grid4.home-cars { display: grid; grid-template-columns: 1fr; overflow: visible; }
+	.value-card.has-photo { min-height: 220px; }
 	.authcard, .formcard { padding: 22px 18px; }
 	.types, .fgrid, .fgrid3, .cgrid { grid-template-columns: 1fr; }
 	.otp { gap: 6px; }

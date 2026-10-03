@@ -5,7 +5,7 @@
 .hero-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: hero-drift 40s ease-in-out infinite alternate; }
 .hero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20, 25, 31, .55) 0%, rgba(20, 25, 31, .72) 70%, rgba(20, 25, 31, .92) 100%); }
 .hero-inner { position: relative; z-index: 1; width: min(920px, 100% - 32px); }
-.hero-logo { font-family: 'Pretendard', sans-serif; font-stretch: 125%; font-weight: 900; font-size: 30px; display: inline-flex; align-items: center; gap: 10px; letter-spacing: -.02em; margin-bottom: 22px; }
+.hero-logo { font-family: 'Archivo', 'Pretendard', sans-serif; font-stretch: 125%; font-weight: 900; font-size: 30px; display: inline-flex; align-items: center; gap: 10px; letter-spacing: -.02em; margin-bottom: 22px; }
 .hero-logo i { width: 34px; height: 34px; border-radius: 9px; background: var(--signal); color: var(--asphalt); display: inline-grid; place-items: center; font-style: normal; font-size: 19px; }
 .hero h1 { font-family: 'Pretendard', sans-serif; font-stretch: 118%; font-weight: 800; font-size: 54px; line-height: 1.08; letter-spacing: -.02em; text-wrap: balance; }
 .hero p { color: #C9D0D6; font-size: 18px; margin: 16px auto 0; max-width: 60ch; }
@@ -25,9 +25,7 @@
 .home-head p { color: var(--muted); margin-top: 4px; }
 
 /* top dealers carousel */
-.agent-carousel { overflow: hidden; border-radius: 16px; }
-.agent-track { display: flex; transition: transform .6s cubic-bezier(.4, 0, .2, 1); }
-.agent-page { flex: 0 0 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.agent-page { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 .agent-tile { position: relative; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px 20px 20px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; color: var(--asphalt); transition: transform .2s, box-shadow .2s; }
 .agent-tile:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(30, 36, 43, .1); }
 .agent-tile > b { font-size: 17px; margin-top: 8px; }
@@ -40,7 +38,6 @@
 .dots { display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
 .dots button { width: 9px; height: 9px; border-radius: 5px; border: 0; background: var(--line); cursor: pointer; padding: 0; transition: width .3s, background .3s; }
 .dots button.on { width: 26px; background: var(--asphalt); }
-@media (prefers-reduced-motion: reduce) { .agent-track { transition: none; } }
 
 /* quick browse: brand / body type / fuel with counts */
 .quick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }

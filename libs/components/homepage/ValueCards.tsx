@@ -7,6 +7,7 @@ const values = [
 		color: 'var(--dealer)',
 		tint: 'var(--dealer-tint)',
 		title: 'home.value1Title',
+		photo: '/img/home/value-verified.webp',
 		text: 'home.value1Text',
 	},
 	{
@@ -14,6 +15,7 @@ const values = [
 		color: 'var(--asphalt)',
 		tint: 'rgba(245, 166, 35, .18)',
 		title: 'home.value2Title',
+		photo: '/img/home/value-direct.webp',
 		text: 'home.value2Text',
 	},
 	{
@@ -21,18 +23,19 @@ const values = [
 		color: 'var(--road)',
 		tint: 'var(--road-tint)',
 		title: 'home.value3Title',
+		photo: '/img/home/value-export.webp',
 		text: 'home.value3Text',
 	},
 ];
 
-/** why CarZip, in three cards */
+/** why CarZip, in three cards, each on a photo */
 const ValueCards = () => {
 	const { t } = useTranslation('common');
 	return (
 		<section className="home-section">
 			<div className="value-grid">
 				{values.map((v) => (
-					<div key={v.title} className="value-card">
+					<div key={v.title} className="value-card has-photo" style={{ backgroundImage: `url(${v.photo})` }}>
 						<span className="value-ic" style={{ color: v.color, background: v.tint }}>
 							{v.icon}
 						</span>

@@ -21,13 +21,28 @@ const Join: NextPage = () => {
 	if (!addressReady) return null;
 
 	return (
-		<div className="auth" style={{ gridTemplateColumns: mode === 'signup' ? 'minmax(0, 720px)' : 'minmax(0, 520px)', justifyContent: 'center' }}>
+		<div className={`auth-split ${mode === 'signup' ? 'wide' : ''}`}>
 			<Head>
 				<title>{t(mode === 'signup' ? 'title.signup' : mode === 'forgot' ? 'title.forgot' : 'title.account')}</title>
 			</Head>
-			{mode === 'login' && <Login />}
-			{mode === 'signup' && <Signup key={String(router.query.type)} />}
-			{mode === 'forgot' && <ForgotPassword />}
+			{/* the CarZip promise next to the form (hidden on phones) */}
+			<aside className="auth-visual">
+				<div className="auth-photo" aria-hidden />
+				<div className="auth-copy">
+					<h2>{t('account.visualTitle')}</h2>
+					<p>{t('account.visualText')}</p>
+					<ul>
+						{['home.value1Title', 'home.value2Title', 'home.value3Title'].map((key) => (
+							<li key={key}>{t(key)}</li>
+						))}
+					</ul>
+				</div>
+			</aside>
+			<div className="auth-main">
+				{mode === 'login' && <Login />}
+				{mode === 'signup' && <Signup key={String(router.query.type)} />}
+				{mode === 'forgot' && <ForgotPassword />}
+			</div>
 		</div>
 	);
 };
