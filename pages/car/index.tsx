@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { Menu, MenuItem } from '@mui/material';
+import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client/react';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import HeaderFilter from '../../libs/components/homepage/HeaderFilter';
@@ -12,7 +13,7 @@ import { useLikeCar } from '../../libs/hooks/useLikeCar';
 import { sortOptions } from '../../libs/config';
 import { Cars } from '../../libs/types/car/car';
 import { CarsInquiry, CarsSearch } from '../../libs/types/car/car.input';
-import { CarSort } from '../../libs/enums/car.enum';
+import { CarBrand, CarLocation, CarSort } from '../../libs/enums/car.enum';
 import { Direction } from '../../libs/enums/common.enum';
 
 const PAGE_SIZE = 9;
@@ -23,11 +24,31 @@ const cleanSearch = (search: CarsSearch): CarsSearch =>
 		Object.entries(search).filter(([, v]) => v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0)),
 	) as CarsSearch;
 
-const Home: NextPage = () => {
+/** /car?text=Sorento&brand=KIA&location=BUSAN : links from the welcome page open the search already filtered */
+const searchFromQuery = (query: Record<string, string | string[] | undefined>): CarsSearch => {
+	const one = (key: string) => (typeof query[key] === 'string' ? (query[key] as string) : undefined);
+	const brand = one('brand');
+	const location = one('location');
+	const text = one('text')?.trim();
+	return cleanSearch({
+		text: text && text.length >= 2 ? text.slice(0, 50) : undefined,
+		brandList: brand && Object.values(CarBrand).includes(brand as CarBrand) ? [brand as CarBrand] : undefined,
+		locationList: location && Object.values(CarLocation).includes(location as CarLocation) ? [location as CarLocation] : undefined,
+	});
+};
+
+const CarList: NextPage = () => {
+	const router = useRouter();
+	// the page is built before the address is known: wait, then start from its filters
+	if (!router.isReady) return null;
+	return <CarSearch key={router.asPath} initialSearch={searchFromQuery(router.query)} />;
+};
+
+const CarSearch = ({ initialSearch }: { initialSearch: CarsSearch }) => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [sortIndex, setSortIndex] = useState(0);
 	const [loadingMore, setLoadingMore] = useState(false);
-	const [search, setSearch] = useState<CarsSearch>({});
+	const [search, setSearch] = useState<CarsSearch>(initialSearch);
 	const [resetKey, setResetKey] = useState(0); // redraws the filter panels after "clear all"
 	const likeCarHandler = useLikeCar();
 
@@ -156,4 +177,4 @@ const Home: NextPage = () => {
 	);
 };
 
-export default withLayoutBasic(Home, 'CarZip | Used cars from verified dealers');
+export default withLayoutBasic(CarList, 'Buy a car | CarZip');
