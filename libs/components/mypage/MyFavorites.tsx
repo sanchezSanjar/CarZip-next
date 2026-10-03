@@ -50,7 +50,7 @@ const MyFavorites = ({ visited = false }: { visited?: boolean }) => {
 				<div className="empty">
 					<h3>{visited ? 'Nothing viewed yet' : 'No favourites yet'}</h3>
 					<p>{visited ? 'Cars you open show up here.' : 'Tap the heart on any car to keep it here.'}</p>
-					<Link href="/" className="btn ghost">
+					<Link href="/car" className="btn ghost">
 						Browse cars
 					</Link>
 				</div>

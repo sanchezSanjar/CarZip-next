@@ -57,7 +57,7 @@ const CarDetail: NextPage = () => {
 				<div className="empty">
 					<h3>This car isn&apos;t available</h3>
 					<p>It may have been sold or removed by the dealer.</p>
-					<Link href="/" className="btn dark">
+					<Link href="/car" className="btn dark">
 						Browse cars
 					</Link>
 				</div>
@@ -74,7 +74,7 @@ const CarDetail: NextPage = () => {
 	return (
 		<>
 			<div className="crumbs">
-				<Link href="/" style={{ color: 'inherit' }}>
+				<Link href="/car" style={{ color: 'inherit' }}>
 					Buy a car
 				</Link>{' '}
 				/ {enumLabel(car.carBrand)} / <b>{car.carModel}</b>

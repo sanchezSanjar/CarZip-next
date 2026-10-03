@@ -15,7 +15,7 @@ export const Logo = ({ size }: { size?: number }) => (
 );
 
 const links = [
-	{ href: '/', label: 'Buy a car', match: (p: string) => p === '/' || p.startsWith('/car') },
+	{ href: '/car', label: 'Buy a car', match: (p: string) => p.startsWith('/car') },
 	{ href: '/agent', label: 'Dealers', match: (p: string) => p.startsWith('/agent') },
 	{ href: '/community', label: 'Community', match: (p: string) => p.startsWith('/community') },
 	{ href: '/cs', label: 'Help', match: (p: string) => p.startsWith('/cs') },
