@@ -5,3 +5,6 @@ export const languages = [
 	{ code: 'ru', label: 'Русский', short: 'RU' },
 	{ code: 'uz', label: "O'zbekcha", short: 'UZ' },
 ] as const;
+
+/** the page's language tag: our "kr" is "ko", the standard code for Korean */
+export const htmlLang = (locale?: string) => (locale === 'kr' ? 'ko' : locale || 'en');

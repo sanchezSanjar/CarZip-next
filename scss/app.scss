@@ -23,6 +23,8 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--paper); font-family: 'Pretendard', sans-serif; color: var(--asphalt); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+/* Korean wraps between words, not inside them */
+html[lang='ko'] body { word-break: keep-all; overflow-wrap: break-word; }
 .num { font-family: 'Archivo', 'Pretendard', sans-serif; font-variant-numeric: tabular-nums; }
 .display { font-family: 'Archivo', 'Pretendard', sans-serif; font-stretch: 118%; font-weight: 800; letter-spacing: -0.01em; }
 a { color: var(--road); text-decoration: none; }
