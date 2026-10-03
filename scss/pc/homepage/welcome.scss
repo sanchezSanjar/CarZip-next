@@ -41,3 +41,12 @@
 .dots button { width: 9px; height: 9px; border-radius: 5px; border: 0; background: var(--line); cursor: pointer; padding: 0; transition: width .3s, background .3s; }
 .dots button.on { width: 26px; background: var(--asphalt); }
 @media (prefers-reduced-motion: reduce) { .agent-track { transition: none; } }
+
+/* quick browse: brand / body type / fuel with counts */
+.quick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.quick-tile { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; background: #fff; border: 1px solid var(--line); border-radius: 12px; color: var(--asphalt); transition: border-color .15s, transform .15s; }
+.quick-tile b { font-size: 15px; }
+.quick-tile .num { font-weight: 800; color: var(--road); font-size: 15px; }
+.quick-tile:hover { border-color: var(--road); transform: translateY(-2px); }
+.quick-tile.none { opacity: .45; }
+.quick-tile.none .num { color: var(--muted); }

@@ -13,7 +13,7 @@ import { useLikeCar } from '../../libs/hooks/useLikeCar';
 import { sortOptions } from '../../libs/config';
 import { Cars } from '../../libs/types/car/car';
 import { CarsInquiry, CarsSearch } from '../../libs/types/car/car.input';
-import { CarBrand, CarLocation, CarSort } from '../../libs/enums/car.enum';
+import { CarBrand, CarFuelType, CarLocation, CarSort, CarType } from '../../libs/enums/car.enum';
 import { Direction } from '../../libs/enums/common.enum';
 
 const PAGE_SIZE = 9;
@@ -24,13 +24,17 @@ const cleanSearch = (search: CarsSearch): CarsSearch =>
 		Object.entries(search).filter(([, v]) => v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0)),
 	) as CarsSearch;
 
-/** /car?text=Sorento&brand=KIA&location=BUSAN : links from the welcome page open the search already filtered */
+/** /car?text=Sorento&brand=KIA&location=BUSAN&type=SUV&fuel=HYBRID : links from the welcome page open the search already filtered */
 const searchFromQuery = (query: Record<string, string | string[] | undefined>): CarsSearch => {
 	const one = (key: string) => (typeof query[key] === 'string' ? (query[key] as string) : undefined);
 	const brand = one('brand');
 	const location = one('location');
 	const text = one('text')?.trim();
+	const type = one('type');
+	const fuel = one('fuel');
 	return cleanSearch({
+		typeList: type && Object.values(CarType).includes(type as CarType) ? [type as CarType] : undefined,
+		fuelList: fuel && Object.values(CarFuelType).includes(fuel as CarFuelType) ? [fuel as CarFuelType] : undefined,
 		text: text && text.length >= 2 ? text.slice(0, 50) : undefined,
 		brandList: brand && Object.values(CarBrand).includes(brand as CarBrand) ? [brand as CarBrand] : undefined,
 		locationList: location && Object.values(CarLocation).includes(location as CarLocation) ? [location as CarLocation] : undefined,
