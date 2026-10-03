@@ -1,126 +1,222 @@
 import React, { useState } from 'react';
 import { NextPage } from 'next';
 import Link from 'next/link';
+import { useMutation, useQuery } from '@apollo/client/react';
 import withLayoutAdmin from '../../../libs/components/layout/LayoutAdmin';
-import { sampleArticles } from '../../../libs/sampleData';
+import Pager from '../../../libs/components/common/Pager';
+import { GET_ALL_BOARD_ARTICLES_BY_ADMIN } from '../../../apollo/admin/query';
+import { GET_COMMENTS } from '../../../apollo/user/query';
+import { REMOVE_BOARD_ARTICLE_BY_ADMIN, REMOVE_COMMENT_BY_ADMIN, UPDATE_BOARD_ARTICLE_BY_ADMIN } from '../../../apollo/admin/mutation';
+import { BoardArticleCategory, BoardArticleStatus } from '../../../libs/enums/board-article.enum';
+import { BoardArticle, BoardArticles } from '../../../libs/types/board-article/board-article';
+import { Comments } from '../../../libs/types/comment/comment';
+import { getErrorMessage } from '../../../libs/auth';
+import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../../libs/sweetAlert';
 import { dealerName, enumLabel, formatNumber, initial, timeAgo } from '../../../libs/utils';
 
-const hoursAgo = (h: number) => new Date(Date.now() - h * 3600000);
+const LIMIT = 10;
 
-// sample comments from the UI design
-const comments = [
-	{ _id: 'm3', nick: 'car_hunter88', text: "Same car is 400만원 cheaper at another lot. Don't buy here.", on: 'Tesla Model 3 (Mokdong Motors)', when: hoursAgo(3) },
-	{ _id: 'm5', nick: 'spam_seller01', text: 'Cheap cars!!! Kakao me: xxcars77 for 50% off all brands', on: 'Genesis GV70 2.5T (Gangnam Premium)', when: hoursAgo(24) },
-	{ _id: 'm1', nick: 'hyejin_k', text: 'Is the sunroof original or aftermarket?', on: 'Kia Sorento 2.2 Diesel (Mokdong Motors)', when: hoursAgo(48) },
-];
+/** comments under one article, each with a delete button (only admins delete comments) */
+const ArticleComments = ({ article }: { article: BoardArticle }) => {
+	const { data, loading } = useQuery<{ getComments: Comments }>(GET_COMMENTS, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { page: 1, limit: 50, sort: 'createdAt', search: { commentRefId: article._id } } },
+	});
+	const [removeComment] = useMutation(REMOVE_COMMENT_BY_ADMIN, { refetchQueries: [GET_COMMENTS, GET_ALL_BOARD_ARTICLES_BY_ADMIN] });
+	const comments = data?.getComments.list ?? [];
 
-/** admin: only admins delete comments; articles can be hidden (DELETE), restored, or removed for good */
+	const remove = async (id: string, text: string) => {
+		if (!(await sweetConfirmAlert(`Delete this comment? "${text.slice(0, 120)}"`, 'Delete comment', true))) return;
+		try {
+			await removeComment({ variables: { input: id } });
+			await sweetTopSuccessAlert('Comment deleted', 1000);
+		} catch (err) {
+			await sweetMixinErrorAlert(getErrorMessage(err));
+		}
+	};
+
+	return (
+		<div className="block" style={{ margin: 0, padding: '6px 20px 16px' }}>
+			<div className="block-head" style={{ padding: '12px 0' }}>
+				<h2>
+					Comments<span>{comments.length}</span>
+				</h2>
+				<Link href={`/community/detail?id=${article._id}`} className="btn ghost sm">
+					Open article
+				</Link>
+			</div>
+			{comments.map((c) => (
+				<div key={c._id} className="comment">
+					<div className="avatar user">{initial(dealerName(c.memberData))}</div>
+					<div style={{ flex: 1 }}>
+						<div className="who">
+							{dealerName(c.memberData)} <small>{timeAgo(c.createdAt)}</small>
+						</div>
+						<p>{c.commentContent}</p>
+					</div>
+					<button className="btn danger sm" style={{ alignSelf: 'center' }} onClick={() => remove(c._id, c.commentContent)}>
+						Delete
+					</button>
+				</div>
+			))}
+			{!loading && !comments.length && <p className="muted">No comments on this article.</p>}
+		</div>
+	);
+};
+
+/** admin: every article in any status. Delete hides it, restore brings it back, remove is for good */
 const AdminCommunity: NextPage = () => {
-	const [tab, setTab] = useState<'comments' | 'articles'>('comments');
+	const [status, setStatus] = useState<BoardArticleStatus | undefined>();
+	const [category, setCategory] = useState<BoardArticleCategory | ''>('');
+	const [page, setPage] = useState(1);
+	const [selectedId, setSelectedId] = useState<string | null>(null);
+
+	/** APOLLO REQUESTS **/
+	const search = { ...(status ? { articleStatus: status } : {}), ...(category ? { articleCategory: category } : {}) };
+	const { data, loading } = useQuery<{ getAllBoardArticlesByAdmin: BoardArticles }>(GET_ALL_BOARD_ARTICLES_BY_ADMIN, {
+		fetchPolicy: 'cache-and-network',
+		variables: { input: { page, limit: LIMIT, sort: 'createdAt', ...(Object.keys(search).length ? { search } : {}) } },
+	});
+	const refetchQueries = [GET_ALL_BOARD_ARTICLES_BY_ADMIN];
+	const [updateArticle] = useMutation(UPDATE_BOARD_ARTICLE_BY_ADMIN, { refetchQueries });
+	const [removeArticle] = useMutation(REMOVE_BOARD_ARTICLE_BY_ADMIN, { refetchQueries });
+	const articles = data?.getAllBoardArticlesByAdmin.list ?? [];
+	const total = data?.getAllBoardArticlesByAdmin.metaCounter?.[0]?.total ?? 0;
+	const selected = articles.find((a) => a._id === selectedId);
+
+	/** HANDLERS **/
+	const run = async (question: string, confirmText: string, task: () => Promise<unknown>, done: string) => {
+		if (!(await sweetConfirmAlert(question, confirmText, true))) return;
+		try {
+			await task();
+			await sweetTopSuccessAlert(done, 1000);
+		} catch (err) {
+			await sweetMixinErrorAlert(getErrorMessage(err));
+		}
+	};
+	const setArticleStatus = (a: BoardArticle, articleStatus: BoardArticleStatus) =>
+		run(
+			articleStatus === BoardArticleStatus.DELETE ? `Hide "${a.articleTitle}" from Community?` : `Show "${a.articleTitle}" in Community again?`,
+			articleStatus === BoardArticleStatus.DELETE ? 'Delete' : 'Restore',
+			() => updateArticle({ variables: { input: { _id: a._id, articleStatus } } }),
+			articleStatus === BoardArticleStatus.DELETE ? 'Article deleted' : 'Article restored',
+		);
+	const removeForGood = (a: BoardArticle) =>
+		run(
+			`Remove "${a.articleTitle}" for good? Its likes, comments, views and notifications go too. This can't be undone.`,
+			'Remove for good',
+			() => removeArticle({ variables: { input: a._id } }),
+			'Removed',
+		);
 
 	return (
 		<>
 			<div className="main-head">
 				<div>
 					<h1>Comments & articles</h1>
-					<p>Only admins can delete comments.</p>
+					<p>Only admins can delete comments. Pick an article to see its comments.</p>
 				</div>
 			</div>
 			<div className="bar" style={{ marginTop: 0 }}>
 				<div className="tabs2">
-					<span className={`chip ${tab === 'comments' ? 'on' : ''}`} onClick={() => setTab('comments')}>
-						Comments
-					</span>
-					<span className={`chip ${tab === 'articles' ? 'on' : ''}`} onClick={() => setTab('articles')}>
-						Articles <span className="num">{sampleArticles.length}</span>
-					</span>
+					{[undefined, BoardArticleStatus.ACTIVE, BoardArticleStatus.DELETE].map((s) => (
+						<span
+							key={s ?? 'all'}
+							className={`chip ${status === s ? 'on' : ''}`}
+							onClick={() => {
+								setStatus(s);
+								setPage(1);
+							}}
+						>
+							{s === BoardArticleStatus.ACTIVE ? 'Active' : s === BoardArticleStatus.DELETE ? 'Deleted' : 'All'}
+						</span>
+					))}
 				</div>
 				<div className="grow" />
-				<input className="field" style={{ width: 280 }} placeholder="Search text or author" />
+				<select
+					className="field"
+					style={{ width: 180 }}
+					value={category}
+					onChange={(e) => {
+						setCategory(e.target.value as BoardArticleCategory | '');
+						setPage(1);
+					}}
+				>
+					<option value="">All categories</option>
+					{Object.values(BoardArticleCategory).map((c) => (
+						<option key={c} value={c}>
+							{enumLabel(c)}
+						</option>
+					))}
+				</select>
 			</div>
-
-			{tab === 'comments' && (
-				<div className="block">
-					<table>
-						<thead>
-							<tr>
-								<th>Author</th>
-								<th>Comment</th>
-								<th>On</th>
-								<th />
-							</tr>
-						</thead>
-						<tbody>
-							{comments.map((c) => (
-								<tr key={c._id} className="cm-row">
-									<td>
-										<div className="person">
-											<div className="avatar user">{initial(c.nick)}</div>
-											<div>
-												<b>{c.nick}</b>
-												<small>Buyer</small>
-											</div>
-										</div>
-									</td>
-									<td>
-										<div className="quote">
-											{c.text}
-											<small>{timeAgo(c.when)}</small>
-										</div>
-									</td>
-									<td style={{ fontSize: 13.5 }}>{c.on}</td>
-									<td>
-										<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
-											<button className="btn danger sm">Delete comment</button>
-										</div>
-									</td>
+			<div className="comments-wrap" style={{ gridTemplateColumns: selected ? '1fr 440px' : '1fr' }}>
+				<div>
+					<div className="block" style={{ margin: 0, opacity: loading && articles.length ? 0.6 : 1 }}>
+						<table>
+							<thead>
+								<tr>
+									<th>Article</th>
+									<th>Author</th>
+									<th>Category</th>
+									<th>Views</th>
+									<th>Comments</th>
+									<th>Status</th>
+									<th />
 								</tr>
-							))}
-						</tbody>
-					</table>
+							</thead>
+							<tbody>
+								{articles.map((a) => {
+									const deleted = a.articleStatus === BoardArticleStatus.DELETE;
+									return (
+										<tr
+											key={a._id}
+											onClick={() => setSelectedId(a._id)}
+											style={{ cursor: 'pointer', ...(a._id === selectedId ? { background: '#F4F8FD', boxShadow: 'inset 3px 0 0 var(--road)' } : {}) }}
+										>
+											<td style={{ fontWeight: 600 }}>{a.articleTitle}</td>
+											<td>{dealerName(a.memberData)}</td>
+											<td>
+												<span className="cat">{enumLabel(a.articleCategory)}</span>
+											</td>
+											<td className="num">{formatNumber(a.articleViews)}</td>
+											<td className="num">{a.articleComments}</td>
+											<td>
+												<span className={`pill ${deleted ? 'sold' : 'active'}`}>{deleted ? 'Deleted' : 'Active'}</span>
+											</td>
+											<td onClick={(e) => e.stopPropagation()}>
+												<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
+													{deleted ? (
+														<>
+															<button className="btn dark sm" onClick={() => setArticleStatus(a, BoardArticleStatus.ACTIVE)}>
+																Restore
+															</button>
+															<button className="btn danger sm" onClick={() => removeForGood(a)}>
+																Remove for good
+															</button>
+														</>
+													) : (
+														<button className="btn danger sm" onClick={() => setArticleStatus(a, BoardArticleStatus.DELETE)}>
+															Delete
+														</button>
+													)}
+												</div>
+											</td>
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
+						{!loading && !articles.length && (
+							<div className="empty" style={{ margin: 18 }}>
+								<h3>No articles here</h3>
+							</div>
+						)}
+					</div>
+					<Pager page={page} total={Math.ceil(total / LIMIT)} onChange={setPage} />
 				</div>
-			)}
-
-			{tab === 'articles' && (
-				<div className="block">
-					<table>
-						<thead>
-							<tr>
-								<th>Article</th>
-								<th>Author</th>
-								<th>Category</th>
-								<th>Views</th>
-								<th>Status</th>
-								<th />
-							</tr>
-						</thead>
-						<tbody>
-							{sampleArticles.map((a) => (
-								<tr key={a._id}>
-									<td style={{ fontWeight: 600 }}>
-										<Link href={`/community/detail?id=${a._id}`} style={{ color: 'inherit' }}>
-											{a.articleTitle}
-										</Link>
-									</td>
-									<td>{dealerName(a.memberData)}</td>
-									<td>
-										<span className="cat">{enumLabel(a.articleCategory)}</span>
-									</td>
-									<td className="num">{formatNumber(a.articleViews)}</td>
-									<td>
-										<span className="pill active">Active</span>
-									</td>
-									<td>
-										<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
-											<button className="btn danger sm">Delete</button>
-										</div>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
-			)}
+				{selected && <ArticleComments key={selected._id} article={selected} />}
+			</div>
 		</>
 	);
 };
