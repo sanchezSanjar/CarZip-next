@@ -9,19 +9,22 @@ import { Direction } from '../../../libs/enums/common.enum';
 import { Members } from '../../../libs/types/member/member';
 import { getErrorMessage } from '../../../libs/auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../../libs/sweetAlert';
-import { timeAgo } from '../../../libs/utils';
 import Avatar from '../../../libs/components/common/Avatar';
 import { withTranslations } from '../../../libs/i18n';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../../libs/hooks/useLocaleFormat';
 
 /** time left of the 24-hour promise: green, amber, then red when late */
 const timer = (applied: Date, now: number) => {
 	const left = 24 - Math.floor((now - new Date(applied).getTime()) / 3600000);
-	if (left < 0) return { cls: 'late', text: `${-left} h late` };
-	return { cls: left <= 6 ? 'warn' : 'ok', text: `${left} h left` };
+	if (left < 0) return { cls: 'late', key: 'adm.hLate', hours: -left };
+	return { cls: left <= 6 ? 'warn' : 'ok', key: 'adm.hLeft', hours: left };
 };
 
 /** pending dealer applications, oldest first: approve, or decline with a reason the applicant receives */
 const Applications: NextPage = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const [reason, setReason] = useState('');
 	const [now] = useState(() => Date.now());
@@ -43,14 +46,14 @@ const Applications: NextPage = () => {
 		if (!selected) return;
 		const approve = status === MemberStatus.ACTIVE;
 		const question = approve
-			? `Approve ${selected.agentCompany}? They can log in and list cars right away.`
-			: `Decline ${selected.agentCompany}? They get a notification with your reason.`;
-		if (!(await sweetConfirmAlert(question, approve ? 'Approve' : 'Decline', !approve))) return;
+			? t('adm.approveQ', { name: selected.agentCompany })
+			: t('adm.declineQ', { name: selected.agentCompany });
+		if (!(await sweetConfirmAlert(question, approve ? t('adm.approve') : t('tds.decline'), !approve))) return;
 		try {
 			await updateMember({ variables: { input: { _id: selected._id, memberStatus: status, ...(approve ? {} : { agentRejectReason: reason.trim() }) } } });
 			setReason('');
 			setSelectedId(null);
-			await sweetTopSuccessAlert(approve ? 'Dealer approved' : 'Application declined', 1200);
+			await sweetTopSuccessAlert(approve ? t('adm.approved') : t('adm.declinedDone'), 1200);
 		} catch (err) {
 			await sweetMixinErrorAlert(getErrorMessage(err));
 		}
@@ -60,14 +63,14 @@ const Applications: NextPage = () => {
 		<>
 			<div className="main-head">
 				<div>
-					<h1>Dealer applications</h1>
-					<p>We promise an answer within 24 hours. Oldest first.</p>
+					<h1>{t('adm.mApplications')}</h1>
+					<p>{t('adm.appsSub')}</p>
 				</div>
 			</div>
 			{!loading && !applications.length ? (
 				<div className="empty">
-					<h3>No applications waiting</h3>
-					<p>New dealer signups show up here.</p>
+					<h3>{t('adm.noApps')}</h3>
+					<p>{t('adm.noAppsText')}</p>
 				</div>
 			) : (
 				<div className="review">
@@ -75,15 +78,15 @@ const Applications: NextPage = () => {
 						<table>
 							<thead>
 								<tr>
-									<th>Applicant</th>
-									<th>Business number</th>
-									<th>Applied</th>
-									<th>Time left</th>
+									<th>{t('adm.applicant')}</th>
+									<th>{t('pf.businessNo')}</th>
+									<th>{t('adm.applied')}</th>
+									<th>{t('adm.timeLeft')}</th>
 								</tr>
 							</thead>
 							<tbody>
 								{applications.map((a) => {
-									const t = timer(a.createdAt, now);
+									const left = timer(a.createdAt, now);
 									const on = a._id === selected?._id;
 									return (
 										<tr
@@ -104,9 +107,9 @@ const Applications: NextPage = () => {
 												</div>
 											</td>
 											<td className="num">{a.agentBusinessNo || '—'}</td>
-											<td>{timeAgo(a.createdAt)}</td>
+											<td>{fmt.timeAgo(a.createdAt)}</td>
 											<td>
-												<span className={`timer ${t.cls}`}>{t.text}</span>
+												<span className={`timer ${left.cls}`}>{t(left.key, { count: left.hours })}</span>
 											</td>
 										</tr>
 									);
@@ -118,46 +121,49 @@ const Applications: NextPage = () => {
 						<div className="appdetail">
 							<h2>{selected.agentCompany}</h2>
 							<div style={{ color: 'var(--muted)', fontSize: 14 }}>
-								Applied {timeAgo(selected.createdAt)} by {selected.memberNick}
+								{t('adm.appliedBy', { time: fmt.timeAgo(selected.createdAt), nick: selected.memberNick })}
 								{selected.memberFullName ? ` (${selected.memberFullName})` : ''}
 							</div>
 							<div className="check-row">
 								<div>
-									Business number<small>Optional at signup for now</small>
+									{t('pf.businessNo')}
+									<small>{t('adm.bizOptional')}</small>
 								</div>
-								<span className="okmark">{selected.agentBusinessNo || 'Not given'}</span>
+								<span className="okmark">{selected.agentBusinessNo || t('pf.notGiven')}</span>
 							</div>
 							<div className="check-row">
 								<div>
-									Login phone<small>Verified by SMS at signup</small>
+									{t('pf.loginPhone')}
+									<small>{t('adm.phoneVerified')}</small>
 								</div>
 								<span className="okmark num">{selected.memberPhone}</span>
 							</div>
 							<div className="check-row">
 								<div>
-									Public contacts<small>Shown on listings after approval</small>
+									{t('adm.contacts')}
+									<small>{t('adm.contactsNote')}</small>
 								</div>
 								<span style={{ fontSize: 13, textAlign: 'right' }}>
-									{[selected.contactPhone, selected.contactEmail, selected.contactKakao, selected.contactTelegram, selected.contactWhatsapp].filter(Boolean).join(' · ') || 'None'}
+									{[selected.contactPhone, selected.contactEmail, selected.contactKakao, selected.contactTelegram, selected.contactWhatsapp].filter(Boolean).join(' · ') || t('adm.none')}
 								</span>
 							</div>
 							{selected.agentBusinessCard && (
 								// eslint-disable-next-line @next/next/no-img-element
-								<img src={selected.agentBusinessCard} alt="Business card" style={{ width: '100%', borderRadius: 10, marginTop: 12 }} />
+								<img src={selected.agentBusinessCard} alt={t('adm.bizCard')} style={{ width: '100%', borderRadius: 10, marginTop: 12 }} />
 							)}
 							<textarea
 								className="field reason"
-								placeholder="Reason for declining (sent to the applicant, 5 to 300 characters)"
+								placeholder={t('adm.reasonPh')}
 								maxLength={300}
 								value={reason}
 								onChange={(e) => setReason(e.target.value)}
 							/>
 							<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
 								<button className="btn danger" disabled={!reasonOk || saving} onClick={() => decide(MemberStatus.REJECTED)}>
-									Decline
+									{t('tds.decline')}
 								</button>
 								<button className="btn good" disabled={saving} onClick={() => decide(MemberStatus.ACTIVE)}>
-									Approve dealer
+									{t('adm.approveDealer')}
 								</button>
 							</div>
 						</div>

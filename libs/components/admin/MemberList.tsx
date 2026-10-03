@@ -8,18 +8,20 @@ import { Direction } from '../../enums/common.enum';
 import { Member, Members } from '../../types/member/member';
 import { getErrorMessage } from '../../auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
-import { dealerName, timeAgo } from '../../utils';
+import { dealerName } from '../../utils';
 import Pager from '../common/Pager';
 import Avatar from '../common/Avatar';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
 const LIMIT = 10;
 
 const statusPill: Record<MemberStatus, { cls: string; label: string }> = {
-	[MemberStatus.ACTIVE]: { cls: 'active', label: 'Active' },
-	[MemberStatus.PENDING]: { cls: 'hold', label: 'Pending review' },
-	[MemberStatus.REJECTED]: { cls: 'rej', label: 'Declined' },
-	[MemberStatus.BLOCK]: { cls: 'rej', label: 'Blocked' },
-	[MemberStatus.DELETE]: { cls: 'sold', label: 'Deleted' },
+	[MemberStatus.ACTIVE]: { cls: 'active', label: 'adm.sActive' },
+	[MemberStatus.PENDING]: { cls: 'hold', label: 'adm.sPending' },
+	[MemberStatus.REJECTED]: { cls: 'rej', label: 'tds.declined' },
+	[MemberStatus.BLOCK]: { cls: 'rej', label: 'adm.sBlocked' },
+	[MemberStatus.DELETE]: { cls: 'sold', label: 'adm.sDeleted' },
 };
 
 /** how many members a tab has: a one-row query that only reads the total */
@@ -36,6 +38,8 @@ const TabCount = ({ memberType, memberStatus }: { memberType: MemberType; member
  * blocking a dealer puts their cars on hold and deleting deletes them.
  */
 const MemberList = ({ memberType }: { memberType: MemberType.AGENT | MemberType.USER }) => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const isAgent = memberType === MemberType.AGENT;
 	const statuses = isAgent
 		? [MemberStatus.ACTIVE, MemberStatus.PENDING, MemberStatus.REJECTED, MemberStatus.BLOCK, MemberStatus.DELETE]
@@ -72,33 +76,33 @@ const MemberList = ({ memberType }: { memberType: MemberType.AGENT | MemberType.
 		change(
 			m,
 			{ memberStatus: MemberStatus.BLOCK },
-			`Block ${name(m)} on all of CarZip? They can't log in${isAgent ? ', their cars go on hold' : ''} and their open test drives are cancelled.`,
-			'Block',
-			'Blocked',
+			t(isAgent ? 'adm.blockDealerQ' : 'adm.blockUserQ', { name: name(m) }),
+			t('dealers.block'),
+			t('my.blocked'),
 		);
 	const remove = (m: Member) =>
 		change(
 			m,
 			{ memberStatus: MemberStatus.DELETE },
-			`Delete ${name(m)}?${isAgent ? ' Their cars are deleted and' : ''} open test drives are cancelled.`,
-			'Delete',
-			'Deleted',
+			t(isAgent ? 'adm.deleteDealerQ' : 'adm.deleteUserQ', { name: name(m) }),
+			t('my.delete'),
+			t('adm.deleted'),
 		);
-	const restore = (m: Member) => change(m, { memberStatus: MemberStatus.ACTIVE }, `Make ${name(m)} active again?`, 'Restore', 'Restored');
+	const restore = (m: Member) => change(m, { memberStatus: MemberStatus.ACTIVE }, t('adm.restoreQ', { name: name(m) }), t('adm.restore'), t('adm.restored'));
 	return (
 		<>
 			<div className="main-head">
 				<div>
-					<h1>{isAgent ? 'Dealers' : 'Members'}</h1>
+					<h1>{isAgent ? t('nav.dealers') : t('adm.mMembers')}</h1>
 					<p>
 						{isAgent
-							? 'Blocking a dealer puts their cars on hold; deleting a dealer deletes their cars. Either cancels their open test drives.'
-							: "Blocking here is CarZip-wide: the member can't log in."}
+							? t('adm.dealersSub')
+							: t('adm.membersSub')}
 					</p>
 				</div>
 				{isAgent && (
 					<Link href="/_admin/applications" className="btn ghost">
-						Pending applications (<TabCount memberType={MemberType.AGENT} memberStatus={MemberStatus.PENDING} />)
+						{t('adm.pendingApps')} (<TabCount memberType={MemberType.AGENT} memberStatus={MemberStatus.PENDING} />)
 					</Link>
 				)}
 			</div>
@@ -113,7 +117,7 @@ const MemberList = ({ memberType }: { memberType: MemberType.AGENT | MemberType.
 								setPage(1);
 							}}
 						>
-							{s ? statusPill[s].label : 'All'} <TabCount memberType={memberType} memberStatus={s} />
+							{s ? t(statusPill[s].label) : t('board.all')} <TabCount memberType={memberType} memberStatus={s} />
 						</span>
 					))}
 				</div>
@@ -125,26 +129,26 @@ const MemberList = ({ memberType }: { memberType: MemberType.AGENT | MemberType.
 						setPage(1);
 					}}
 				>
-					<input className="field" style={{ width: 240 }} placeholder="Search nickname" value={text} onChange={(e) => setText(e.target.value)} />
+					<input className="field" style={{ width: 240 }} placeholder={t('dealers.searchNick')} value={text} onChange={(e) => setText(e.target.value)} />
 				</form>
 				<select className="field" style={{ width: 180, fontWeight: 600 }} value={sort} onChange={(e) => setSort(e.target.value)}>
-					<option value="createdAt">Newest</option>
-					<option value="memberWarnings">Most warnings</option>
-					<option value="memberBlocks">Most blocked by dealers</option>
-					{isAgent && <option value="memberCars">Most cars</option>}
+					<option value="createdAt">{t('dealers.sortNewest')}</option>
+					<option value="memberWarnings">{t('adm.sortWarnings')}</option>
+					<option value="memberBlocks">{t('adm.sortBlocks')}</option>
+					{isAgent && <option value="memberCars">{t('adm.sortCars')}</option>}
 				</select>
 			</div>
 			<div className="block" style={{ opacity: loading && rows.length ? 0.6 : 1 }}>
 				<table>
 					<thead>
 						<tr>
-							<th>{isAgent ? 'Dealer' : 'Member'}</th>
-							<th>Phone</th>
-							{isAgent && <th>Business number</th>}
-							{isAgent ? <th>Cars</th> : <th>Comments</th>}
-							<th>Blocked by</th>
-							<th>Joined</th>
-							<th>Status</th>
+							<th>{isAgent ? t('board.dealer') : t('fl.member')}</th>
+							<th>{t('adm.phone')}</th>
+							{isAgent && <th>{t('pf.businessNo')}</th>}
+							{isAgent ? <th>{t('nt.cars')}</th> : <th>{t('menu.comments')}</th>}
+							<th>{t('adm.blockedBy')}</th>
+							<th>{t('adm.joined')}</th>
+							<th>{t('my.status')}</th>
 							<th />
 						</tr>
 					</thead>
@@ -172,32 +176,32 @@ const MemberList = ({ memberType }: { memberType: MemberType.AGENT | MemberType.
 								<td className="num" style={(m.memberBlocks ?? 0) >= 3 ? { color: 'var(--stop)', fontWeight: 700 } : undefined}>
 									{m.memberBlocks ?? 0}
 								</td>
-								<td>{timeAgo(m.createdAt)}</td>
+								<td>{fmt.timeAgo(m.createdAt)}</td>
 								<td>
-									<span className={`pill ${statusPill[m.memberStatus].cls}`}>{statusPill[m.memberStatus].label}</span>
+									<span className={`pill ${statusPill[m.memberStatus].cls}`}>{t(statusPill[m.memberStatus].label)}</span>
 								</td>
 								<td>
 									<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
 										{m.memberStatus === MemberStatus.PENDING && (
 											<Link href="/_admin/applications" className="btn dark sm">
-												Review
+												{t('adm.review')}
 											</Link>
 										)}
 										{m.memberStatus === MemberStatus.ACTIVE && (
 											<>
 												<button className="btn danger sm" onClick={() => block(m)}>
-													Block
+													{t('dealers.block')}
 												</button>
 											</>
 										)}
 										{(m.memberStatus === MemberStatus.BLOCK || m.memberStatus === MemberStatus.DELETE) && (
 											<button className="btn dark sm" onClick={() => restore(m)}>
-												{m.memberStatus === MemberStatus.BLOCK ? 'Unblock' : 'Restore'}
+												{m.memberStatus === MemberStatus.BLOCK ? t('dealers.unblock') : t('adm.restore')}
 											</button>
 										)}
 										{m.memberStatus !== MemberStatus.DELETE && m.memberStatus !== MemberStatus.PENDING && (
 											<button className="btn danger sm" onClick={() => remove(m)}>
-												Delete
+												{t('my.delete')}
 											</button>
 										)}
 									</div>
@@ -208,8 +212,8 @@ const MemberList = ({ memberType }: { memberType: MemberType.AGENT | MemberType.
 				</table>
 				{!loading && !rows.length && (
 					<div className="empty" style={{ margin: 18 }}>
-						<h3>Nobody here</h3>
-						<p>{search ? 'No nickname matches.' : 'No members with this status.'}</p>
+						<h3>{t('adm.nobody')}</h3>
+						<p>{search ? t('adm.noNick') : t('adm.noStatus')}</p>
 					</div>
 				)}
 			</div>

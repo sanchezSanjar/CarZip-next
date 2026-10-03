@@ -10,6 +10,7 @@ import { Logo } from '../Top';
 import Avatar from '../common/Avatar';
 import { useMyImage } from '../../hooks/useMyImage';
 import Chat from '../Chat';
+import LanguageSelect from '../common/LanguageSelect';
 import { useTranslation } from 'next-i18next/pages';
 
 export const agentMenu = [
@@ -81,6 +82,7 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 							))}
 							<Link href="/">{t('menu.back')}</Link>
 						</div>
+						<LanguageSelect />
 					</div>
 					<div className="main">
 						<Component {...props} />

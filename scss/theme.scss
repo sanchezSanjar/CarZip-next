@@ -198,3 +198,10 @@ html::after { content: ''; position: fixed; z-index: -1; pointer-events: none; t
 .editor .titlein::placeholder { color: #B0B8C1; font-weight: 700; }
 .pub { align-items: center; }
 .pub-hint { margin-right: auto; font-size: 13.5px; font-weight: 600; color: var(--hold); }
+
+// language buttons at the bottom of the side menus (My page, admin)
+.side-langs { display: flex; gap: 6px; margin: 18px 8px 0; padding-top: 16px; border-top: 1px solid var(--line-2); }
+.side-langs button { flex: 1; height: 32px; border: 0; border-radius: 9px; background: var(--soft); color: var(--ink-2); font-size: 12.5px; font-weight: 700; cursor: pointer; transition: background 0.15s ease, color 0.15s ease; }
+.side-langs button:hover { background: var(--line); }
+.side-langs button.on { background: var(--brand); color: #fff; }
+@media (max-width: 768px) { .side-langs { width: 100%; margin: 4px 0 0; padding-top: 8px; } }

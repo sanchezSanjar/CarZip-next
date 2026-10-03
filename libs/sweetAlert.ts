@@ -1,5 +1,10 @@
 import Swal from 'sweetalert2';
 import 'animate.css';
+import { i18n } from 'next-i18next/pages';
+
+// dialog buttons in the visitor's language (the English word until translations have loaded)
+const translate = (key: string, fallback: string, options?: Record<string, unknown>) =>
+	i18n?.isInitialized ? i18n.t(`common:${key}`, options ?? {}) : fallback;
 
 const colors = { asphalt: '#1E242B', signal: '#F5A623', stop: '#B3261E' };
 
@@ -31,7 +36,7 @@ export const sweetContactAlert = async (msg: string, duration: number = 10000) =
 };
 
 /** "are you sure?" for anything that notifies other people or can't be undone */
-export const sweetConfirmAlert = (msg: string, confirmText = 'Confirm', danger = false) => {
+export const sweetConfirmAlert = (msg: string, confirmText = translate('dlg.confirm', 'Confirm'), danger = false) => {
 	return new Promise<boolean>(async (resolve) => {
 		await Swal.fire({
 			icon: 'question',
@@ -39,6 +44,7 @@ export const sweetConfirmAlert = (msg: string, confirmText = 'Confirm', danger =
 			showClass: { popup: 'animate__bounceIn' },
 			showCancelButton: true,
 			confirmButtonText: confirmText,
+			cancelButtonText: translate('dlg.cancel', 'Cancel'),
 			confirmButtonColor: danger ? colors.stop : colors.asphalt,
 			cancelButtonColor: '#9AA1A8',
 		}).then((response) => resolve(response?.isConfirmed ?? false));
@@ -53,6 +59,7 @@ export const sweetLoginConfirmAlert = (msg: string, confirmText = 'Log in') => {
 			showConfirmButton: true,
 			confirmButtonColor: colors.signal,
 			confirmButtonText: confirmText,
+			cancelButtonText: translate('dlg.cancel', 'Cancel'),
 			cancelButtonColor: '#9AA1A8',
 		}).then((response) => resolve(response?.isConfirmed ?? false));
 	});
@@ -97,10 +104,11 @@ export const sweetPromptAlert = async (msg: string, placeholder: string, min = 5
 		inputPlaceholder: placeholder,
 		inputAttributes: { maxlength: String(max) },
 		showCancelButton: true,
-		confirmButtonText: 'Confirm',
+		confirmButtonText: translate('dlg.confirm', 'Confirm'),
+		cancelButtonText: translate('dlg.cancel', 'Cancel'),
 		confirmButtonColor: colors.stop,
 		cancelButtonColor: '#9AA1A8',
-		inputValidator: (value) => (value.trim().length < min ? `Write at least ${min} characters` : null),
+		inputValidator: (value) => (value.trim().length < min ? translate('dlg.minChars', `Write at least ${min} characters`, { count: min }) : null),
 	});
 	return result.isConfirmed ? String(result.value).trim() : null;
 };

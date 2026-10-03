@@ -9,10 +9,13 @@ import { Logo } from '../Top';
 import AdminMenuList from '../admin/AdminMenuList';
 import Avatar from '../common/Avatar';
 import { useMyImage } from '../../hooks/useMyImage';
+import LanguageSelect from '../common/LanguageSelect';
+import { useTranslation } from 'next-i18next/pages';
 
 /** admin pages: only ADMIN members may stay here */
 const withLayoutAdmin = <P extends object>(Component: React.ComponentType<P>) => {
 	const LayoutAdmin = (props: P) => {
+		const { t } = useTranslation('common');
 		const router = useRouter();
 		const user = useReactiveVar(userVar);
 		const myImage = useMyImage();
@@ -32,7 +35,7 @@ const withLayoutAdmin = <P extends object>(Component: React.ComponentType<P>) =>
 		return (
 			<>
 				<Head>
-					<title>Admin | CarZip</title>
+					<title>{t('title.admin')}</title>
 				</Head>
 				<div className="dash">
 					<div className="sidenav">
@@ -40,13 +43,14 @@ const withLayoutAdmin = <P extends object>(Component: React.ComponentType<P>) =>
 						<div className="who">
 							<Avatar image={myImage} />
 							<div>
-								<b>{user.memberNick || 'Admin'}</b>
-								<span>CarZip team</span>
+								<b>{user.memberNick || t('nav.admin')}</b>
+								<span>{t('adm.team')}</span>
 							</div>
 						</div>
 						<div className="menu-row">
 							<AdminMenuList />
 						</div>
+						<LanguageSelect />
 					</div>
 					<div className="main">
 						<Component {...props} />

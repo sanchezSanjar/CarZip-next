@@ -11,16 +11,18 @@ import { CarLocation, CarStatus } from '../../../libs/enums/car.enum';
 import { Car, CarsPage } from '../../../libs/types/car/car';
 import { getErrorMessage } from '../../../libs/auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetPromptAlert, sweetTopSuccessAlert } from '../../../libs/sweetAlert';
-import { dealerName, enumLabel, formatCarPrice, formatNumber, timeAgo } from '../../../libs/utils';
+import { dealerName } from '../../../libs/utils';
 import { withTranslations } from '../../../libs/i18n';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../../libs/hooks/useLocaleFormat';
 
 const LIMIT = 10;
 
 const statusPill: Record<CarStatus, { cls: string; label: string }> = {
-	[CarStatus.ACTIVE]: { cls: 'active', label: 'For sale' },
-	[CarStatus.HOLD]: { cls: 'hold', label: 'On hold' },
-	[CarStatus.SOLD]: { cls: 'sold', label: 'Sold' },
-	[CarStatus.DELETE]: { cls: 'rej', label: 'Deleted' },
+	[CarStatus.ACTIVE]: { cls: 'active', label: 'dealers.tabCars' },
+	[CarStatus.HOLD]: { cls: 'hold', label: 'mc.onHold' },
+	[CarStatus.SOLD]: { cls: 'sold', label: 'car.sold' },
+	[CarStatus.DELETE]: { cls: 'rej', label: 'mc.deleted' },
 };
 
 /** how many cars a tab has: a one-row query that only reads the total */
@@ -37,6 +39,8 @@ const TabCount = ({ carStatus }: { carStatus?: CarStatus }) => {
  * ACTIVE releases it, and only a car already deleted can be removed for good (with its likes, comments and test drives).
  */
 const AdminCars: NextPage = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const [status, setStatus] = useState<CarStatus | undefined>();
 	const [location, setLocation] = useState<CarLocation | ''>('');
 	const [page, setPage] = useState(1);
@@ -62,28 +66,28 @@ const AdminCars: NextPage = () => {
 		}
 	};
 	const hold = async (c: Car) => {
-		const reason = await sweetPromptAlert(`Put "${c.carTitle}" on hold? The dealer sees your reason and can't put it back on sale.`, 'Reason (5 to 300 characters)');
-		if (reason) await run(() => updateCar({ variables: { input: { _id: c._id, carStatus: CarStatus.HOLD, carHoldReason: reason } } }), 'Car put on hold');
+		const reason = await sweetPromptAlert(t('adm.holdCarQ', { title: c.carTitle }), t('adm.reasonShort'));
+		if (reason) await run(() => updateCar({ variables: { input: { _id: c._id, carStatus: CarStatus.HOLD, carHoldReason: reason } } }), t('adm.carHeld'));
 	};
 	const release = async (c: Car) => {
-		if (await sweetConfirmAlert(`Put "${c.carTitle}" back on sale? The dealer is notified.`, 'Release'))
-			await run(() => updateCar({ variables: { input: { _id: c._id, carStatus: CarStatus.ACTIVE } } }), 'Car released');
+		if (await sweetConfirmAlert(t('adm.releaseQ', { title: c.carTitle }), t('adm.release')))
+			await run(() => updateCar({ variables: { input: { _id: c._id, carStatus: CarStatus.ACTIVE } } }), t('adm.carReleased'));
 	};
 	const remove = async (c: Car) => {
-		if (await sweetConfirmAlert(`Delete "${c.carTitle}"? Its open test drives are cancelled and the dealer is notified.`, 'Delete', true))
-			await run(() => updateCar({ variables: { input: { _id: c._id, carStatus: CarStatus.DELETE } } }), 'Car deleted');
+		if (await sweetConfirmAlert(t('adm.deleteCarQ', { title: c.carTitle }), t('my.delete'), true))
+			await run(() => updateCar({ variables: { input: { _id: c._id, carStatus: CarStatus.DELETE } } }), t('adm.carDeleted'));
 	};
 	const removeForGood = async (c: Car) => {
-		if (await sweetConfirmAlert(`Remove "${c.carTitle}" for good? Its likes, comments, views, test drives and notifications are removed too. This can't be undone.`, 'Remove for good', true))
-			await run(() => removeCar({ variables: { input: c._id } }), 'Removed');
+		if (await sweetConfirmAlert(t('adm.removeCarQ', { title: c.carTitle }), t('adm.removeForGood'), true))
+			await run(() => removeCar({ variables: { input: c._id } }), t('adm.removed'));
 	};
 
 	return (
 		<>
 			<div className="main-head">
 				<div>
-					<h1>Cars</h1>
-					<p>Putting a car on hold needs a reason; the dealer gets a notification.</p>
+					<h1>{t('nt.cars')}</h1>
+					<p>{t('adm.carsSub')}</p>
 				</div>
 			</div>
 			<div className="bar" style={{ marginTop: 0 }}>
@@ -97,7 +101,7 @@ const AdminCars: NextPage = () => {
 								setPage(1);
 							}}
 						>
-							{s ? statusPill[s].label : 'All'} <TabCount carStatus={s} />
+							{s ? t(statusPill[s].label) : t('board.all')} <TabCount carStatus={s} />
 						</span>
 					))}
 				</div>
@@ -111,10 +115,10 @@ const AdminCars: NextPage = () => {
 						setPage(1);
 					}}
 				>
-					<option value="">All of Korea</option>
+					<option value="">{t('search.allKorea')}</option>
 					{Object.values(CarLocation).map((l) => (
 						<option key={l} value={l}>
-							{enumLabel(l)}
+							{t(`enum.${l}`)}
 						</option>
 					))}
 				</select>
@@ -123,12 +127,12 @@ const AdminCars: NextPage = () => {
 				<table>
 					<thead>
 						<tr>
-							<th>Car</th>
-							<th>Dealer</th>
-							<th>Price</th>
-							<th>Status</th>
-							<th>Views</th>
-							<th>Comments</th>
+							<th>{t('my.car')}</th>
+							<th>{t('board.dealer')}</th>
+							<th>{t('mc.price')}</th>
+							<th>{t('my.status')}</th>
+							<th>{t('mc.views')}</th>
+							<th>{t('menu.comments')}</th>
 							<th />
 						</tr>
 					</thead>
@@ -146,7 +150,9 @@ const AdminCars: NextPage = () => {
 													<b>{c.carTitle}</b>
 												</Link>
 											)}
-											<small>{c.carHoldReason ? `Held: ${c.carHoldReason}` : `${enumLabel(c.carLocation)} · listed ${timeAgo(c.createdAt)}`}</small>
+											<small>{c.carHoldReason
+												? t('adm.held', { reason: c.carHoldReason })
+												: t('adm.carMeta', { city: t(`enum.${c.carLocation}`), time: fmt.timeAgo(c.createdAt) })}</small>
 										</div>
 									</div>
 								</td>
@@ -156,33 +162,33 @@ const AdminCars: NextPage = () => {
 									</Link>
 								</td>
 								<td className="num" style={{ fontWeight: 700 }}>
-									{formatCarPrice(c)}
+									{fmt.carPrice(c)}
 								</td>
 								<td>
-									<span className={`pill ${statusPill[c.carStatus].cls}`}>{c.carHoldReason ? 'Held by admin' : statusPill[c.carStatus].label}</span>
+									<span className={`pill ${statusPill[c.carStatus].cls}`}>{c.carHoldReason ? t('mc.heldByAdmin') : t(statusPill[c.carStatus].label)}</span>
 								</td>
-								<td className="num">{formatNumber(c.carViews)}</td>
+								<td className="num">{fmt.number(c.carViews)}</td>
 								<td className="num">{c.carComments}</td>
 								<td>
 									<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
 										{c.carStatus === CarStatus.ACTIVE && (
 											<button className="btn ghost sm" onClick={() => hold(c)}>
-												Hold
+												{t('mc.hold')}
 											</button>
 										)}
 										{c.carStatus === CarStatus.HOLD && (
 											<button className="btn dark sm" onClick={() => release(c)}>
-												Release
+												{t('adm.release')}
 											</button>
 										)}
 										{c.carStatus !== CarStatus.DELETE && (
 											<button className="btn danger sm" onClick={() => remove(c)}>
-												Delete
+												{t('my.delete')}
 											</button>
 										)}
 										{c.carStatus === CarStatus.DELETE && (
 											<button className="btn danger sm" onClick={() => removeForGood(c)}>
-												Remove for good
+												{t('adm.removeForGood')}
 											</button>
 										)}
 									</div>
@@ -193,7 +199,7 @@ const AdminCars: NextPage = () => {
 				</table>
 				{!loading && !cars.length && (
 					<div className="empty" style={{ margin: 18 }}>
-						<h3>No cars here</h3>
+						<h3>{t('mc.noneHere')}</h3>
 					</div>
 				)}
 			</div>

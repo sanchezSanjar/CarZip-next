@@ -12,14 +12,18 @@ import { BoardArticle, BoardArticles } from '../../../libs/types/board-article/b
 import { Comments } from '../../../libs/types/comment/comment';
 import { getErrorMessage } from '../../../libs/auth';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../../libs/sweetAlert';
-import { dealerName, enumLabel, formatNumber, timeAgo } from '../../../libs/utils';
+import { dealerName } from '../../../libs/utils';
 import Avatar from '../../../libs/components/common/Avatar';
 import { withTranslations } from '../../../libs/i18n';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../../libs/hooks/useLocaleFormat';
 
 const LIMIT = 10;
 
 /** comments under one article, each with a delete button (only admins delete comments) */
 const ArticleComments = ({ article }: { article: BoardArticle }) => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const { data, loading } = useQuery<{ getComments: Comments }>(GET_COMMENTS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: { page: 1, limit: 50, sort: 'createdAt', search: { commentRefId: article._id } } },
@@ -28,10 +32,10 @@ const ArticleComments = ({ article }: { article: BoardArticle }) => {
 	const comments = data?.getComments.list ?? [];
 
 	const remove = async (id: string, text: string) => {
-		if (!(await sweetConfirmAlert(`Delete this comment? "${text.slice(0, 120)}"`, 'Delete comment', true))) return;
+		if (!(await sweetConfirmAlert(t('adm.deleteCommentQ', { text: text.slice(0, 120) }), t('adm.deleteComment'), true))) return;
 		try {
 			await removeComment({ variables: { input: id } });
-			await sweetTopSuccessAlert('Comment deleted', 1000);
+			await sweetTopSuccessAlert(t('adm.commentDeleted'), 1000);
 		} catch (err) {
 			await sweetMixinErrorAlert(getErrorMessage(err));
 		}
@@ -41,10 +45,11 @@ const ArticleComments = ({ article }: { article: BoardArticle }) => {
 		<div className="block" style={{ margin: 0, padding: '6px 20px 16px' }}>
 			<div className="block-head" style={{ padding: '12px 0' }}>
 				<h2>
-					Comments<span>{comments.length}</span>
+					{t('menu.comments')}
+					<span>{comments.length}</span>
 				</h2>
 				<Link href={`/community/detail?id=${article._id}`} className="btn ghost sm">
-					Open article
+					{t('adm.openArticle')}
 				</Link>
 			</div>
 			{comments.map((c) => (
@@ -52,22 +57,24 @@ const ArticleComments = ({ article }: { article: BoardArticle }) => {
 					<Avatar image={c.memberData?.memberImage} dealer={!!c.memberData?.agentCompany} />
 					<div style={{ flex: 1 }}>
 						<div className="who">
-							{dealerName(c.memberData)} <small>{timeAgo(c.createdAt)}</small>
+							{dealerName(c.memberData)} <small>{fmt.timeAgo(c.createdAt)}</small>
 						</div>
 						<p>{c.commentContent}</p>
 					</div>
 					<button className="btn danger sm" style={{ alignSelf: 'center' }} onClick={() => remove(c._id, c.commentContent)}>
-						Delete
+						{t('my.delete')}
 					</button>
 				</div>
 			))}
-			{!loading && !comments.length && <p className="muted">No comments on this article.</p>}
+			{!loading && !comments.length && <p className="muted">{t('adm.noComments')}</p>}
 		</div>
 	);
 };
 
 /** admin: every article in any status. Delete hides it, restore brings it back, remove is for good */
 const AdminCommunity: NextPage = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	const [status, setStatus] = useState<BoardArticleStatus | undefined>();
 	const [category, setCategory] = useState<BoardArticleCategory | ''>('');
 	const [page, setPage] = useState(1);
@@ -98,25 +105,25 @@ const AdminCommunity: NextPage = () => {
 	};
 	const setArticleStatus = (a: BoardArticle, articleStatus: BoardArticleStatus) =>
 		run(
-			articleStatus === BoardArticleStatus.DELETE ? `Hide "${a.articleTitle}" from Community?` : `Show "${a.articleTitle}" in Community again?`,
-			articleStatus === BoardArticleStatus.DELETE ? 'Delete' : 'Restore',
+			articleStatus === BoardArticleStatus.DELETE ? t('adm.hideArticleQ', { title: a.articleTitle }) : t('adm.showArticleQ', { title: a.articleTitle }),
+			articleStatus === BoardArticleStatus.DELETE ? t('my.delete') : t('adm.restore'),
 			() => updateArticle({ variables: { input: { _id: a._id, articleStatus } } }),
-			articleStatus === BoardArticleStatus.DELETE ? 'Article deleted' : 'Article restored',
+			articleStatus === BoardArticleStatus.DELETE ? t('adm.articleDeleted') : t('adm.articleRestored'),
 		);
 	const removeForGood = (a: BoardArticle) =>
 		run(
-			`Remove "${a.articleTitle}" for good? Its likes, comments, views and notifications go too. This can't be undone.`,
-			'Remove for good',
+			t('adm.removeArticleQ', { title: a.articleTitle }),
+			t('adm.removeForGood'),
 			() => removeArticle({ variables: { input: a._id } }),
-			'Removed',
+			t('adm.removed'),
 		);
 
 	return (
 		<>
 			<div className="main-head">
 				<div>
-					<h1>Comments & articles</h1>
-					<p>Only admins can delete comments. Pick an article to see its comments.</p>
+					<h1>{t('adm.mCommunity')}</h1>
+					<p>{t('adm.communitySub')}</p>
 				</div>
 			</div>
 			<div className="bar" style={{ marginTop: 0 }}>
@@ -130,7 +137,7 @@ const AdminCommunity: NextPage = () => {
 								setPage(1);
 							}}
 						>
-							{s === BoardArticleStatus.ACTIVE ? 'Active' : s === BoardArticleStatus.DELETE ? 'Deleted' : 'All'}
+							{s === BoardArticleStatus.ACTIVE ? t('adm.sActiveN') : s === BoardArticleStatus.DELETE ? t('adm.sDeletedN') : t('board.all')}
 						</span>
 					))}
 				</div>
@@ -144,10 +151,10 @@ const AdminCommunity: NextPage = () => {
 						setPage(1);
 					}}
 				>
-					<option value="">All categories</option>
+					<option value="">{t('adm.allCategories')}</option>
 					{Object.values(BoardArticleCategory).map((c) => (
 						<option key={c} value={c}>
-							{enumLabel(c)}
+							{t(`enum.${c}`)}
 						</option>
 					))}
 				</select>
@@ -158,12 +165,12 @@ const AdminCommunity: NextPage = () => {
 						<table>
 							<thead>
 								<tr>
-									<th>Article</th>
-									<th>Author</th>
-									<th>Category</th>
-									<th>Views</th>
-									<th>Comments</th>
-									<th>Status</th>
+									<th>{t('cm.article')}</th>
+									<th>{t('comments.author')}</th>
+									<th>{t('art.category')}</th>
+									<th>{t('mc.views')}</th>
+									<th>{t('menu.comments')}</th>
+									<th>{t('my.status')}</th>
 									<th />
 								</tr>
 							</thead>
@@ -179,27 +186,27 @@ const AdminCommunity: NextPage = () => {
 											<td style={{ fontWeight: 600 }}>{a.articleTitle}</td>
 											<td>{dealerName(a.memberData)}</td>
 											<td>
-												<span className="cat">{enumLabel(a.articleCategory)}</span>
+												<span className="cat">{t(`enum.${a.articleCategory}`)}</span>
 											</td>
-											<td className="num">{formatNumber(a.articleViews)}</td>
+											<td className="num">{fmt.number(a.articleViews)}</td>
 											<td className="num">{a.articleComments}</td>
 											<td>
-												<span className={`pill ${deleted ? 'sold' : 'active'}`}>{deleted ? 'Deleted' : 'Active'}</span>
+												<span className={`pill ${deleted ? 'sold' : 'active'}`}>{deleted ? t('adm.sDeletedN') : t('adm.sActiveN')}</span>
 											</td>
 											<td onClick={(e) => e.stopPropagation()}>
 												<div className="rowacts" style={{ justifyContent: 'flex-end' }}>
 													{deleted ? (
 														<>
 															<button className="btn dark sm" onClick={() => setArticleStatus(a, BoardArticleStatus.ACTIVE)}>
-																Restore
+																{t('adm.restore')}
 															</button>
 															<button className="btn danger sm" onClick={() => removeForGood(a)}>
-																Remove for good
+																{t('adm.removeForGood')}
 															</button>
 														</>
 													) : (
 														<button className="btn danger sm" onClick={() => setArticleStatus(a, BoardArticleStatus.DELETE)}>
-															Delete
+															{t('my.delete')}
 														</button>
 													)}
 												</div>
@@ -211,7 +218,7 @@ const AdminCommunity: NextPage = () => {
 						</table>
 						{!loading && !articles.length && (
 							<div className="empty" style={{ margin: 18 }}>
-								<h3>No articles here</h3>
+								<h3>{t('adm.noArticles')}</h3>
 							</div>
 						)}
 					</div>
