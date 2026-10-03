@@ -9,9 +9,19 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@apollo/client": "^4.3.1",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.4.0",
+    "@mui/material": "^9.4.0",
+    "animate.css": "^4.1.1",
+    "graphql": "^16.14.2",
+    "jwt-decode": "^4.0.0",
     "next": "16.3.8",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "rxjs": "^7.8.2",
+    "sweetalert2": "^11.26.25"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -19,6 +29,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
+    "prettier": "^3.9.9",
+    "sass": "^1.105.1",
     "typescript": "^5"
   }
 }
