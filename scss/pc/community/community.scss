@@ -1,0 +1,24 @@
+// community board and article
+.board { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
+.post { display: grid; grid-template-columns: 1fr 150px; gap: 20px; padding: 18px 20px; border-top: 1px solid var(--line-2); align-items: center; }
+.post:first-child { border-top: 0; }
+.post h3 { font-size: 16.5px; font-weight: 700; margin: 6px 0 4px; }
+.post p { font-size: 14px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.post .by { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.post .by .avatar { width: 22px; height: 22px; font-size: 10px; border-radius: 6px; }
+.post .st { text-align: right; font-size: 13px; color: var(--muted); line-height: 1.7; }
+.post .st b { color: var(--asphalt); font-family: 'Archivo'; }
+.sidecard { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+.sidecard h3 { font-size: 15px; font-weight: 800; margin-bottom: 12px; }
+.toprow { display: flex; gap: 10px; align-items: center; padding: 9px 0; font-size: 14px; border-top: 1px solid var(--line-2); }
+.toprow:first-of-type { border-top: 0; }
+.toprow .n { font-family: 'Archivo'; font-weight: 800; width: 18px; color: var(--muted); }
+.toprow small { margin-left: auto; color: var(--muted); }
+.article { max-width: 760px; }
+.article h1 { font-family: 'Archivo'; font-stretch: 114%; font-weight: 800; font-size: 36px; letter-spacing: -0.015em; line-height: 1.2; margin: 12px 0 16px; }
+.article .authorbar { display: flex; gap: 12px; align-items: center; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.article .content { font-size: 17px; line-height: 1.8; color: var(--ink-2); margin-top: 26px; }
+.article .content p + p { margin-top: 16px; }
+.article .content .photo { height: 300px; margin: 22px 0; border-radius: 12px; }
+.article .content .photo svg.car { width: 55% !important; }
+.reactbar { display: flex; gap: 8px; margin: 28px 0 8px; }

@@ -1,0 +1,10 @@
+@use 'general';
+@use 'homepage/homepage';
+@use 'car/detail';
+@use 'agent/agent';
+@use 'agent/detail' as agent-detail;
+@use 'account/join';
+@use 'community/community';
+@use 'cs/cs';
+@use 'mypage/mypage';
+@use 'mypage/addNewCar';

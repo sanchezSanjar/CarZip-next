@@ -1,0 +1,16 @@
+// dealers list
+.dgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.dcard { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+.dcard .top { display: flex; gap: 14px; align-items: center; }
+.dcard .sq { width: 60px; height: 60px; border-radius: 14px; background: var(--asphalt); color: var(--signal); display: grid; place-items: center; font-family: 'Archivo'; font-stretch: 125%; font-weight: 900; font-size: 26px; flex: none; }
+.dcard h3 { font-size: 17px; font-weight: 800; line-height: 1.25; }
+.dcard .nums { display: grid; grid-template-columns: repeat(3, 1fr); margin: 18px 0; border: 1px solid var(--line-2); border-radius: 10px; }
+.dcard .nums div { padding: 10px 12px; border-left: 1px solid var(--line-2); font-size: 12.5px; color: var(--muted); }
+.dcard .nums div:first-child { border-left: 0; }
+.dcard .nums b { display: block; font-family: 'Archivo'; font-size: 19px; color: var(--asphalt); font-weight: 800; }
+.dcard .strip { display: flex; gap: 6px; }
+.dcard .strip .photo { flex: 1; height: 58px; border-radius: 8px; }
+.dcard .strip svg.car { width: 90%; margin-bottom: 4%; }
+.dcard .acts2 { display: flex; gap: 8px; margin-top: 16px; }
+.dcard .acts2 .btn { flex: 1; }
+.rankno { margin-left: auto; font-family: 'Archivo'; font-weight: 800; font-size: 13px; color: var(--muted); align-self: flex-start; }

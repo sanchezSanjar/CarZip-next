@@ -1,0 +1,15 @@
+// help: faq, notices, terms
+.helpgrid { display: grid; grid-template-columns: 250px 1fr; gap: 32px; align-items: start; }
+.helpnav a { display: flex; justify-content: space-between; padding: 12px 14px; border-radius: 10px; color: var(--ink-2); font-weight: 600; }
+.helpnav a.on { background: #fff; border: 1px solid var(--line); color: var(--asphalt); }
+.helpnav a small { color: var(--muted); font-family: 'Archivo'; }
+.faq { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 4px 22px; }
+.faq-item { border-top: 1px solid var(--line-2); padding: 18px 0; }
+.faq-item:first-child { border-top: 0; }
+.faq-q { display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; gap: 20px; }
+.faq-q span { color: var(--muted); font-weight: 400; }
+.faq-a { font-size: 15px; color: var(--ink-2); line-height: 1.7; margin-top: 10px; max-width: 72ch; }
+.notice-row { display: flex; gap: 14px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line-2); font-size: 14.5px; }
+.notice-row:first-of-type { border-top: 0; }
+.notice-row small { margin-left: auto; color: var(--muted); }
+.pin { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 5px; background: var(--hold-tint); color: var(--hold); }
