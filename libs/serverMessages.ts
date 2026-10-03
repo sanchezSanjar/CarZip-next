@@ -25,6 +25,7 @@ const keys: Record<string, string> = {
 	'Please provide jpg, jpeg, png or webp images!': 'errors.imageFormat',
 	'The file is not a valid image.': 'errors.invalidImage',
 	'Upload failed!': 'errors.uploadFailed',
+	'The profile photo must be uploaded through CarZip first (POST /upload/image).': 'errors.memberImage',
 	'You cannot like yourself.': 'errors.selfLike',
 	'You cannot follow yourself.': 'errors.selfFollow',
 	'You cannot like your own car or article.': 'errors.ownLike',

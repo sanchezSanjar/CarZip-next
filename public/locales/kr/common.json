@@ -587,6 +587,7 @@
 		"invalidImage": "올바른 이미지 파일이 아닙니다.",
 		"likeBlocked": "작성자가 차단하여 좋아요를 누를 수 없습니다.",
 		"loginTooMany": "로그인 실패가 너무 많습니다. 15분 후에 다시 시도하세요.",
+		"memberImage": "사진을 다시 업로드하세요.",
 		"notAuthenticated": "먼저 로그인하세요!",
 		"otpExpired": "인증번호가 만료되었습니다. 새로 요청하세요.",
 		"otpTooMany": "인증번호 요청이 너무 많습니다. 잠시 후 다시 시도하세요.",
