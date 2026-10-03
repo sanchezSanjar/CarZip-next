@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../../apollo/store';
-import { GET_CAR, GET_BOARD_ARTICLE, GET_COMMENTS } from '../../../apollo/user/query';
+import { GET_BOARD_ARTICLE, GET_CAR, GET_COMMENTS, GET_MEMBER } from '../../../apollo/user/query';
 import { CREATE_COMMENT, UPDATE_COMMENT } from '../../../apollo/user/mutation';
 import { CommentGroup } from '../../enums/comment.enum';
 import { Comments } from '../../types/comment/comment';
@@ -35,7 +35,8 @@ const CommentSection = ({ group, refId, ownerId, placeholder = 'Write a comment'
 		variables: { input: { page: 1, limit, sort: 'createdAt', direction: 'DESC', search: { commentRefId: refId } } },
 	});
 	// the count on the car or article changes too
-	const refetchQueries = [GET_COMMENTS, group === CommentGroup.CAR ? GET_CAR : GET_BOARD_ARTICLE];
+	const counted = { [CommentGroup.CAR]: GET_CAR, [CommentGroup.ARTICLE]: GET_BOARD_ARTICLE, [CommentGroup.MEMBER]: GET_MEMBER }[group];
+	const refetchQueries = [GET_COMMENTS, counted];
 	const [createComment] = useMutation(CREATE_COMMENT, { refetchQueries });
 	const [updateComment] = useMutation(UPDATE_COMMENT, { refetchQueries: [GET_COMMENTS] });
 	const comments = data?.getComments.list ?? [];
