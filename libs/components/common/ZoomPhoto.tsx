@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 
-const ZOOM = 2.5; // how much the square magnifies
+const ZOOM = 1.6; // how much the square magnifies
 const LENS = 220; // the square's size in px
 
 interface Lens {
@@ -14,7 +14,7 @@ interface Lens {
 
 /**
  * A car photo shown whole; hovering it shows a square magnifier that follows the mouse
- * and shows the spot under it 2.5x bigger. Nothing happens on touch screens (no hover there).
+ * and shows the spot under it 1.6x bigger. Nothing happens on touch screens (no hover there).
  */
 const ZoomPhoto = ({ image }: { image: string }) => {
 	const imgRef = useRef<HTMLImageElement>(null);
