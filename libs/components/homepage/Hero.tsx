@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { CarBrand } from '../../enums/car.enum';
-import { enumLabel } from '../../utils';
+
+import { useTranslation } from 'next-i18next/pages';
 
 const quickBrands = [CarBrand.HYUNDAI, CarBrand.KIA, CarBrand.GENESIS, CarBrand.BMW, CarBrand.MERCEDES, CarBrand.TESLA];
 
@@ -10,6 +11,7 @@ const quickBrands = [CarBrand.HYUNDAI, CarBrand.KIA, CarBrand.GENESIS, CarBrand.
  * Until the video file exists, the browser simply shows the poster image.
  */
 const Hero = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [text, setText] = useState('');
 	const [brand, setBrand] = useState('');
@@ -33,31 +35,31 @@ const Hero = () => {
 				<div className="hero-logo">
 					<i>Z</i>CarZip
 				</div>
-				<h1>Used cars from verified dealers, all over Korea</h1>
-				<p>Every dealer is checked by our team. Browse, book a test drive and contact them directly.</p>
+				<h1>{t('home.heroTitle')}</h1>
+				<p>{t('home.heroText')}</p>
 				<form className="hero-search" onSubmit={searchHandler}>
 					<input
 						className="field"
 						value={text}
 						maxLength={50}
 						onChange={(e) => setText(e.target.value)}
-						placeholder="Search a model, e.g. Sorento, GV70, Model 3"
+						placeholder={t('home.searchPlaceholder')}
 					/>
 					<select className="field" value={brand} onChange={(e) => setBrand(e.target.value)}>
-						<option value="">All brands</option>
+						<option value="">{t('home.allBrands')}</option>
 						{Object.values(CarBrand).map((b) => (
 							<option key={b} value={b}>
-								{enumLabel(b)}
+								{t(`enum.${b}`)}
 							</option>
 						))}
 					</select>
-					<button className="btn primary">Find a car</button>
+					<button className="btn primary">{t('home.findCar')}</button>
 				</form>
 				<div className="hero-quick">
-					Popular:
+					{t('home.popular')}
 					{quickBrands.map((b) => (
 						<a key={b} onClick={() => router.push({ pathname: '/car', query: { brand: b } })}>
-							{enumLabel(b)}
+							{t(`enum.${b}`)}
 						</a>
 					))}
 				</div>

@@ -4,11 +4,15 @@ import { useQuery } from '@apollo/client/react';
 import { GET_BOARD_ARTICLES } from '../../../apollo/user/query';
 import { BoardArticles } from '../../types/board-article/board-article';
 import { Direction } from '../../enums/common.enum';
-import { dealerName, enumLabel, formatNumber, timeAgo } from '../../utils';
+import { dealerName } from '../../utils';
 import Avatar from '../common/Avatar';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
 /** the three newest articles from dealers */
 const CommunityBoards = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	/** APOLLO REQUESTS **/
 	const { data } = useQuery<{ getBoardArticles: BoardArticles }>(GET_BOARD_ARTICLES, {
 		fetchPolicy: 'cache-and-network',
@@ -21,11 +25,11 @@ const CommunityBoards = () => {
 		<section className="home-section">
 			<div className="home-head">
 				<div>
-					<h2>From the community</h2>
-					<p>Advice and news from dealers who sell cars every day.</p>
+					<h2>{t('home.community')}</h2>
+					<p>{t('home.communityText')}</p>
 				</div>
 				<Link href="/community" className="btn ghost sm">
-					All articles
+					{t('home.allArticles')}
 				</Link>
 			</div>
 			<div className="article-grid">
@@ -36,18 +40,18 @@ const CommunityBoards = () => {
 								// eslint-disable-next-line @next/next/no-img-element
 								<img src={a.articleImage} alt="" />
 							) : (
-								<span>{enumLabel(a.articleCategory)}</span>
+								<span>{t(`enum.${a.articleCategory}`)}</span>
 							)}
 						</div>
 						<div className="article-body">
-							<span className="cat">{enumLabel(a.articleCategory)}</span>
+							<span className="cat">{t(`enum.${a.articleCategory}`)}</span>
 							<h3>{a.articleTitle}</h3>
 							<p>{a.articleContent}</p>
 							<div className="by">
 								<Avatar image={a.memberData?.memberImage} dealer={!!a.memberData?.agentCompany} />
 								{dealerName(a.memberData)}
 								<span className="muted" style={{ marginLeft: 'auto' }}>
-									{timeAgo(a.createdAt)} · {formatNumber(a.articleViews)} views
+									{fmt.timeAgo(a.createdAt)} · {t('home.views', { count: a.articleViews })}
 								</span>
 							</div>
 						</div>

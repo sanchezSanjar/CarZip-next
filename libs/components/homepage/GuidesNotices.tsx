@@ -5,20 +5,32 @@ import { GET_NOTICES } from '../../../apollo/user/query';
 import { Notices } from '../../types/notice/notice';
 import { NoticeCategory } from '../../enums/notice.enum';
 import { Direction } from '../../enums/common.enum';
+import { useTranslation } from 'next-i18next/pages';
+import { useLocaleFormat } from '../../hooks/useLocaleFormat';
 
 const guides = [
-	{ icon: '🔍', title: "Buyer's guide", text: 'Find a car, check it and contact the dealer.', href: '/cs?tab=faq' },
-	{ icon: '🗓', title: 'Test drives', text: 'Request a date; the dealer confirms or declines.', href: '/cs?tab=faq' },
-	{ icon: '🌏', title: 'Buying for export', text: 'USD prices, and who handles the paperwork.', href: '/cs?tab=faq' },
-	{ icon: '🏁', title: 'Become a dealer', text: 'Apply in minutes; we review within 24 hours.', href: '/account/join?mode=signup&type=AGENT' },
+	{ icon: '🔍', title: 'home.guide1Title', text: 'home.guide1Text', href: '/cs?tab=faq' },
+	{ icon: '🗓', title: 'home.guide2Title', text: 'home.guide2Text', href: '/cs?tab=faq' },
+	{ icon: '🌏', title: 'home.guide3Title', text: 'home.guide3Text', href: '/cs?tab=faq' },
+	{ icon: '🏁', title: 'home.guide4Title', text: 'home.guide4Text', href: '/account/join?mode=signup&type=AGENT' },
 ];
 
 /** how-to guides on the left; the latest notices and how to reach us on the right */
 const GuidesNotices = () => {
+	const { t } = useTranslation('common');
+	const fmt = useLocaleFormat();
 	/** APOLLO REQUESTS **/
 	const { data } = useQuery<{ getNotices: Notices }>(GET_NOTICES, {
 		fetchPolicy: 'cache-and-network',
-		variables: { input: { page: 1, limit: 3, sort: 'createdAt', direction: Direction.DESC, search: { noticeCategory: NoticeCategory.NOTICE } } },
+		variables: {
+			input: {
+				page: 1,
+				limit: 3,
+				sort: 'createdAt',
+				direction: Direction.DESC,
+				search: { noticeCategory: NoticeCategory.NOTICE },
+			},
+		},
 	});
 	const notices = data?.getNotices.list ?? [];
 
@@ -28,16 +40,16 @@ const GuidesNotices = () => {
 				<div>
 					<div className="home-head">
 						<div>
-							<h2>Guides</h2>
-							<p>New to buying used cars in Korea? Start here.</p>
+							<h2>{t('home.guides')}</h2>
+							<p>{t('home.guidesText')}</p>
 						</div>
 					</div>
 					<div className="guide-grid">
 						{guides.map((g) => (
 							<Link key={g.title} href={g.href} className="guide-card">
 								<span className="guide-ic">{g.icon}</span>
-								<b>{g.title}</b>
-								<span>{g.text}</span>
+								<b>{t(g.title)}</b>
+								<span>{t(g.text)}</span>
 							</Link>
 						))}
 					</div>
@@ -45,9 +57,9 @@ const GuidesNotices = () => {
 				<div className="notice-side">
 					<div className="sidecard">
 						<h3 style={{ display: 'flex', justifyContent: 'space-between' }}>
-							Notices
+							{t('home.notices')}
 							<Link href="/cs?tab=notices" style={{ fontSize: 13, fontWeight: 600 }}>
-								All
+								{t('home.all')}
 							</Link>
 						</h3>
 						{notices.length ? (
@@ -55,18 +67,18 @@ const GuidesNotices = () => {
 								<Link key={n._id} href="/cs?tab=notices" className="notice-row" style={{ color: 'inherit' }}>
 									<span className="dot" />
 									{n.noticeTitle}
-									<small>{new Date(n.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</small>
+									<small>{fmt.date(n.createdAt)}</small>
 								</Link>
 							))
 						) : (
 							<p className="muted" style={{ fontSize: 14 }}>
-								No notices right now.
+								{t('home.noNotices')}
 							</p>
 						)}
 					</div>
 					<div className="sidecard contact-card">
-						<h3>Need help?</h3>
-						<p>Our team answers on weekdays, 10:00 to 18:00 (KST).</p>
+						<h3>{t('home.needHelp')}</h3>
+						<p>{t('home.helpText')}</p>
 						<a href="mailto:help@carzip.example.com">help@carzip.example.com</a>
 					</div>
 				</div>

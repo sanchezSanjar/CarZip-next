@@ -7,15 +7,17 @@ import { CarSort } from '../../enums/car.enum';
 import { Direction } from '../../enums/common.enum';
 import { useLikeCar } from '../../hooks/useLikeCar';
 import CarCard from '../common/CarCard';
+import { useTranslation } from 'next-i18next/pages';
 
 const tabs = [
-	{ sort: CarSort.LIKES, label: 'Most liked' },
-	{ sort: CarSort.VIEWS, label: 'Most viewed' },
-	{ sort: CarSort.CREATED_AT, label: 'Just listed' },
+	{ sort: CarSort.LIKES, label: 'home.mostLiked' },
+	{ sort: CarSort.VIEWS, label: 'home.mostViewed' },
+	{ sort: CarSort.CREATED_AT, label: 'home.justListed' },
 ];
 
 /** car rankings: one row of cards per tab */
 const TopCars = () => {
+	const { t } = useTranslation('common');
 	const [sort, setSort] = useState(CarSort.LIKES);
 	const likeCarHandler = useLikeCar();
 
@@ -30,13 +32,18 @@ const TopCars = () => {
 		<section className="home-section">
 			<div className="home-head">
 				<div>
-					<h2>Popular right now</h2>
-					<p>What buyers on CarZip are looking at.</p>
+					<h2>{t('home.popularNow')}</h2>
+					<p>{t('home.popularText')}</p>
 				</div>
 				<div className="seg" style={{ width: 'auto' }}>
-					{tabs.map((t) => (
-						<span key={t.sort} className={sort === t.sort ? 'on' : ''} style={{ padding: '6px 18px' }} onClick={() => setSort(t.sort)}>
-							{t.label}
+					{tabs.map((tab) => (
+						<span
+							key={tab.sort}
+							className={sort === tab.sort ? 'on' : ''}
+							style={{ padding: '6px 18px' }}
+							onClick={() => setSort(tab.sort)}
+						>
+							{t(tab.label)}
 						</span>
 					))}
 				</div>
@@ -48,7 +55,7 @@ const TopCars = () => {
 			</div>
 			<div style={{ textAlign: 'center', marginTop: 22 }}>
 				<Link href="/car" className="btn dark">
-					See all cars
+					{t('home.seeAllCars')}
 				</Link>
 			</div>
 		</section>

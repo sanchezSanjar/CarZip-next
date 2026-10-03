@@ -1,31 +1,33 @@
 import React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 
 const values = [
 	{
 		icon: '✓',
 		color: 'var(--dealer)',
 		tint: 'var(--dealer-tint)',
-		title: 'Verified dealers only',
-		text: 'Every dealer is checked by the CarZip team before listing a single car.',
+		title: 'home.value1Title',
+		text: 'home.value1Text',
 	},
 	{
 		icon: '☎',
 		color: 'var(--asphalt)',
 		tint: 'rgba(245, 166, 35, .18)',
-		title: 'Deal directly, no fees',
-		text: 'Call, message or book a test drive with the dealer. CarZip never takes a cut.',
+		title: 'home.value2Title',
+		text: 'home.value2Text',
 	},
 	{
 		icon: '✈',
 		color: 'var(--road)',
 		tint: 'var(--road-tint)',
-		title: 'In Korea or for export',
-		text: 'See KRW and USD prices set by the dealer. Export cars are clearly marked.',
+		title: 'home.value3Title',
+		text: 'home.value3Text',
 	},
 ];
 
 /** why CarZip, in three cards */
 const ValueCards = () => {
+	const { t } = useTranslation('common');
 	return (
 		<section className="home-section">
 			<div className="value-grid">
@@ -34,8 +36,8 @@ const ValueCards = () => {
 						<span className="value-ic" style={{ color: v.color, background: v.tint }}>
 							{v.icon}
 						</span>
-						<h3>{v.title}</h3>
-						<p>{v.text}</p>
+						<h3>{t(v.title)}</h3>
+						<p>{t(v.text)}</p>
 					</div>
 				))}
 			</div>

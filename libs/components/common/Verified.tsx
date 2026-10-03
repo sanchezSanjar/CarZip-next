@@ -1,7 +1,9 @@
 import React from 'react';
+import { useTranslation } from 'next-i18next/pages';
 
 /** green "Verified dealer" badge: every ACTIVE agent was checked by an admin */
 const Verified = ({ center = false }: { center?: boolean }) => {
+	const { t } = useTranslation('common');
 	return (
 		<span className="verified" style={center ? { justifyContent: 'center', display: 'flex' } : undefined}>
 			<svg viewBox="0 0 16 16">
@@ -11,7 +13,7 @@ const Verified = ({ center = false }: { center?: boolean }) => {
 				/>
 				<path d="M4.8 8.2l2.1 2.1 4.3-4.4" stroke="#fff" strokeWidth="1.7" fill="none" />
 			</svg>
-			Verified dealer
+			{t('car.verified')}
 		</span>
 	);
 };
