@@ -14,17 +14,13 @@ import { withTranslations } from '../libs/i18n';
 
 /** welcome page: first impression, then the way into the car search */
 const Home: NextPage = () => {
-	const { cars, count } = useCarStats();
-	const stats = {
-		cars: cars.length,
-		dealers: new Set(cars.map((c) => c.memberId)).size,
-		cities: Object.keys(count('carLocation')).length,
-	};
+	const { total, dealers, count } = useCarStats();
+	const stats = { cars: total, dealers, cities: Object.keys(count('carLocation')).length };
 
 	return (
 		<>
 			<Hero stats={stats} />
-			<QuickBrowse count={count} total={cars.length} />
+			<QuickBrowse count={count} total={total} />
 			<ValueCards />
 			<TopAgents />
 			<TopCars />

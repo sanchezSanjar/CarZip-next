@@ -101,6 +101,32 @@ export const GET_MEMBER = gql`
  *           CAR          *
  *************************/
 
+/** welcome page numbers, counted by the API (cached there for a minute) */
+export const GET_CAR_STATS = gql`
+	query GetCarStats {
+		getCarStats {
+			total
+			dealers
+			brands {
+				value
+				count
+			}
+			types {
+				value
+				count
+			}
+			fuels {
+				value
+				count
+			}
+			locations {
+				value
+				count
+			}
+		}
+	}
+`;
+
 export const GET_CAR_CATALOG = gql`
 	query GetCarCatalog {
 		getCarCatalog {

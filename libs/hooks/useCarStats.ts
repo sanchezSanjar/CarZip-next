@@ -1,52 +1,41 @@
-import { useEffect, useState } from 'react';
-import { useApolloClient } from '@apollo/client/react';
-import { GET_CARS } from '../../apollo/user/query';
-import { Car, Cars } from '../types/car/car';
+import { useQuery } from '@apollo/client/react';
+import { GET_CAR_STATS } from '../../apollo/user/query';
 
-const PAGE = 100; // the API's largest page
-const MAX_PAGES = 5;
+interface StatCount {
+	value: string;
+	count: number;
+}
+
+interface CarStats {
+	total: number;
+	dealers: number;
+	brands: StatCount[];
+	types: StatCount[];
+	fuels: StatCount[];
+	locations: StatCount[];
+}
+
+/** which list of the stats answers each car field */
+const LISTS = {
+	carBrand: 'brands',
+	carType: 'types',
+	carFuelType: 'fuels',
+	carLocation: 'locations',
+} as const;
+
+export type StatField = keyof typeof LISTS;
 
 /**
- * All cars for sale (up to 500), read page by page with the cursor, for the counts on the welcome page.
- * The API has no "count by brand" query; if the catalog grows past this, the counts belong in the backend.
+ * The numbers on the welcome page: cars for sale, dealers, and counts per brand, type, fuel and region.
+ * The API counts them in one query (and caches them), so the browser doesn't download every car.
  */
 export const useCarStats = () => {
-	const client = useApolloClient();
-	const [cars, setCars] = useState<Car[]>([]);
-	const [loading, setLoading] = useState(true);
-
-	useEffect(() => {
-		let cancelled = false;
-		(async () => {
-			const all: Car[] = [];
-			let cursor: string | null | undefined;
-			for (let page = 0; page < MAX_PAGES; page++) {
-				const { data } = await client.query<{ getCars: Cars }>({
-					query: GET_CARS,
-					variables: { input: { limit: PAGE, ...(cursor ? { cursor } : {}) } },
-					fetchPolicy: 'network-only',
-				});
-				all.push(...(data?.getCars.list ?? []));
-				cursor = data?.getCars.nextCursor;
-				if (!cursor) break;
-			}
-			if (!cancelled) {
-				setCars(all);
-				setLoading(false);
-			}
-		})().catch(() => !cancelled && setLoading(false));
-		return () => {
-			cancelled = true;
-		};
-	}, [client]);
+	const { data, loading } = useQuery<{ getCarStats: CarStats }>(GET_CAR_STATS, { fetchPolicy: 'cache-and-network' });
+	const stats = data?.getCarStats;
 
 	/** how many cars have each value of a field, e.g. count('carBrand') -> { KIA: 7, HYUNDAI: 9 } */
-	const count = (field: keyof Car): Record<string, number> =>
-		cars.reduce<Record<string, number>>((acc, car) => {
-			const key = String(car[field]);
-			acc[key] = (acc[key] ?? 0) + 1;
-			return acc;
-		}, {});
+	const count = (field: StatField): Record<string, number> =>
+		Object.fromEntries((stats?.[LISTS[field]] ?? []).map(({ value, count }) => [value, count]));
 
-	return { cars, loading, count };
+	return { total: stats?.total ?? 0, dealers: stats?.dealers ?? 0, loading, count };
 };
