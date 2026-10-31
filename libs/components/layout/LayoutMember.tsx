@@ -35,6 +35,12 @@ export const userMenu = [
 	{ category: 'notifications', label: 'menu.notifications' },
 ];
 
+// admins work in the admin panel; here they only have their profile and notifications (e.g. new dealer applications)
+export const adminMenu = [
+	{ category: 'notifications', label: 'menu.notifications' },
+	{ category: 'myProfile', label: 'menu.profile' },
+];
+
 /** dealer and buyer pages: dark side menu on the left */
 const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) => {
 	const LayoutMember = (props: P) => {
@@ -43,8 +49,9 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 		const user = useReactiveVar(userVar);
 		const myImage = useMyImage();
 		const isAgent = user.memberType === MemberType.AGENT;
-		const menu = isAgent ? agentMenu : userMenu;
-		const raw = (router.query.category as string) ?? 'testDrives';
+		const isAdmin = user.memberType === MemberType.ADMIN;
+		const menu = isAdmin ? adminMenu : isAgent ? agentMenu : userMenu;
+		const raw = (router.query.category as string) ?? (isAdmin ? 'notifications' : 'testDrives');
 		const category = raw === 'addCar' || raw === 'editCar' ? 'myCars' : raw; // the car form belongs to "My cars"
 
 		/** LIFECYCLES **/
@@ -67,7 +74,7 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 							<Avatar image={myImage} dealer={isAgent} />
 							<div>
 								<b>{user.memberNick}</b>
-								<span>{isAgent ? t('car.verified') : t('menu.buyer')}</span>
+								<span>{isAdmin ? t('adm.team') : isAgent ? t('car.verified') : t('menu.buyer')}</span>
 							</div>
 						</div>
 						<div className="menu-row">

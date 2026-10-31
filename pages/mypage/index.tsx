@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useReactiveVar } from '@apollo/client/react';
 import { userVar } from '../../apollo/store';
 import { MemberType } from '../../libs/enums/member.enum';
-import withLayoutMember from '../../libs/components/layout/LayoutMember';
+import withLayoutMember, { adminMenu } from '../../libs/components/layout/LayoutMember';
 import TestDrives from '../../libs/components/mypage/TestDrives';
 import MyCars from '../../libs/components/mypage/MyCars';
 import AddNewCar from '../../libs/components/mypage/AddNewCar';
@@ -24,8 +24,16 @@ import { withTranslations } from '../../libs/i18n';
 const MyPage: NextPage = () => {
 	const router = useRouter();
 	const addressReady = useAddressReady();
-	const isAgent = useReactiveVar(userVar).memberType === MemberType.AGENT;
-	const category = typeof router.query.category === 'string' ? router.query.category : 'testDrives';
+	const memberType = useReactiveVar(userVar).memberType;
+	const isAgent = memberType === MemberType.AGENT;
+	const asked = typeof router.query.category === 'string' ? router.query.category : '';
+	// an admin only has the sections of adminMenu: the buyer / dealer ones would only show refused requests
+	const category =
+		memberType === MemberType.ADMIN
+			? adminMenu.some((m) => m.category === asked)
+				? asked
+				: 'notifications'
+			: asked || 'testDrives';
 
 	if (!addressReady) return null;
 
