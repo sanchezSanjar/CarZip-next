@@ -54,7 +54,9 @@ const AddNewCar = ({ car }: { car?: Car }) => {
 	const [color, setColor] = useState<CarColor | ''>(car?.carColor ?? '');
 	const [options, setOptions] = useState<CarOption[]>(car?.carOptions ?? []);
 	const [market, setMarket] = useState<CarMarket | ''>(car?.carMarket ?? '');
-	const [priceManwon, setPriceManwon] = useState(car?.carPrice ? String(Math.round(car.carPrice / 10000)) : '');
+	// the form shows the price in 만원 (rounded); the exact saved price is kept unless the dealer edits this field
+	const savedManwon = car?.carPrice ? String(Math.round(car.carPrice / 10000)) : '';
+	const [priceManwon, setPriceManwon] = useState(savedManwon);
 	const [priceUsd, setPriceUsd] = useState(car?.carPriceUsd ? String(car.carPriceUsd) : '');
 	const [exportAgreed, setExportAgreed] = useState(!!car?.carExportAgreedAt);
 	const [rent, setRent] = useState(car?.carRent ?? false);
@@ -137,7 +139,7 @@ const AddNewCar = ({ car }: { car?: Car }) => {
 			carAddress: address.trim(),
 			carDesc: desc.trim() || undefined,
 		};
-		if (needsKrw) input.carPrice = Number(priceManwon) * 10000;
+		if (needsKrw) input.carPrice = car?.carPrice && priceManwon === savedManwon ? car.carPrice : Number(priceManwon) * 10000;
 		if (needsUsd) {
 			input.carPriceUsd = Number(priceUsd);
 			input.exportAgreed = exportAgreed;
