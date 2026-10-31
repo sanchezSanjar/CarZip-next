@@ -68,6 +68,7 @@ const open = () => {
 /** (re)connect, as a guest (no token) or as the logged-in member; called again after logging in or out */
 export const connectChat = (accessToken: string) => {
 	if (typeof window === 'undefined') return;
+	if (socket && accessToken === token) return; // already connected with this login
 	token = accessToken;
 	retries = 0;
 	open();

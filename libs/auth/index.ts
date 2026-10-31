@@ -1,6 +1,7 @@
 import { jwtDecode } from 'jwt-decode';
 import { CombinedGraphQLErrors } from '@apollo/client';
 import { initializeApollo } from '../../apollo/client';
+import { connectChat } from '../../apollo/socket';
 import { emptyUser, userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
 import { sweetMixinErrorAlert } from '../sweetAlert';
@@ -133,6 +134,8 @@ export const updateStorage = ({ jwtToken }: { jwtToken: string }) => {
 	const isNewLogin = jwtToken && jwtDecode<CustomJwtPayload>(jwtToken)._id !== userVar()._id;
 	setJwtToken(jwtToken);
 	window.localStorage.setItem('login', Date.now().toString());
+	// a new token (also after a password change, which ends the old one): the chat must use it to keep sending
+	connectChat(jwtToken);
 	// another account (or a guest) was here: forget its data and load everything again as this member
 	if (isNewLogin) initializeApollo().resetStore().catch(() => undefined);
 };
