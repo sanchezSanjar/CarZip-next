@@ -20,7 +20,8 @@ const TestDriveBox = ({ carId }: { carId: string }) => {
 	const user = useReactiveVar(userVar);
 	const [range] = useState(() => {
 		const tomorrow = new Date(Date.now() + 86400000);
-		return { min: ymd(tomorrow), max: ymd(new Date(Date.now() + MAX_DAYS * 86400000)) };
+		// the server allows up to 60 days from NOW: on day 60 a time later than now would be refused, so stop a day earlier
+		return { min: ymd(tomorrow), max: ymd(new Date(Date.now() + (MAX_DAYS - 1) * 86400000)) };
 	});
 	const [date, setDate] = useState(range.min);
 	const [time, setTime] = useState('10:30');
