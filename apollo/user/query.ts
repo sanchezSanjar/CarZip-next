@@ -47,8 +47,8 @@ export const GET_AGENTS = gql`
 `;
 
 export const GET_MEMBER = gql`
-	query GetMember($input: String!) {
-		getMember(targetId: $input) {
+	query GetMember($input: String!, $countView: Boolean = false) {
+		getMember(targetId: $input, countView: $countView) {
 			_id
 			memberType
 			memberStatus

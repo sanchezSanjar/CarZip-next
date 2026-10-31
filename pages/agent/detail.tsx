@@ -49,7 +49,7 @@ const AgentDetail: NextPage = () => {
 		error,
 	} = useQuery<{ getMember: Member }>(GET_MEMBER, {
 		fetchPolicy: 'cache-and-network',
-		variables: { input: agentId },
+		variables: { input: agentId, countView: true }, // the only page that counts a profile visit
 		skip: !agentId,
 	});
 	const agent = memberData?.getMember;
