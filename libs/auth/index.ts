@@ -130,8 +130,11 @@ export const signUp = async (input: MemberInput): Promise<Member> => {
 };
 
 export const updateStorage = ({ jwtToken }: { jwtToken: string }) => {
+	const isNewLogin = jwtToken && jwtDecode<CustomJwtPayload>(jwtToken)._id !== userVar()._id;
 	setJwtToken(jwtToken);
 	window.localStorage.setItem('login', Date.now().toString());
+	// another account (or a guest) was here: forget its data and load everything again as this member
+	if (isNewLogin) initializeApollo().resetStore().catch(() => undefined);
 };
 
 export const updateUserInfo = (jwtToken: string) => {
@@ -153,6 +156,8 @@ export const updateUserInfo = (jwtToken: string) => {
 export const logOut = () => {
 	deleteStorage();
 	deleteUserInfo();
+	// the next person on this browser must not see this member's likes, lists or notifications
+	initializeApollo().clearStore().catch(() => undefined);
 };
 
 const deleteStorage = () => {
