@@ -237,7 +237,7 @@ const CarDetail: NextPage = () => {
 										{t('detail.perDay', { price: fmt.number(car.carRentPrice) })}
 									</b>
 								) : (
-									<span className="no">Not offered</span>
+									<span className="no">{t('detail.notOffered')}</span>
 								)}
 							</div>
 							<div className="deal">
@@ -246,10 +246,13 @@ const CarDetail: NextPage = () => {
 							</div>
 						</div>
 						<div className="acts">
-							<button className="btn ghost" onClick={() => likeCarHandler(car._id)}>
-								<Heart filled={!!car.meLiked?.[0]?.myFavorite} /> {car.meLiked?.[0]?.myFavorite ? t('detail.liked') : t('detail.like')}{' '}
-								<span className="num">{car.carLikes}</span>
-							</button>
+							{/* a car that is not for sale can't be liked, only un-liked (a sold car stays in "My favorites") */}
+							{(car.carStatus === CarStatus.ACTIVE || !!car.meLiked?.[0]?.myFavorite) && (
+								<button className="btn ghost" onClick={() => likeCarHandler(car._id)}>
+									<Heart filled={!!car.meLiked?.[0]?.myFavorite} /> {car.meLiked?.[0]?.myFavorite ? t('detail.liked') : t('detail.like')}{' '}
+									<span className="num">{car.carLikes}</span>
+								</button>
+							)}
 							<button
 								className="btn ghost"
 								onClick={async () => {
