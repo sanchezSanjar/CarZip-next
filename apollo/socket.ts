@@ -25,14 +25,15 @@ const open = () => {
 		socket.close();
 	}
 	update({ status: 'connecting', error: '' });
-	// the token goes in the address: browsers can't set headers on a WebSocket
-	const ws = new WebSocket(token ? `${WS_URL}?token=${encodeURIComponent(token)}` : WS_URL);
+	// the token is sent as the first message, never in the address: an address ends up in server and proxy logs
+	const ws = new WebSocket(WS_URL);
 	socket = ws;
 	socketVar(ws);
 
 	ws.onopen = () => {
 		retries = 0;
 		update({ status: 'open' });
+		if (token) ws.send(JSON.stringify({ event: 'auth', data: token }));
 	};
 
 	ws.onmessage = (e) => {
@@ -55,7 +56,7 @@ const open = () => {
 		socket = null;
 		socketVar(null);
 		if (e.code === CLOSE_UNAUTHORIZED && token) {
-			// the token was refused (expired, changed): keep reading as a guest
+			// the token was refused (expired, changed) after the auth message: keep reading as a guest
 			token = '';
 			return open();
 		}
@@ -71,6 +72,11 @@ export const connectChat = (accessToken: string) => {
 	if (socket && accessToken === token) return; // already connected with this login
 	token = accessToken;
 	retries = 0;
+	// a new token on an open connection (login, a password change): hand it over without reconnecting
+	if (accessToken && socket?.readyState === WebSocket.OPEN) {
+		socket.send(JSON.stringify({ event: 'auth', data: accessToken }));
+		return;
+	}
 	open();
 };
 
