@@ -19,7 +19,8 @@ const nextConfig: NextConfig = {
   // the languages of the site (see next-i18next.config.js)
   i18n,
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    // locale: false, otherwise Next prefixes the pattern with the locale and the home page ("/en") gets no headers
+    return [{ source: "/:path*", locale: false, headers: securityHeaders }];
   },
 };
 
