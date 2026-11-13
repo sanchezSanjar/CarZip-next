@@ -27,10 +27,18 @@ export interface MISearch {
 	text?: string;
 }
 
+/** the browser logging in: with it the API answers with a 15-minute access token and a refresh token */
+export interface DeviceInput {
+	deviceId: string;
+	deviceName?: string;
+	devicePlatform?: 'WEB' | 'IOS' | 'ANDROID';
+}
+
 export interface MemberInput {
 	memberNick: string;
 	memberPassword: string;
 	memberPhone: string;
+	device?: DeviceInput;
 	memberType?: MemberType;
 	memberAuthType?: MemberAuthType;
 	memberFullName?: string;
@@ -48,6 +56,7 @@ export interface LoginInput {
 	memberNick?: string;
 	memberPhone?: string;
 	memberPassword: string;
+	device?: DeviceInput;
 }
 
 export interface ChangePasswordInput {

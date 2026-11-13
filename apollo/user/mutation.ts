@@ -14,6 +14,7 @@ export const SIGN_UP = gql`
 			memberImage
 			agentCompany
 			accessToken
+			refreshToken
 		}
 	}
 `;
@@ -28,6 +29,7 @@ export const LOGIN = gql`
 			memberImage
 			agentCompany
 			accessToken
+			refreshToken
 		}
 	}
 `;

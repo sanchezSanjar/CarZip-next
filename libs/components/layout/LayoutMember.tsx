@@ -3,8 +3,8 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useReactiveVar } from '@apollo/client/react';
-import { userVar } from '../../../apollo/store';
-import { getJwtToken, updateUserInfo } from '../../auth';
+import { authReadyVar, userVar } from '../../../apollo/store';
+import { hasSession } from '../../auth';
 import { MemberType } from '../../enums/member.enum';
 import { Logo } from '../Top';
 import Avatar from '../common/Avatar';
@@ -47,6 +47,7 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 		const { t } = useTranslation('common');
 		const router = useRouter();
 		const user = useReactiveVar(userVar);
+		const authReady = useReactiveVar(authReadyVar);
 		const myImage = useMyImage();
 		const isAgent = user.memberType === MemberType.AGENT;
 		const isAdmin = user.memberType === MemberType.ADMIN;
@@ -55,12 +56,13 @@ const withLayoutMember = <P extends object>(Component: React.ComponentType<P>) =
 		const category = raw === 'addCar' || raw === 'editCar' ? 'myCars' : raw; // the car form belongs to "My cars"
 
 		/** LIFECYCLES **/
+		// my page needs a login: a guest (no saved login, nobody logged in) goes to the login page,
+		// but only once the saved login was checked at page load
 		useEffect(() => {
-			const jwt = getJwtToken();
-			if (jwt) updateUserInfo(jwt);
-			else router.push('/account/join?mode=login').then(); // my page needs a login
+			if (!authReady) return;
+			if (!hasSession() && !user._id) router.push('/account/join?mode=login').then();
 			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, []);
+		}, [authReady, user._id]);
 
 		return (
 			<>

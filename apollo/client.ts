@@ -2,36 +2,37 @@ import { useMemo } from 'react';
 import { ApolloClient, ApolloLink, CombinedGraphQLErrors, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
 import { SetContextLink } from '@apollo/client/link/context';
 import { ErrorLink } from '@apollo/client/link/error';
-import { getJwtToken, logOut } from '../libs/auth';
+import { from, switchMap } from 'rxjs';
+import { getAccessToken, refreshAccessToken } from '../libs/auth/session';
 import { GRAPHQL_URL } from '../libs/config';
 
 let apolloClient: ApolloClient | undefined;
 
-function getHeaders(): Record<string, string> {
-	const token = getJwtToken();
-	return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
 function createIsomorphicLink() {
 	const httpLink = new HttpLink({ uri: GRAPHQL_URL });
 
-	// the token only exists in the browser (localStorage)
-	const authLink = new SetContextLink((prevContext) => ({
-		headers: { ...prevContext.headers, ...getHeaders() },
-	}));
-
-	const errorLink = new ErrorLink(({ error, operation }) => {
-		if (CombinedGraphQLErrors.is(error)) {
-			error.errors.forEach(({ message, path }) => console.log(`[GraphQL error]: ${message}, path: ${path}`));
-			// expired token, password changed or member blocked: continue as a guest
-			const unauthenticated = error.errors.some((e) => e.extensions?.code === 'UNAUTHENTICATED');
-			if (unauthenticated && getJwtToken() && operation.operationName !== 'Login') logOut();
-		} else {
-			console.log(`[Network error]: ${error}`);
-		}
+	// every request: the access token when logged in, refreshed first when it is about to expire (browser only)
+	const authLink = new SetContextLink(async (prevContext) => {
+		const token = typeof window === 'undefined' ? '' : await getAccessToken();
+		return { headers: { ...prevContext.headers, ...(token && { Authorization: `Bearer ${token}` }) } };
 	});
 
-	return ApolloLink.from([errorLink, authLink, httpLink]);
+	// the server refused a token that was still valid by time (the password was changed on another device, an admin
+	// changed the role): refresh once and send the request again. A refused refresh ends the session (session.ts),
+	// so the retry then runs as a guest and the page shows the guest view
+	const retryLink = new ErrorLink(({ error, operation, forward }) => {
+		if (CombinedGraphQLErrors.is(error)) {
+			error.errors.forEach(({ message, path }) => console.log(`[GraphQL error]: ${message}, path: ${path}`));
+			const unauthenticated = error.errors.some((e) => e.extensions?.code === 'UNAUTHENTICATED');
+			const { headers, retried } = operation.getContext();
+			if (!unauthenticated || retried || !headers?.Authorization) return;
+			operation.setContext({ retried: true });
+			return from(refreshAccessToken()).pipe(switchMap(() => forward(operation)));
+		}
+		console.log(`[Network error]: ${error}`);
+	});
+
+	return ApolloLink.from([retryLink, authLink, httpLink]);
 }
 
 function createApolloClient() {

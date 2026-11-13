@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useReactiveVar } from '@apollo/client/react';
-import { userVar } from '../../../apollo/store';
-import { getJwtToken, updateUserInfo } from '../../auth';
+import { authReadyVar, userVar } from '../../../apollo/store';
+import { hasSession } from '../../auth';
 import { MemberType } from '../../enums/member.enum';
 import { Logo } from '../Top';
 import AdminMenuList from '../admin/AdminMenuList';
@@ -18,19 +18,17 @@ const withLayoutAdmin = <P extends object>(Component: React.ComponentType<P>) =>
 		const { t } = useTranslation('common');
 		const router = useRouter();
 		const user = useReactiveVar(userVar);
+		const authReady = useReactiveVar(authReadyVar);
 		const myImage = useMyImage();
 
 		/** LIFECYCLES **/
+		// only once the saved login was checked: before that the member is not known yet, and must not be sent away
 		useEffect(() => {
-			const jwt = getJwtToken();
-			if (jwt) updateUserInfo(jwt);
-		}, []);
-
-		useEffect(() => {
-			if (!getJwtToken()) router.push('/account/join?mode=login').then();
+			if (!authReady) return;
+			if (!hasSession() && !user._id) router.push('/account/join?mode=login').then();
 			else if (user._id && user.memberType !== MemberType.ADMIN) router.push('/').then();
 			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [user]);
+		}, [user, authReady]);
 
 		return (
 			<>

@@ -72,7 +72,7 @@ The site serves three kinds of users from one codebase:
 | Data | Apollo Client 4 (GraphQL), reactive variables for session and chat state |
 | UI | MUI 9, SCSS (separate desktop and mobile styles), SweetAlert2 dialogs |
 | Real time | Native WebSocket with automatic reconnect and back-off |
-| Auth | JWT stored on the client, decoded with `jwt-decode` |
+| Auth | 15-minute access token in memory + rotating refresh token (`libs/auth/session.ts`), decoded with `jwt-decode` |
 | i18n | next-i18next (`en`, `kr`, `ru`, `uz`) |
 | Code quality | ESLint 9, Prettier |
 | Hosting | Vercel |
@@ -88,8 +88,8 @@ flowchart LR
 ```
 
 - **Apollo Client** keeps one normalized cache for the whole site. A like on one card updates every card showing that car; the cache is cleared on logout and reloaded when another member logs in.
-- **Session state** comes from the access token: the header, menus and guards read the member's role from it, and an expired or revoked token logs the user out automatically.
-- **Live chat** uses one shared WebSocket connection; it reconnects with exponential back-off and switches to the new token after login or a password change.
+- **Session state** comes from the access token, which lives in memory only and lasts 15 minutes; a one-use refresh token in localStorage gets the next one (serialized across tabs with the Web Locks API). A refused refresh logs the user out, and a logout in one tab logs every tab out.
+- **Live chat** uses one shared WebSocket connection; it reconnects with exponential back-off and hands over each new token (login, refresh, password change) as an `auth` message.
 - **Business rules live on the server.** The UI mirrors them (for example, hiding the test-drive form on your own car), but the API makes the final decision and its messages are shown to the user, translated.
 
 ## Project structure

@@ -2,7 +2,7 @@ import { jwtDecode } from 'jwt-decode';
 import { CombinedGraphQLErrors } from '@apollo/client';
 import { initializeApollo } from '../../apollo/client';
 import { connectChat } from '../../apollo/socket';
-import { emptyUser, userVar } from '../../apollo/store';
+import { authReadyVar, emptyUser, userVar } from '../../apollo/store';
 import { CustomJwtPayload } from '../types/customJwtPayload';
 import { sweetMixinErrorAlert } from '../sweetAlert';
 import { translateServerMessage } from '../serverMessages';
@@ -11,17 +11,18 @@ import { MemberType } from '../enums/member.enum';
 import { OtpPurpose } from '../enums/otp.enum';
 import { Member } from '../types/member/member';
 import { MemberInput } from '../types/member/member.input';
+import {
+	endSession,
+	getDevice,
+	hasSession,
+	onSessionChange,
+	peekAccessToken,
+	restoreSession,
+	adoptAccessToken,
+	startSession,
+} from './session';
 
-export function getJwtToken(): string {
-	if (typeof window !== 'undefined') {
-		return localStorage.getItem('accessToken') ?? '';
-	}
-	return '';
-}
-
-export function setJwtToken(token: string) {
-	localStorage.setItem('accessToken', token);
-}
+export { getAccessToken, hasSession, peekAccessToken } from './session';
 
 /** the server's message is written for people, so it can be shown (translated when we know it) */
 export const getErrorMessage = (err: unknown): string => {
@@ -30,47 +31,48 @@ export const getErrorMessage = (err: unknown): string => {
 	return translateServerMessage('Something went wrong!');
 };
 
-/** login accepts a nickname OR a phone number (digits only, starting with 01) */
-export const logIn = async (nickOrPhone: string, password: string): Promise<void> => {
-	try {
-		const { jwtToken } = await requestJwtToken({ nickOrPhone, password });
+let started = false;
 
-		if (jwtToken) {
-			updateStorage({ jwtToken });
-			updateUserInfo(jwtToken);
-		}
-	} catch (err) {
-		console.warn('login err', err);
-		logOut();
-		throw new Error('Login Err');
-	}
+/**
+ * Page load (once, from _app): every change of the access token updates the member shown in the header and
+ * the live chat's login; then the saved login is restored. Pages that need a login wait for authReadyVar.
+ */
+export const initAuth = (): void => {
+	if (started || typeof window === 'undefined') return;
+	started = true;
+	onSessionChange((token) => {
+		if (token) updateUserInfo(token);
+		else deleteUserInfo();
+		connectChat(token);
+	});
+	connectChat(peekAccessToken()); // the chat opens as a guest right away, the login follows
+	restoreSession().finally(() => authReadyVar(true));
 };
 
-const requestJwtToken = async ({
-	nickOrPhone,
-	password,
-}: {
-	nickOrPhone: string;
-	password: string;
-}): Promise<{ jwtToken: string }> => {
+/** login accepts a nickname OR a phone number (digits only, starting with 01) */
+export const logIn = async (nickOrPhone: string, password: string): Promise<void> => {
 	const apolloClient = initializeApollo();
 	const isPhone = /^01\d{8,9}$/.test(nickOrPhone.replace(/-/g, ''));
-	const input = isPhone
-		? { memberPhone: nickOrPhone.replace(/-/g, ''), memberPassword: password }
-		: { memberNick: nickOrPhone, memberPassword: password };
+	const input = {
+		...(isPhone ? { memberPhone: nickOrPhone.replace(/-/g, '') } : { memberNick: nickOrPhone }),
+		memberPassword: password,
+		device: getDevice(), // this browser: a 15-minute access token and a refresh token (session.ts)
+	};
 
+	let member: Member | undefined;
 	try {
 		const result = await apolloClient.mutate<{ login: Member }>({
 			mutation: LOGIN,
 			variables: { input },
 			fetchPolicy: 'no-cache',
 		});
-
-		return { jwtToken: result.data?.login.accessToken ?? '' };
+		member = result.data?.login;
 	} catch (err) {
 		await sweetMixinErrorAlert(getErrorMessage(err));
 		throw new Error('token error');
 	}
+	if (!member?.accessToken || !member.refreshToken) throw new Error('Login Err');
+	await becomeMember({ accessToken: member.accessToken, refreshToken: member.refreshToken });
 };
 
 /** texts a 6-digit code to the phone (signup, forgot password, change phone) */
@@ -114,14 +116,13 @@ export const signUp = async (input: MemberInput): Promise<Member> => {
 	try {
 		const result = await apolloClient.mutate<{ signup: Member }>({
 			mutation: SIGN_UP,
-			variables: { input },
+			variables: { input: { ...input, device: getDevice() } },
 			fetchPolicy: 'no-cache',
 		});
 		const member = result.data!.signup;
 
-		if (member.memberType === MemberType.USER && member.accessToken) {
-			updateStorage({ jwtToken: member.accessToken });
-			updateUserInfo(member.accessToken);
+		if (member.memberType === MemberType.USER && member.accessToken && member.refreshToken) {
+			await becomeMember({ accessToken: member.accessToken, refreshToken: member.refreshToken });
 		}
 		return member;
 	} catch (err) {
@@ -130,14 +131,16 @@ export const signUp = async (input: MemberInput): Promise<Member> => {
 	}
 };
 
-export const updateStorage = ({ jwtToken }: { jwtToken: string }) => {
-	const isNewLogin = jwtToken && jwtDecode<CustomJwtPayload>(jwtToken)._id !== userVar()._id;
-	setJwtToken(jwtToken);
-	window.localStorage.setItem('login', Date.now().toString());
-	// a new token (also after a password change, which ends the old one): the chat must use it to keep sending
-	connectChat(jwtToken);
-	// another account (or a guest) was here: forget its data and load everything again as this member
-	if (isNewLogin) initializeApollo().resetStore().catch(() => undefined);
+/** a new login: another account (or a guest) was here, so its cached data is forgotten and loaded again */
+const becomeMember = async (tokens: { accessToken: string; refreshToken: string }): Promise<void> => {
+	const isNewLogin = jwtDecode<CustomJwtPayload>(tokens.accessToken)._id !== userVar()._id;
+	startSession(tokens); // the session listener (initAuth) fills userVar and logs the chat in
+	if (isNewLogin) await initializeApollo().resetStore().catch(() => undefined);
+};
+
+/** the same session got a new access token (a nick change or a password change answered with one) */
+export const applyAccessToken = (token: string): void => {
+	adoptAccessToken(token);
 };
 
 export const updateUserInfo = (jwtToken: string) => {
@@ -156,16 +159,13 @@ export const updateUserInfo = (jwtToken: string) => {
 	}
 };
 
-export const logOut = () => {
-	deleteStorage();
+/** this browser logs out: the session ends on the server too, and the next person here sees nothing of this member */
+export const logOut = (): Promise<void> => {
+	const wasLoggedIn = hasSession() || !!peekAccessToken();
 	deleteUserInfo();
 	// the next person on this browser must not see this member's likes, lists or notifications
 	initializeApollo().clearStore().catch(() => undefined);
-};
-
-const deleteStorage = () => {
-	localStorage.removeItem('accessToken');
-	window.localStorage.setItem('logout', Date.now().toString());
+	return wasLoggedIn ? endSession() : Promise.resolve();
 };
 
 const deleteUserInfo = () => {

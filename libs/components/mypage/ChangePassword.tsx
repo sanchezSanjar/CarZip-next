@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { CHANGE_PASSWORD } from '../../../apollo/user/mutation';
 import { Member } from '../../types/member/member';
-import { getErrorMessage, updateStorage, updateUserInfo } from '../../auth';
+import { applyAccessToken, getErrorMessage } from '../../auth';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
 import { useTranslation } from 'next-i18next/pages';
 
@@ -37,11 +37,9 @@ const ChangePassword = () => {
 		setSaving(true);
 		try {
 			const { data } = await changePassword({ variables: { input: { oldPassword, newPassword } } });
+			// the other devices are logged out by the server; this one keeps its session with the new token
 			const token = data?.changePassword.accessToken;
-			if (token) {
-				updateStorage({ jwtToken: token });
-				updateUserInfo(token);
-			}
+			if (token) applyAccessToken(token);
 			close();
 			await sweetTopSuccessAlert(t('pw.changed'), 1800);
 		} catch (err) {

@@ -7,7 +7,7 @@ import { UPDATE_MEMBER } from '../../../apollo/user/mutation';
 import { MemberType } from '../../enums/member.enum';
 import { Member } from '../../types/member/member';
 import { MemberUpdate } from '../../types/member/member.update';
-import { getErrorMessage, updateStorage, updateUserInfo } from '../../auth';
+import { applyAccessToken, getErrorMessage } from '../../auth';
 import { sweetMixinErrorAlert, sweetTopSuccessAlert } from '../../sweetAlert';
 import { uploadImages } from '../../upload';
 import { dealerName } from '../../utils';
@@ -91,10 +91,7 @@ const ProfileForm = ({ member }: { member: Member }) => {
 			const { data } = await updateMember({ variables: { input } });
 			// the token carries the nick, so the API sends a new one
 			const token = data?.updateMember.accessToken;
-			if (token) {
-				updateStorage({ jwtToken: token });
-				updateUserInfo(token);
-			}
+			if (token) applyAccessToken(token);
 			await sweetTopSuccessAlert(t('pf.saved'), 1200);
 		} catch (err) {
 			await sweetMixinErrorAlert(getErrorMessage(err));

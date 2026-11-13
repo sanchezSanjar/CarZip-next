@@ -11,6 +11,8 @@ export const emptyUser: CustomJwtPayload = {
 
 // the logged-in member, filled from the access token
 export const userVar = makeVar<CustomJwtPayload>(emptyUser);
+// true once the saved login was checked at page load: pages that need a login wait for it before redirecting
+export const authReadyVar = makeVar<boolean>(false);
 
 // the live-chat connection and what the chat window shows (filled by apollo/socket.ts)
 export const socketVar = makeVar<WebSocket | null>(null);

@@ -51,6 +51,7 @@ export interface Member {
 	createdAt: Date;
 	updatedAt: Date;
 	accessToken?: string;
+	refreshToken?: string; // login / signup with a device (the website and the app)
 	meLiked?: MeLiked[];
 	meFollowed?: MeFollowed[];
 	meBlocked?: boolean;

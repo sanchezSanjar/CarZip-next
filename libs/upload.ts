@@ -1,5 +1,5 @@
 import { API_URL } from './config';
-import { getJwtToken } from './auth';
+import { getAccessToken } from './auth/session';
 
 export type UploadTarget = 'member' | 'car' | 'article';
 
@@ -34,7 +34,7 @@ export const uploadImages = async (files: File[], target: UploadTarget): Promise
 
 	const res = await fetch(`${API_URL}/upload/images`, {
 		method: 'POST',
-		headers: { Authorization: `Bearer ${getJwtToken()}` },
+		headers: { Authorization: `Bearer ${await getAccessToken()}` },
 		body: form,
 	});
 	const body = await res.json();

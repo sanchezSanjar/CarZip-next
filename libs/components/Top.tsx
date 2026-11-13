@@ -5,7 +5,7 @@ import { useQuery, useReactiveVar } from '@apollo/client/react';
 import { GET_UNREAD_NOTIFICATION_COUNT } from '../../apollo/user/query';
 import { Drawer, Menu, MenuItem } from '@mui/material';
 import { userVar } from '../../apollo/store';
-import { getJwtToken, logOut, updateUserInfo } from '../auth';
+import { logOut } from '../auth';
 import { MemberType } from '../enums/member.enum';
 import { Silhouette } from './common/Avatar';
 import { useMyImage } from '../hooks/useMyImage';
@@ -56,11 +56,6 @@ const Top = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	useEffect(() => {
-		const jwt = getJwtToken();
-		if (jwt) updateUserInfo(jwt);
-	}, []);
-
 	/** HANDLERS **/
 	const chooseLanguage = (code: string) => {
 		setLangEl(null);
@@ -79,7 +74,7 @@ const Top = () => {
 	);
 	const logOutHandler = () => {
 		setAnchorEl(null);
-		logOut();
+		void logOut(); // the server call runs in the background; this browser is logged out at once
 		router.push('/').then();
 	};
 
